@@ -15,12 +15,11 @@ Referencia compartida del equipo. Aquí está **cómo funciona la app paso a pas
 3. [Las siete concepciones erróneas](#3-las-siete-concepciones-erróneas)
 4. [Paso a paso de la app](#4-paso-a-paso-de-la-app)
 5. [Reglas del sistema](#5-reglas-del-sistema)
-6. [Estado de los módulos](#6-estado-de-los-módulos)
-7. [Decisiones de ingeniería de software](#7-decisiones-de-ingeniería-de-software)
-8. [Verificación del motor](#8-verificación-del-motor)
-9. [Evaluación en dos niveles](#9-evaluación-en-dos-niveles)
-10. [Bitácora de decisiones](#10-bitácora-de-decisiones)
-11. [Pendientes](#11-pendientes)
+6. [Decisiones de ingeniería de software](#6-decisiones-de-ingeniería-de-software)
+7. [Verificación del motor](#7-verificación-del-motor)
+8. [Evaluación en dos niveles](#8-evaluación-en-dos-niveles)
+9. [Bitácora de decisiones](#9-bitácora-de-decisiones)
+10. [Pendientes](#10-pendientes)
 
 ---
 
@@ -38,7 +37,6 @@ El profesor especializado pidió **robustecer la idea base**, que era básicamen
 | **Complejidad graduada** | La pantalla se desbloquea por escenarios. Antes el instrumento completo aparecía desde el minuto uno y ahogaba al novato. |
 | **El 3D con dos tareas propias** | Deja de ser una vista más. Es el único lugar donde se pueden confrontar C5 y C6. |
 | **La IA devuelve un frente de opciones** | No un óptimo único, y optimiza el diseño del alumno, no uno nuevo. Confronta C7. |
-| **Transferencia fuera de la app** | Un ejercicio final en papel. Es la respuesta a «¿aprendieron hidráulica o aprendieron a usar su software?». |
 | **Criterios del libro incorporados** | Longitud inclinada, pérdidas locales Kr, velocidad 0.60–3.00 m/s, límite de 50 m de desnivel sin CRP, C = 140 para PVC. |
 
 **Se recortó:** la ingesta de terreno DEM (M7) pasa a perfiles pre-extraídos como archivos fijos. Era un proyecto de geomática completo y no aportaba comprensión hidráulica.
@@ -223,11 +221,9 @@ Legible, discutible, rebatible.
 
 #### El cierre
 
-**Paso 24 · Transferencia fuera de la aplicación.** Una línea nueva resuelta **en papel o en la hoja de cálculo de referencia**, sin simulador. Si puede hacerlo sin la app, aprendió diseño hidráulico. Si no, aprendió a usar el software.
+**Paso 24 · Postest.** Ítems mapeados contra C1–C7.
 
-**Paso 25 · Postest.** Ítems mapeados contra C1–C7.
-
-**Paso 26 · Reporte y exportación.** Red, tabla completa por tramo, indicadores, alertas resueltas y pendientes, y **el origen de cada decisión: suya o adoptada de la IA**.
+**Paso 25 · Reporte y exportación.** Red, tabla completa por tramo, indicadores, alertas resueltas y pendientes, y **el origen de cada decisión: suya o adoptada de la IA**.
 
 ---
 
@@ -297,6 +293,12 @@ Incorporados del libro *EXCEL TUBERÍAS · Aplicativo de Diseño de Tuberías de
 - **Guardas:** desnivel > 50 m sin CRP → rechaza · tramo > 500 m → rechaza
 - **C = 140 para PVC** (criterio del libro; el documento de tesis decía 150)
 
+### Topología
+
+**Solo redes abiertas (ramificadas).** El árbol bifurca pero nunca cierra circuito, así que se resuelve con un recorrido directo nodo por nodo, sin solver iterativo — que es lo que permite cumplir el tiempo real.
+
+**Las redes malladas quedan fuera del alcance**, no como trabajo futuro: exigen métodos iterativos (Hardy-Cross o gradiente), son el componente más riesgoso del cronograma y son poco frecuentes en riego, donde matriz → secundarias → laterales es un árbol por naturaleza.
+
 ### Clases de tubería
 
 | Clase | Presión máxima de trabajo |
@@ -308,28 +310,7 @@ Incorporados del libro *EXCEL TUBERÍAS · Aplicativo de Diseño de Tuberías de
 
 ---
 
-## 6. Estado de los módulos
-
-La idea se enriquece por completo; **la implementación se acota y se declara**. Un diseño completo con implementación acotada vale más que una implementación completa de algo poco pensado.
-
-| Módulo | Estado | Alcance |
-|---|---|---|
-| M1 · Simulador base y gestión | ✅ Implementado | Acotado: red predefinida, editable en parámetros |
-| M2 · Motor hidráulico topográfico | ✅ Implementado | Completo y verificado contra tres referencias |
-| M4 · Eficiencia y uniformidad | ✅ Implementado | Completo |
-| M5 · Control de presión y costos | ✅ Implementado | Completo |
-| M9 · Base agronómica | ✅ Implementado | Completo |
-| M10 · Predicción guiada y teoría situada | ✅ Implementado | Completo |
-| M3 · Visualización 3D | 🟡 Reducido | Solo las dos tareas con objetivo de aprendizaje propio |
-| M6 · Optimización con IA | 🟡 Reducido | Con respaldo por reglas si no converge |
-| M7 · Terreno | 🟡 Reducido | Perfiles reales pre-extraídos, sin canalización DEM |
-| M8 · Validación y panel docente | 🟡 Reducido | Pretest, postest y panel mínimo |
-| Edición estructural libre de la red | ⚪ Especificado | Documentado en el plan de continuidad |
-| Redes malladas · panel docente extendido | ⚪ Especificado | Documentado en el plan de continuidad |
-
----
-
-## 7. Decisiones de ingeniería de software
+## 6. Decisiones de ingeniería de software
 
 Ninguna es novedosa en el estado del arte. Todas son verificables y están al alcance de dos personas.
 
@@ -377,9 +358,9 @@ Semilla fija en el recocido, dependencias fijadas, y una tubería que va del reg
 
 ---
 
-## 8. Verificación del motor
+## 7. Verificación del motor
 
-El núcleo reproduce el método de referencia **al décimo decimal**, contra los valores que la propia hoja tiene guardados en sus celdas:
+Verificado sobre el prototipo del motor. Reproduce el método de referencia **al décimo decimal**, contra los valores que la propia hoja tiene guardados en sus celdas:
 
 | Magnitud | Valor del libro | Valor de la app | Error |
 |---|---|---|---|
@@ -405,7 +386,7 @@ El núcleo reproduce el método de referencia **al décimo decimal**, contra los
 
 ---
 
-## 9. Evaluación en dos niveles
+## 8. Evaluación en dos niveles
 
 Separarlos evita la confusión más común: tomar una validación de usabilidad por una validación de aprendizaje.
 
@@ -444,7 +425,7 @@ Separarlos evita la confusión más común: tomar una validación de usabilidad 
 
 ---
 
-## 10. Bitácora de decisiones
+## 9. Bitácora de decisiones
 
 | # | Decisión | Razón |
 |---|---|---|
@@ -463,10 +444,12 @@ Separarlos evita la confusión más común: tomar una validación de usabilidad 
 | D13 | Registro de eventos en solo-anexado | El experimento se corre una sola vez |
 | D14 | Recorte de la ingesta DEM (M7) | Proyecto de geomática completo, sin aporte a la comprensión hidráulica |
 | D15 | Complejidad graduada por escenario | Efecto de reversión por experiencia: lo que ayuda al experto ahoga al novato |
+| D16 | Solo redes abiertas; las malladas quedan excluidas | Exigen solver iterativo, son el componente de mayor riesgo del cronograma y son poco frecuentes en riego |
+| D17 | La transferencia en papel sale del flujo de la app | Es una actividad del protocolo experimental, no una funcionalidad del sistema |
 
 ---
 
-## 11. Pendientes
+## 10. Pendientes
 
 ### Bloqueantes — no dependen del código y van primero
 
