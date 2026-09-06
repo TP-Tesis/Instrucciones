@@ -91,6 +91,14 @@ Tres etapas con propósito distinto. **Sin tiempos asignados todavía.**
 
 ### ETAPA 1 — Romper antes de construir
 
+> **Por qué empieza rompiendo.** Lo habitual es explicar primero y practicar después; aquí es al revés, y no es un capricho.
+>
+> Un estudiante al que se le explica antes de que tenga una duda aplica la fórmula correctamente y no entiende nada: **la respuesta le llegó cuando todavía no se había hecho la pregunta.** Si primero intenta, falla y no logra explicarse por qué, la explicación aterriza sobre una pregunta que ya es suya.
+>
+> De ahí las dos decisiones que se leen raras en frío. **No construye la red todavía**, porque construir exige saber y romper solo exige curiosidad: así el primer contacto no lo bloquea. Y **el primer escenario no muestra alertas**, porque si la app le nombra la causa en el momento le quita el intento fallido que vuelve valiosa la explicación.
+>
+> La ausencia de ayuda es deliberada y **dura exactamente un escenario**. Desde la etapa 2 el diagnóstico está, y escalonado.
+
 **Paso 1 · Pretest.** Ítems mapeados uno a uno contra C1–C7. Sin responderlo, el simulador no abre. Es condición del diseño experimental: sin línea base no hay ganancia de Hake.
 
 **Paso 2 · Una red que ya funciona.** No abre con formulario. Abre con una red andina resuelta, en verde, y **una sola representación: el perfil**. Consigna: *«bájale el diámetro al último tramo hasta que algo se rompa»*.
@@ -121,9 +129,25 @@ ET₀ × Kc              →  lámina neta        mm/día
 ÷ número de salidas   →  caudal por emisor  L/h
 ```
 
-**El caudal nunca se escribe.** Cambiar papa por alfalfa mueve el Kc y ese movimiento se propaga hasta la velocidad en la tubería.
+**El caudal se deriva; no se escribe por defecto.** Cambiar papa por alfalfa mueve el Kc y ese movimiento se propaga hasta la velocidad en la tubería.
 
-**Paso 7 · La pantalla se desbloquea por etapas.**
+> **Diferencia con la hoja de referencia.** En el Excel del Ing. Tongo Pizarro el caudal **sí es un dato** que se escribe (columna `O`), y está bien que lo sea: su usuario es un proyectista que ya conoce la demanda, porque se la dio el diseño agronómico previo o el cliente. El diseño hidráulico empieza donde termina el agronómico.
+>
+> Nuestros usuarios son estudiantes de Agronomía, y para ellos la pregunta interesante es justamente de dónde sale ese número. No quitamos la entrada: **la movimos un nivel más arriba**, a las variables que un agrónomo sí controla.
+>
+> La app mantiene **los dos modos** —«como en la hoja» y «desde el cultivo»— porque hay casos donde el caudal es legítimamente un dato: replicar un diseño existente, o resolver solo la parte hidráulica.
+
+**Paso 7 · La pantalla de trabajo.** Planta, perfil y tabla por tramo **conviven a la vista, sin pestañas**, porque el aprendizaje ocurre justamente al conectar las tres lecturas de un mismo hecho. Seleccionar un elemento en cualquiera de las tres lo resalta en las otras dos.
+
+| Vista | Qué muestra |
+|---|---|
+| **Planta** | La red a escala real, sin deformar. Grosor del trazo proporcional al diámetro. Nodos coloreados por estado. |
+| **Perfil** | Terreno, tubería y línea piezométrica. La franja entre las dos últimas *es* la presión. Línea del límite de clase: si la gradiente la cruza, hay rotura. Conmutador de ramal. |
+| **Tabla por tramo** | Las columnas y unidades del libro. **Las celdas de entrada son editables ahí mismo**: cambiar un diámetro recalcula la cascada y redibuja las otras dos vistas y el 3D. |
+
+La lectura ocurre en dos niveles a la vez: el **global** (triángulo de seguridad, eficiencia y costo; uniformidad; presión al final) y el **del tramo seleccionado** (velocidad, pérdida, presión residual, margen contra la clase).
+
+**La complejidad se desbloquea por escenarios.**
 
 | Escenario | Qué se muestra |
 |---|---|
@@ -349,12 +373,35 @@ Semilla fija en el recocido, dependencias fijadas, y una tubería que va del reg
 
 ### Stack
 
+**Del benchmarking aprobado (no se toca):**
+
 - **Frontend:** React 18 + TypeScript · D3.js (2D) · Three.js / React Three Fiber (3D)
 - **Backend:** Node.js + Express · Prisma · JWT
 - **Base de datos:** PostgreSQL con JSONB
 - **Despliegue:** Vercel (frontend) + Railway (backend y BD)
-- **Pruebas:** Jest · fast-check · Postman · JMeter
+- **Pruebas:** Jest · Postman · JMeter
 - **Verificación del motor:** EPANET
+
+**Lo que falta y hay que decidir.** El stack original cubría una app 2D con cálculo simple; el alcance actual necesita seis piezas más:
+
+| Necesidad | Propuesta | Por qué es imprescindible |
+|---|---|---|
+| **Exportar el diseño en PDF** | `pdfmake` en cliente, o Puppeteer en servidor | Es un entregable del estudiante (paso 25) y hoy no hay nada que lo genere |
+| **Análisis estadístico** | **Python** (pandas + statsmodels) o **R**, en cuaderno versionado | ANOVA, Tukey, d de Cohen y ganancia de Hake **no se hacen en Node**. Es el entregable de reproducibilidad |
+| **Optimizador sin congelar la interfaz** | **Web Worker** (nativo, sin librería) | El recocido llama al evaluador miles de veces; en el hilo principal bloquea la UI |
+| **Corridas reproducibles del optimizador** | `seedrandom` | `Math.random()` no se puede sembrar; sin semilla los números de la tesis no se replican |
+| **El núcleo como paquete propio** | **npm workspaces** | Sin esto, «biblioteca reutilizable» es solo una carpeta. Lo consumen el frontend y el banco de pruebas |
+| **Estado compartido entre las cuatro vistas** | **Zustand** | Planta, perfil, tabla y 3D sincronizados más el historial de versiones; el estado local de React no alcanza |
+
+**Recomendado, barato:**
+
+- **`fast-check`** — pruebas basadas en propiedades sobre las invariantes físicas
+- **GitHub Actions** — que la suite y la verificación contra el libro corran en cada push
+- **Playwright** — pruebas de extremo a extremo de los flujos críticos: la compuerta de la IA y el escalado de ayuda
+
+**Fuera del sistema:** un script único (QGIS o Python con `rasterio`) para extraer los perfiles reales peruanos una sola vez. No forma parte de la app.
+
+**Lo que NO se agrega:** Docker, Nx o Turborepo, microservicios, monitoreo de errores. Con dos personas y 30 usuarios concurrentes, cada herramienta extra cuesta más de lo que aporta.
 
 ---
 
@@ -446,6 +493,8 @@ Separarlos evita la confusión más común: tomar una validación de usabilidad 
 | D15 | Complejidad graduada por escenario | Efecto de reversión por experiencia: lo que ayuda al experto ahoga al novato |
 | D16 | Solo redes abiertas; las malladas quedan excluidas | Exigen solver iterativo, son el componente de mayor riesgo del cronograma y son poco frecuentes en riego |
 | D17 | La transferencia en papel sale del flujo de la app | Es una actividad del protocolo experimental, no una funcionalidad del sistema |
+| D18 | El caudal se deriva por defecto, pero se mantiene el modo manual | La hoja de referencia lo pide como dato y tiene razón para su usuario; nuestro usuario necesita verlo derivarse |
+| D19 | El análisis estadístico se hace en Python o R, no en Node | ANOVA, Tukey y tamaño de efecto no tienen soporte serio en JavaScript |
 
 ---
 
@@ -470,6 +519,9 @@ Separarlos evita la confusión más común: tomar una validación de usabilidad 
 - [ ] Extraer los 3–5 perfiles reales peruanos y guardarlos como archivos fijos
 - [ ] Núcleo de cálculo como paquete independiente, con su suite de pruebas
 - [ ] Prueba de rendimiento del 3D en el hardware del laboratorio — riesgo R08
+- [ ] **Decidir la herramienta de análisis estadístico** (Python o R) y montar el cuaderno de derivación
+- [ ] **Decidir cómo se genera el PDF** (cliente o servidor)
+- [ ] Reestructurar el repositorio en workspaces, con el núcleo como paquete
 - [ ] Corregir el registro lingüístico de los prototipos: hay **voseo** («arrastrá», «cambiá», «movés») y los usuarios son peruanos
 
 ---
