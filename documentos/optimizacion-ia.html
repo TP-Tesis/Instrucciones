@@ -1,0 +1,719 @@
+<title>La Optimización con IA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=Spectral:ital,wght@0,400;0,500;0,600;1,400;1,600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+
+<style>
+:root{
+  --paper:#EEF1F2; --surface:#FFFFFF; --surface-2:#F7F9F9; --surface-3:#E9EEEF;
+  --ink:#14232B; --ink-soft:#5A6E76; --ink-faint:#6D7E85;
+  --rule:#D2DBDD; --rule-strong:#B4C1C4;
+  --agua:#0D7A8C; --agua-soft:#E1F0F2;
+  --tierra:#A56C36; --tierra-soft:#F3E9DF;
+  --ok:#2C7A57; --ok-soft:#E2F0E9;
+  --alerta:#B5841A; --alerta-soft:#FBF0D8;
+  --critico:#B03A30; --critico-soft:#FAE6E3;
+  --display:"Archivo","Helvetica Neue",Arial,sans-serif;
+  --body:"Spectral",Georgia,serif;
+  --mono:"IBM Plex Mono",Consolas,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){ :root:not([data-theme="light"]){
+  --paper:#0F161A; --surface:#161F25; --surface-2:#1B262C; --surface-3:#223038;
+  --ink:#E2EAEC; --ink-soft:#96A8AF; --ink-faint:#8A9BA1;
+  --rule:#26343B; --rule-strong:#35474F;
+  --agua:#45B9CC; --agua-soft:#10333A;
+  --tierra:#C89A66; --tierra-soft:#33261A;
+  --ok:#4EB185; --ok-soft:#123124;
+  --alerta:#D9AC49; --alerta-soft:#33280F;
+  --critico:#E0736A; --critico-soft:#3A1B18;
+  color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --paper:#0F161A; --surface:#161F25; --surface-2:#1B262C; --surface-3:#223038;
+  --ink:#E2EAEC; --ink-soft:#96A8AF; --ink-faint:#8A9BA1;
+  --rule:#26343B; --rule-strong:#35474F;
+  --agua:#45B9CC; --agua-soft:#10333A;
+  --tierra:#C89A66; --tierra-soft:#33261A;
+  --ok:#4EB185; --ok-soft:#123124;
+  --alerta:#D9AC49; --alerta-soft:#33280F;
+  --critico:#E0736A; --critico-soft:#3A1B18;
+}
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth; scroll-padding-top:20px}
+@media (prefers-reduced-motion:reduce){ html{scroll-behavior:auto} }
+body{margin:0; background:var(--paper); color:var(--ink);
+  font-family:var(--body); font-size:16.5px; line-height:1.68; -webkit-font-smoothing:antialiased}
+h1,h2,h3,h4{font-family:var(--display); font-weight:600; margin:0; text-wrap:balance; letter-spacing:-.015em}
+p{margin:14px 0 0}
+:focus-visible{outline:2px solid var(--agua); outline-offset:3px}
+.mono{font-family:var(--mono); font-variant-numeric:tabular-nums}
+
+.wrap{max-width:1160px; margin:0 auto; padding:0 26px}
+.col{max-width:70ch}
+.eyebrow{font-family:var(--display); font-size:11px; font-weight:600; letter-spacing:.16em;
+  text-transform:uppercase; color:var(--ink-faint); margin:0}
+
+header.top{background:var(--surface); border-bottom:1px solid var(--rule); padding:46px 0 36px}
+.hdrow{display:flex; justify-content:space-between; align-items:flex-start; gap:24px; flex-wrap:wrap}
+header.top h1{font-size:clamp(32px,5vw,52px); line-height:1.03; margin:14px 0 0; max-width:17ch}
+header.top h1 em{font-style:italic; font-family:var(--body); font-weight:600; color:var(--agua)}
+.sub2{font-size:17px; color:var(--ink-soft); margin:16px 0 0; max-width:64ch; font-style:italic}
+.themebtn{font-family:var(--display); font-size:12px; padding:7px 14px; border-radius:99px; cursor:pointer;
+  border:1px solid var(--rule-strong); background:var(--surface); color:var(--ink-soft)}
+.themebtn:hover{border-color:var(--agua); color:var(--agua)}
+
+.regla{background:var(--agua-soft); border-top:3px solid var(--agua); padding:20px 0}
+.regla p{margin:0; max-width:80ch; font-size:16px}
+.regla b{font-family:var(--display); font-weight:600}
+
+section{padding:42px 0 44px; border-bottom:1px solid var(--rule)}
+section:last-of-type{border-bottom:0}
+h2.sec{font-size:clamp(23px,2.9vw,30px); margin:9px 0 0; max-width:26ch}
+h3{font-size:19px; margin:32px 0 0}
+h4{font-size:15px; margin:24px 0 0}
+.lead{font-size:19px; line-height:1.55; margin:18px 0 0; max-width:58ch}
+.lead b{color:var(--agua); font-weight:600}
+
+figure{margin:30px 0 0}
+.scroll{overflow-x:auto}
+figure svg{display:block; height:auto; width:100%; min-width:860px}
+figcaption{font-size:14px; color:var(--ink-faint); margin-top:14px; max-width:72ch; line-height:1.55}
+
+.ax-band{fill:var(--surface-2); stroke:var(--rule); stroke-width:1}
+.ax-box{fill:var(--surface); stroke:var(--rule-strong); stroke-width:1}
+.ax-boxc{fill:var(--surface); stroke:var(--agua); stroke-width:1.5}
+.ax-h{font-family:var(--display); font-size:10.5px; font-weight:700; letter-spacing:.15em; fill:var(--ink-faint)}
+.ax-t{font-family:var(--display); font-size:13px; font-weight:600; fill:var(--ink)}
+.ax-ts{font-family:var(--display); font-size:11.5px; font-weight:600; fill:var(--ink)}
+.ax-s{font-family:var(--body); font-size:11px; fill:var(--ink-soft)}
+.ax-n{font-family:var(--mono); font-size:10px; fill:var(--agua); font-weight:500}
+.ax-fl{stroke:var(--rule-strong); stroke-width:1.4; fill:none}
+.ax-fla{stroke:var(--agua); stroke-width:1.6; fill:none}
+.ax-ejes{stroke:var(--rule-strong); stroke-width:1.2; fill:none}
+.ax-grid{stroke:var(--rule); stroke-width:1; fill:none}
+.ax-tick{font-family:var(--mono); font-size:10px; fill:var(--ink-faint)}
+
+table{border-collapse:collapse; width:100%; font-size:14.5px; margin:24px 0 0; line-height:1.5}
+th,td{text-align:left; vertical-align:top; padding:10px 14px 10px 0; border-bottom:1px solid var(--rule)}
+th{font-family:var(--display); font-size:10.5px; font-weight:600; letter-spacing:.13em; text-transform:uppercase;
+  color:var(--ink-faint); border-bottom:1px solid var(--rule-strong); padding-bottom:8px}
+td.code{font-family:var(--mono); font-size:12.5px; color:var(--agua); white-space:nowrap; font-weight:500}
+td b{font-family:var(--display); font-weight:600; font-size:14px}
+.scroll table{margin-top:0; min-width:740px}
+code{font-family:var(--mono); font-size:.85em; background:var(--surface-3); padding:1px 5px; border-radius:3px}
+
+pre.caja{font-family:var(--mono); font-size:12.5px; line-height:1.6; background:var(--surface);
+  border:1px solid var(--rule); border-radius:8px; padding:20px 22px; overflow-x:auto; margin:22px 0 0; color:var(--ink)}
+pre.caja b{color:var(--agua); font-weight:600}
+pre.caja i{color:var(--ink-faint); font-style:normal}
+
+.tag{display:inline-block; font-family:var(--mono); font-size:11px; font-weight:600;
+  padding:2px 7px; border-radius:4px; background:var(--agua-soft); color:var(--agua); white-space:nowrap}
+.tag.al{background:var(--alerta-soft); color:var(--alerta)}
+.tag.ok{background:var(--ok-soft); color:var(--ok)}
+.tag.cr{background:var(--critico-soft); color:var(--critico)}
+
+ul.limpia{list-style:none; margin:20px 0 0; padding:0; max-width:74ch}
+ul.limpia li{padding:12px 0 12px 26px; border-bottom:1px solid var(--rule); position:relative; font-size:15.5px}
+ul.limpia li:last-child{border-bottom:0}
+ul.limpia li::before{content:"—"; position:absolute; left:0; color:var(--agua); font-family:var(--mono)}
+ul.limpia b{font-family:var(--display); font-weight:600}
+
+.aviso{margin-top:24px; padding:16px 20px; border-radius:6px; background:var(--alerta-soft);
+  border-left:3px solid var(--alerta); font-size:15px; max-width:78ch}
+.aviso p{margin:0}
+.aviso p + p{margin-top:9px}
+.aviso b{font-family:var(--display); font-weight:600}
+.aviso.bien{background:var(--ok-soft); border-left-color:var(--ok)}
+.aviso.ag{background:var(--agua-soft); border-left-color:var(--agua)}
+.aviso.mal{background:var(--critico-soft); border-left-color:var(--critico)}
+
+.pares{display:grid; grid-template-columns:repeat(auto-fit,minmax(290px,1fr)); gap:1px;
+  background:var(--rule); border:1px solid var(--rule); border-radius:6px; overflow:hidden; margin-top:24px}
+.par{background:var(--surface); padding:18px 20px}
+.par h4{font-size:14.5px; margin:0}
+.par .q{font-family:var(--display); font-size:10.5px; font-weight:600; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--ink-faint); margin:0 0 6px}
+.par p{font-size:14.5px; margin:8px 0 0; color:var(--ink-soft)}
+
+.dialogo{margin-top:22px; border-left:3px solid var(--agua); padding:4px 0 4px 20px; max-width:74ch}
+.dialogo p{margin:0 0 14px; font-size:15.5px}
+.dialogo p:last-child{margin-bottom:0}
+.dialogo .q{font-family:var(--display); font-weight:600; font-size:14px; color:var(--ink)}
+
+footer{background:var(--surface); border-top:1px solid var(--rule); padding:34px 0 44px}
+footer p{font-size:13.5px; color:var(--ink-faint); max-width:72ch}
+</style>
+
+<header class="top">
+  <div class="wrap">
+    <div class="hdrow">
+      <div>
+        <p class="eyebrow">M&oacute;dulo de optimizaci&oacute;n &middot; Simulador de riego presurizado</p>
+        <h1>C&oacute;mo funciona la <em>optimizaci&oacute;n</em> con IA</h1>
+        <p class="sub2">Qu&eacute; se optimiza exactamente, con qu&eacute; algoritmo y por qu&eacute; ese, <b>qu&eacute; tecnolog&iacute;a concreta se usa</b>, c&oacute;mo salen varias opciones en vez de una, y qu&eacute; responder cuando pregunten si esto es de verdad inteligencia artificial.</p>
+      </div>
+      <button class="themebtn" id="tema" type="button">Cambiar tema</button>
+    </div>
+  </div>
+</header>
+
+<div class="regla">
+  <div class="wrap">
+    <p><b>Lo que este m&oacute;dulo tiene que lograr, antes que nada.</b> No es encontrar el mejor dise&ntilde;o. Es que el estudiante entienda que <b>no existe un mejor dise&ntilde;o</b>, sino un conjunto de compromisos entre costo, uniformidad y seguridad. Esa es la concepci&oacute;n err&oacute;nea CE7, y todo lo t&eacute;cnico que sigue est&aacute; al servicio de desmentirla.</p>
+  </div>
+</div>
+
+<div class="wrap">
+
+<!-- ==================== 1 ==================== -->
+<section id="s1">
+  <p class="eyebrow">Secci&oacute;n 1</p>
+  <h2 class="sec">Qu&eacute; se optimiza, exactamente</h2>
+  <p class="col">Antes de elegir un algoritmo hay que escribir el problema. Tres cosas: qu&eacute; se puede cambiar, qu&eacute; se quiere mejorar, y qu&eacute; no se puede violar nunca.</p>
+
+  <h3>Lo que se puede cambiar</h3>
+  <div class="scroll">
+  <table>
+    <thead><tr><th style="width:26%">Variable</th><th style="width:22%">Cu&aacute;ntos valores</th><th>Nota</th></tr></thead>
+    <tbody>
+      <tr><td><b>Di&aacute;metro de cada tramo</b></td><td>8 a 10 medidas comerciales</td><td>Del cat&aacute;logo real, no un n&uacute;mero continuo. No existe una tuber&iacute;a de 2,37 pulgadas.</td></tr>
+      <tr><td><b>Clase de cada tramo</b></td><td>4 clases de presi&oacute;n</td><td>Cada clase aguanta una presi&oacute;n distinta y cuesta distinto.</td></tr>
+      <tr><td><b>C&aacute;maras rompe-presi&oacute;n</b></td><td>Poner o no en cada nodo candidato</td><td>Solo en nodos donde tenga sentido constructivo.</td></tr>
+      <tr><td><b>V&aacute;lvulas reguladoras</b></td><td>Poner o no, y a qu&eacute; presi&oacute;n</td><td>Alternativa m&aacute;s barata que la c&aacute;mara en algunos casos.</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="aviso ag">
+    <p><b>Por qu&eacute; esto no se puede resolver probando todo.</b> Una red de veinte tramos con diez di&aacute;metros y cuatro clases da <span class="mono">10<sup>20</sup> &times; 4<sup>20</sup></span> combinaciones. Es un n&uacute;mero con m&aacute;s de treinta cifras. Aunque se evaluara un mill&oacute;n por segundo, no alcanzar&iacute;a la edad del universo. <b>De ah&iacute; sale la necesidad de una b&uacute;squeda inteligente, y no de fuerza bruta.</b> Es, adem&aacute;s, la respuesta corta cuando pregunten por qu&eacute; hace falta IA aqu&iacute;.</p>
+  </div>
+
+  <h3>Lo que se quiere mejorar &mdash; tres objetivos que se pelean entre s&iacute;</h3>
+  <div class="scroll">
+  <table>
+    <thead><tr><th style="width:22%">Objetivo</th><th style="width:32%">C&oacute;mo se calcula</th><th>Contra qui&eacute;n pelea</th></tr></thead>
+    <tbody>
+      <tr><td><b>Costo</b> <span class="tag">minimizar</span></td><td>Suma del precio de cada tramo por su longitud, seg&uacute;n di&aacute;metro y clase, m&aacute;s las c&aacute;maras y v&aacute;lvulas colocadas.</td><td>Bajar el costo casi siempre significa tuber&iacute;a m&aacute;s delgada, y eso sube la p&eacute;rdida de carga y baja la uniformidad.</td></tr>
+      <tr><td><b>Uniformidad</b> <span class="tag">maximizar</span></td><td>Media del caudal del cuarto de salidas peor servidas, dividida entre la media de todas.</td><td>Subirla exige di&aacute;metros mayores o m&aacute;s elementos de control. Las dos cosas cuestan.</td></tr>
+      <tr><td><b>Margen de seguridad</b> <span class="tag">maximizar</span></td><td>La menor diferencia, en toda la red, entre lo que aguanta la clase del tramo y la presi&oacute;n est&aacute;tica que llega ah&iacute; con las v&aacute;lvulas cerradas.</td><td>Subirlo exige clases m&aacute;s altas o m&aacute;s c&aacute;maras. Otra vez, costo.</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <p class="col"><b>Que peleen entre s&iacute; es el punto, no un defecto.</b> Si los tres se pudieran mejorar a la vez, habr&iacute;a un &oacute;ptimo &uacute;nico y CE7 ser&iacute;a cierta. Como no se puede, aparece un conjunto de compromisos, y eso es exactamente lo que el estudiante tiene que ver.</p>
+
+  <h3>Lo que no se puede violar nunca</h3>
+  <p class="col">Una propuesta que rompe cualquiera de estas cinco se descarta, por muy barata o uniforme que sea. Son las mismas reglas que el simulador ya le exige al estudiante: <b>la m&aacute;quina no juega con ventaja.</b></p>
+  <ul class="limpia">
+    <li><b>La velocidad</b> en cada tramo se mantiene dentro del rango del m&eacute;todo. Muy baja deja sedimentos; muy alta erosiona y hace ruido.</li>
+    <li><b>La presi&oacute;n en cada salida</b> nunca baja del m&iacute;nimo que el emisor necesita para funcionar.</li>
+    <li><b>La presi&oacute;n est&aacute;tica</b>, con las v&aacute;lvulas cerradas, nunca supera lo que aguanta la clase del tramo.</li>
+    <li><b>El desnivel acumulado</b> no pasa el l&iacute;mite del m&eacute;todo de referencia sin una c&aacute;mara que corte la carga.</li>
+    <li><b>El di&aacute;metro no crece</b> a medida que uno se aleja de la fuente. Es una convenci&oacute;n constructiva, y respetarla es lo que hace que las propuestas parezcan de un ingeniero y no de una computadora.</li>
+  </ul>
+</section>
+
+<!-- ==================== 2 ==================== -->
+<section id="s2">
+  <p class="eyebrow">Secci&oacute;n 2</p>
+  <h2 class="sec">Por qu&eacute; recocido simulado y no otra cosa</h2>
+  <p class="col">La pregunta va a venir, y conviene tener la comparaci&oacute;n hecha en lugar de improvisarla.</p>
+
+  <div class="scroll">
+  <table>
+    <thead><tr><th style="width:22%">Alternativa</th><th style="width:30%">Por qu&eacute; se descart&oacute;</th><th>Observaci&oacute;n</th></tr></thead>
+    <tbody>
+      <tr><td><b>Probar todas las combinaciones</b></td><td>El n&uacute;mero de combinaciones no cabe en ning&uacute;n presupuesto de tiempo.</td><td>Sirve, eso s&iacute;, para verificar el optimizador en redes de juguete de tres o cuatro tramos, donde s&iacute; se puede calcular el &oacute;ptimo real.</td></tr>
+      <tr><td><b>Programaci&oacute;n lineal entera</b></td><td>Dar&iacute;a el &oacute;ptimo exacto, pero el problema no es lineal: la p&eacute;rdida de carga va con el caudal elevado a 1,85 y el caudal del emisor con la presi&oacute;n elevada a 0,5.</td><td>Habr&iacute;a que aproximar por tramos rectos y perder&iacute;amos precisi&oacute;n justo en el c&aacute;lculo que verificamos con tanto cuidado. Adem&aacute;s exigir&iacute;a un resolvedor externo, que no cabe en el navegador.</td></tr>
+      <tr><td><b>Algoritmo gen&eacute;tico</b></td><td>Funciona bien en este tipo de problema, pero mantiene una poblaci&oacute;n entera en memoria y necesita muchas m&aacute;s evaluaciones por generaci&oacute;n.</td><td>Y hay un problema pedag&oacute;gico: los cambios salen de cruzar dos dise&ntilde;os, as&iacute; que es dif&iacute;cil decirle al estudiante <em>por qu&eacute;</em> cambi&oacute; un tramo. En recocido simulado cada cambio es un paso identificable.</td></tr>
+      <tr><td><b>Recocido simulado</b> <span class="tag ok">elegido</span></td><td>&mdash;</td><td>Trabaja de a una soluci&oacute;n, acepta di&aacute;metros y clases discretos sin trucos de codificaci&oacute;n, se puede detener en cualquier momento y devolver lo mejor encontrado, y con una semilla fija repite exactamente el mismo resultado.</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="aviso bien">
+    <p><b>El argumento decisivo, para la sustentaci&oacute;n.</b> No lo elegimos porque sea el mejor optimizador del mundo: lo elegimos porque <b>cada cambio que propone es un paso individual que se puede explicar</b>. Como el m&oacute;dulo existe para ense&ntilde;ar y no para producir planos, poder explicar vale m&aacute;s que exprimir el &uacute;ltimo uno por ciento de mejora.</p>
+  </div>
+</section>
+
+<!-- ==================== 3 ==================== -->
+<section id="s3">
+  <p class="eyebrow">Secci&oacute;n 3 &middot; La pregunta concreta</p>
+  <h2 class="sec">Con qu&eacute; se construye, exactamente</h2>
+
+  <p class="lead">No hay una API. No hay un servicio externo. No hay una librer&iacute;a de inteligencia artificial que se instale. <b>El optimizador es c&oacute;digo nuestro</b>: alrededor de trescientas l&iacute;neas, en el mismo lenguaje que el resto del proyecto.</p>
+
+  <p class="col">Conviene decirlo de frente porque es lo contrario de lo que uno espera. El recocido simulado no es una tecnolog&iacute;a que se contrata: es un procedimiento de unas pocas decenas de l&iacute;neas que cualquiera puede leer y verificar. Lo dif&iacute;cil del m&oacute;dulo no es el algoritmo &mdash; es todo lo dem&aacute;s: definir bien los tres objetivos, respetar las restricciones, conseguir opciones repartidas, explicar cada cambio y que el tiempo alcance.</p>
+
+  <h3>El inventario completo</h3>
+  <div class="scroll">
+  <table>
+    <thead><tr><th style="width:28%">Pieza</th><th style="width:26%">Qu&eacute; es</th><th>De d&oacute;nde sale</th></tr></thead>
+    <tbody>
+      <tr><td><b>El algoritmo de b&uacute;squeda</b></td><td>Un archivo: <code>optimizador.ts</code></td><td><b>Lo escribimos nosotros.</b> Unas 300 l&iacute;neas: el bucle, el generador de cambios, la funci&oacute;n que eval&uacute;a y el archivo de soluciones que nadie supera.</td></tr>
+      <tr><td><b>El azar reproducible</b></td><td>Un generador con semilla</td><td><b>Lo escribimos nosotros.</b> Diez l&iacute;neas. El del navegador no sirve porque no se puede repetir, y el motor no puede tener dependencias.</td></tr>
+      <tr><td><b>El hilo aparte</b></td><td>Web Worker</td><td><b>Viene con el navegador.</b> No se instala ni se paga. Es una funci&oacute;n est&aacute;ndar de la plataforma web desde hace m&aacute;s de una d&eacute;cada.</td></tr>
+      <tr><td><b>El paso de datos entre hilos</b></td><td>Mensajes y copia estructurada</td><td><b>Viene con el navegador.</b></td></tr>
+      <tr><td><b>La medici&oacute;n del tiempo</b></td><td>Reloj de alta precisi&oacute;n</td><td><b>Viene con el navegador.</b> Es lo que permite el presupuesto de tiempo en vez de un n&uacute;mero fijo de vueltas.</td></tr>
+      <tr><td><b>La evaluaci&oacute;n de cada candidato</b></td><td>El motor hidr&aacute;ulico</td><td><b>Ya construido en el Sprint&nbsp;1.</b> Se reutiliza tal cual, sin copiar nada. Esa reutilizaci&oacute;n es toda la raz&oacute;n por la que el motor vive separado de la pantalla.</td></tr>
+      <tr><td><b>El comparador que explica</b></td><td>Plantillas por tipo de cambio</td><td><b>Lo escribimos nosotros.</b> Compara dos dise&ntilde;os tramo por tramo y rellena una frase con los n&uacute;meros que el motor ya calcul&oacute;.</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="aviso bien">
+    <p><b>Dependencias nuevas: cero. Costo mensual del m&oacute;dulo de IA: cero.</b> Y eso no es una casualidad afortunada: es la consecuencia directa de haber puesto el motor de c&aacute;lculo en el navegador. Como el motor ya est&aacute; ah&iacute;, el optimizador puede usarlo sin salir a ninguna parte.</p>
+  </div>
+
+  <h3>Por qu&eacute; esto es una ventaja y no una carencia</h3>
+  <ul class="limpia">
+    <li><b>No hay servicio ajeno que se pueda caer el d&iacute;a del experimento.</b> Una API externa con problemas esa ma&ntilde;ana deja a treinta estudiantes sin el m&oacute;dulo, y ese d&iacute;a no se repite.</li>
+    <li><b>No hay costo por uso.</b> Treinta y cinco estudiantes corriendo el optimizador varias veces cada uno no cuestan nada, porque cada uno lo corre en su propia m&aacute;quina.</li>
+    <li><b>Ning&uacute;n dato del estudiante sale del pa&iacute;s.</b> Con la Ley&nbsp;29733 de protecci&oacute;n de datos personales de por medio, y siendo la tesis sobre estudiantes reales, no tener que justificar una transferencia internacional simplifica mucho.</li>
+    <li><b>Funciona con la conexi&oacute;n ca&iacute;da.</b> Coherente con el aula del caso de estudio.</li>
+    <li><b>Es reproducible para siempre.</b> Un servicio externo puede cambiar su modelo entre el pretest y el postest sin avisar, y ah&iacute; ya no se sabe si la diferencia la produjo la intervenci&oacute;n o la actualizaci&oacute;n del proveedor. Con c&oacute;digo propio y semilla fija, eso no puede pasar.</li>
+  </ul>
+
+  <div class="aviso">
+    <p><b>Correcci&oacute;n al documento de stack.</b> Ah&iacute; figura <code>seedrandom</code> como librer&iacute;a para el azar reproducible. Es incompatible con la regla de que el motor no tenga dependencias, as&iacute; que el generador se escribe a mano &mdash; son diez l&iacute;neas y as&iacute; el motor sigue siendo un paquete que no arrastra nada.</p>
+  </div>
+
+  <h3>C&oacute;mo se ve, para que quede claro el tama&ntilde;o</h3>
+<pre class="caja"><i>// packages/motor/src/optimizador.ts &mdash; la estructura, no el c&oacute;digo real</i>
+
+<b>function</b> recocido(dise&ntilde;oInicial, pesos, presupuestoMs, semilla) {
+  <b>const</b> azar   = generadorConSemilla(semilla)   <i>// reproducible</i>
+  <b>let</b>   actual = dise&ntilde;oInicial                  <i>// arranca del dise&ntilde;o del estudiante</i>
+  <b>let</b>   T      = temperaturaInicial
+
+  <b>while</b> (tiempoTranscurrido() &lt; presupuestoMs) {
+    <b>const</b> candidato = cambiarUnaCosa(actual, azar)       <i>// 2</i>
+
+    <b>if</b> (violaRestriccion(candidato)) <b>continue</b>            <i>// descarta sin calcular</i>
+
+    <b>const</b> valores = evaluar(candidato)                    <i>// 3 &mdash; llama al motor</i>
+    archivo.guardarSiNadieLoSupera(candidato, valores)      <i>// el frente</i>
+
+    <b>const</b> delta = puntaje(valores, pesos) - puntaje(actualValores, pesos)
+    <b>if</b> (delta &lt; 0 || azar() &lt; Math.exp(-delta / T)) {       <i>// 4 &mdash; a veces acepta peor</i>
+      actual = candidato
+    }
+
+    T = T * 0.97                                           <i>// 5 &mdash; enfr&iacute;a</i>
+  }
+
+  <b>return</b> archivo.mejoresRepartidas(3)
+}
+</pre>
+  <p class="col">Eso es el algoritmo entero. <b>Lo que no se ve ah&iacute; &mdash; <code>evaluar</code>, <code>violaRestriccion</code>, <code>cambiarUnaCosa</code> y el archivo &mdash; es donde est&aacute; el trabajo de verdad</b>, y todo se apoya en el motor que ya existe desde el Sprint&nbsp;1.</p>
+</section>
+
+<!-- ==================== 4 ==================== -->
+<section id="s4">
+  <p class="eyebrow">Secci&oacute;n 4</p>
+  <h2 class="sec">Las tres formas de tener IA en este proyecto</h2>
+  <p class="col">Existen otras opciones y conviene haberlas pensado, porque alguien las va a proponer. Estas son las tres, con lo que cada una cuesta.</p>
+
+  <div class="scroll">
+  <table>
+    <thead><tr><th style="width:22%">Opci&oacute;n</th><th style="width:24%">Qu&eacute; se gana</th><th style="width:26%">Qu&eacute; se paga</th><th>Veredicto</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><b>A &middot; Optimizaci&oacute;n en el navegador</b><br><span class="mono" style="font-size:12px">c&oacute;digo propio</span></td>
+        <td>Sin costo, sin servicio externo, reproducible, explicable con f&iacute;sica, funciona sin conexi&oacute;n.</td>
+        <td>Hay que escribir el algoritmo, y ocupa tiempo de sprint.</td>
+        <td><span class="tag ok">recomendada</span> Es la que est&aacute; en el backlog y la que sostiene la lecci&oacute;n de CE7.</td>
+      </tr>
+      <tr>
+        <td><b>B &middot; Un servicio de IA aparte</b><br><span class="mono" style="font-size:12px">Python en Railway</span></td>
+        <td>Aparecer&iacute;a como una capa propia en el diagrama, igual que en los ejemplos del curso. Se podr&iacute;an usar librer&iacute;as de optimizaci&oacute;n ya hechas.</td>
+        <td><b>Habr&iacute;a que reescribir el motor hidr&aacute;ulico en Python</b>, porque el optimizador necesita evaluar miles de dise&ntilde;os y el motor est&aacute; en el navegador. Ser&iacute;an dos motores que verificar, y tarde o temprano dir&iacute;an cosas distintas.</td>
+        <td><span class="tag cr">descartada</span> Rompe la decisi&oacute;n de arquitectura m&aacute;s importante del proyecto: un solo c&aacute;lculo, verificado una vez.</td>
+      </tr>
+      <tr>
+        <td><b>C &middot; Un modelo de lenguaje por API</b><br><span class="mono" style="font-size:12px">para la autoexplicaci&oacute;n</span></td>
+        <td>Podr&iacute;a dar retroalimentaci&oacute;n autom&aacute;tica sobre el texto que el estudiante escribe al cerrar un escenario.</td>
+        <td>Mete un instrumento sin validar justo en el camino de la medici&oacute;n; sus respuestas no son reproducibles; cuesta por llamada; y manda texto de estudiantes reales fuera del pa&iacute;s.</td>
+        <td><span class="tag al">fuera del alcance</span> El texto se guarda y se analiza despu&eacute;s con una r&uacute;brica. Es m&aacute;s defendible.</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="aviso ag">
+    <p><b>Una distinci&oacute;n que vale la pena tener clara.</b> Usar un modelo de lenguaje <em>para trabajar</em> &mdash; redactar borradores de &iacute;tems, revisar textos, ayudar a programar &mdash; no tiene nada que ver con ponerlo <em>dentro del sistema</em>. Lo primero es una herramienta de trabajo, como lo es un editor de c&oacute;digo. Lo segundo es un componente que despu&eacute;s hay que validar y defender. Conviene no mezclarlos al hablar con el jurado.</p>
+  </div>
+
+  <h3>Si esperan ver una capa de IA como la de los ejemplos</h3>
+  <p class="col">En los diagramas que les mostraron, la capa de IA es un servidor Python con Flask y modelos de lenguaje. Es la forma correcta <em>para esas aplicaciones</em>, que procesan texto. La nuestra no procesa texto: resuelve un problema de optimizaci&oacute;n combinatoria con restricciones. <b>La capa existe igual &mdash; lo que cambia es d&oacute;nde se ejecuta.</b></p>
+
+  <ul class="limpia">
+    <li><b>En el diagrama, se dibuja como capa propia</b>, con su nombre y su contenido, igual que las dem&aacute;s. Lo &uacute;nico que se agrega es la anotaci&oacute;n de que corre en el equipo del estudiante y no en un servidor.</li>
+    <li><b>La justificaci&oacute;n t&eacute;cnica es m&aacute;s fuerte, no m&aacute;s d&eacute;bil.</b> Un servidor de IA para treinta y cinco estudiantes simult&aacute;neos costar&iacute;a dinero, se podr&iacute;a saturar y ser&iacute;a un punto &uacute;nico de falla el d&iacute;a del experimento. Distribuir el c&oacute;mputo en los equipos de los estudiantes evita las tres cosas.</li>
+    <li><b>Y conecta con un hallazgo del estado del arte.</b> La plataforma m&aacute;s cara que revisamos cost&oacute; setecientos mil d&oacute;lares y dej&oacute; abierta la pregunta de cu&aacute;nta complejidad t&eacute;cnica hace falta para producir mejoras acad&eacute;micas. Nuestra respuesta es una posici&oacute;n defendible, no una limitaci&oacute;n de presupuesto.</li>
+  </ul>
+</section>
+<!-- ==================== 5 ==================== -->
+<section id="s5">
+  <p class="eyebrow">Secci&oacute;n 5</p>
+  <h2 class="sec">C&oacute;mo funciona, paso a paso</h2>
+  <p class="col">La idea viene de la metalurgia: un metal que se enfr&iacute;a despacio queda mejor ordenado que uno que se enfr&iacute;a de golpe. Al principio el algoritmo acepta cambios que empeoran &mdash;para no quedarse atrapado en la primera mejora que encuentra&mdash; y a medida que &laquo;se enfr&iacute;a&raquo; se vuelve cada vez m&aacute;s exigente.</p>
+
+  <figure>
+    <div class="scroll">
+    <svg viewBox="0 0 1080 356" style="min-width:1000px" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="El bucle del recocido simulado">
+      <defs>
+        <marker id="f" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M0 0 L10 5 L0 10 z" fill="var(--agua)"/>
+        </marker>
+        <marker id="g" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M0 0 L10 5 L0 10 z" fill="var(--rule-strong)"/>
+        </marker>
+      </defs>
+
+      <text class="ax-h" x="20" y="22">EL BUCLE, UNA VUELTA</text>
+
+      <rect class="ax-boxc" x="20" y="46" width="188" height="92" rx="7"/>
+      <text class="ax-n" x="34" y="70">1</text>
+      <text class="ax-ts" x="34" y="92">Arranca de tu dise&ntilde;o</text>
+      <text class="ax-s" x="34" y="112">No de cero. Esa es la</text>
+      <text class="ax-s" x="34" y="128">diferencia que lo hace &uacute;til.</text>
+
+      <rect class="ax-box" x="228" y="46" width="188" height="92" rx="7"/>
+      <text class="ax-n" x="242" y="70">2</text>
+      <text class="ax-ts" x="242" y="92">Cambia una sola cosa</text>
+      <text class="ax-s" x="242" y="112">Un di&aacute;metro, una clase o</text>
+      <text class="ax-s" x="242" y="128">una c&aacute;mara. Nada m&aacute;s.</text>
+
+      <rect class="ax-box" x="436" y="46" width="188" height="92" rx="7"/>
+      <text class="ax-n" x="450" y="70">3</text>
+      <text class="ax-ts" x="450" y="92">Recalcula lo afectado</text>
+      <text class="ax-s" x="450" y="112">Solo ese tramo y lo que</text>
+      <text class="ax-s" x="450" y="128">cuelga de &eacute;l, no la red.</text>
+
+      <rect class="ax-boxc" x="644" y="46" width="188" height="92" rx="7"/>
+      <text class="ax-n" x="658" y="70">4</text>
+      <text class="ax-ts" x="658" y="92">Decide si se queda</text>
+      <text class="ax-s" x="658" y="112">Si mejor&oacute;, s&iacute;. Si empeor&oacute;,</text>
+      <text class="ax-s" x="658" y="128">a veces tambi&eacute;n.</text>
+
+      <rect class="ax-box" x="852" y="46" width="188" height="92" rx="7"/>
+      <text class="ax-n" x="866" y="70">5</text>
+      <text class="ax-ts" x="866" y="92">Enfr&iacute;a y repite</text>
+      <text class="ax-s" x="866" y="112">Cada vez acepta menos</text>
+      <text class="ax-s" x="866" y="128">cosas que empeoran.</text>
+
+      <path class="ax-fla" d="M208 92 L224 92" marker-end="url(#f)"/>
+      <path class="ax-fla" d="M416 92 L432 92" marker-end="url(#f)"/>
+      <path class="ax-fla" d="M624 92 L640 92" marker-end="url(#f)"/>
+      <path class="ax-fla" d="M832 92 L848 92" marker-end="url(#f)"/>
+      <path class="ax-fla" d="M946 138 C946 176 322 176 322 142" marker-end="url(#f)"/>
+      <text class="ax-n" x="634" y="170" text-anchor="middle">MILES DE VUELTAS</text>
+
+      <rect class="ax-boxc" x="20" y="206" width="500" height="98" rx="7"/>
+      <text class="ax-h" x="36" y="230">POR QU&Eacute; ACEPTA COSAS QUE EMPEORAN</text>
+      <text class="ax-s" x="36" y="254">Si solo aceptara mejoras, se quedar&iacute;a atrapado en la primera soluci&oacute;n</text>
+      <text class="ax-s" x="36" y="272">decente que encuentre. Aceptar de vez en cuando algo peor le permite</text>
+      <text class="ax-s" x="36" y="290">salir de ah&iacute; y encontrar otra mejor m&aacute;s lejos. Es toda la idea del m&eacute;todo.</text>
+
+      <rect class="ax-boxc" x="540" y="206" width="500" height="98" rx="7"/>
+      <text class="ax-h" x="556" y="230">EL ARCHIVO &middot; DE AQU&Iacute; SALEN LAS OPCIONES</text>
+      <text class="ax-s" x="556" y="254">Cada dise&ntilde;o que encuentra y que ning&uacute;n otro supera en las tres cosas a la</text>
+      <text class="ax-s" x="556" y="272">vez se guarda aparte. Al terminar, ese archivo es el conjunto de compromisos</text>
+      <text class="ax-s" x="556" y="290">que se le muestran al estudiante. No se guarda un ganador: se guardan varios.</text>
+
+      <text class="ax-s" x="20" y="336" fill="var(--ink-faint)">El paso 3 es el que decide si esto es viable: recalcular la red entera en cada vuelta har&iacute;a la b&uacute;squeda inutilizable. Ver la secci&oacute;n 5.</text>
+    </svg>
+    </div>
+    <figcaption>La flecha de retorno va al paso 2, no al 1: el algoritmo no vuelve a empezar del dise&ntilde;o del estudiante en cada vuelta, sino que sigue modificando el que lleva. El dise&ntilde;o del estudiante es solo el punto de partida.</figcaption>
+  </figure>
+
+  <h3>Los cambios que puede proponer, y con qu&eacute; frecuencia</h3>
+  <div class="scroll">
+  <table>
+    <thead><tr><th style="width:34%">Cambio</th><th style="width:130px">Frecuencia</th><th>Para qu&eacute; sirve</th></tr></thead>
+    <tbody>
+      <tr><td><b>Subir o bajar un di&aacute;metro un escal&oacute;n</b></td><td class="code">~ 55 %</td><td>Es el ajuste fino. La mayor parte de la mejora sale de aqu&iacute;.</td></tr>
+      <tr><td><b>Cambiar la clase de un tramo</b></td><td class="code">~ 20 %</td><td>Ajusta el margen de seguridad sin tocar la hidr&aacute;ulica.</td></tr>
+      <tr><td><b>Poner o quitar una c&aacute;mara o v&aacute;lvula</b></td><td class="code">~ 15 %</td><td>El cambio de mayor efecto y mayor costo. Cambia el reparto de presiones de todo lo que sigue.</td></tr>
+      <tr><td><b>Saltar dos o tres escalones de di&aacute;metro de golpe</b></td><td class="code">~ 10 %</td><td>Para escapar de rincones donde los pasos de a uno no llevan a ninguna parte.</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<!-- ==================== 6 ==================== -->
+<section id="s6">
+  <p class="eyebrow">Secci&oacute;n 6 &middot; El coraz&oacute;n pedag&oacute;gico</p>
+  <h2 class="sec">C&oacute;mo salen varias opciones y no una sola</h2>
+
+  <p class="lead">Un optimizador corriente devuelve <b>un</b> resultado. Este tiene que devolver <b>varios</b>, porque si devolviera uno solo estar&iacute;a confirmando la creencia que vino a desmentir.</p>
+
+  <p class="col">La soluci&oacute;n es un concepto est&aacute;ndar en optimizaci&oacute;n con varios objetivos: se guarda todo dise&ntilde;o que <b>ning&uacute;n otro supere en las tres cosas a la vez</b>. Si el dise&ntilde;o A es m&aacute;s barato, m&aacute;s uniforme y m&aacute;s seguro que el B, entonces B no interesa y se descarta. Pero si A es m&aacute;s barato y B es m&aacute;s uniforme, <b>ninguno de los dos es mejor</b>: son compromisos distintos, y los dos se guardan. El conjunto de los que quedan es lo que el estudiante ve.</p>
+
+  <figure>
+    <div class="scroll">
+    <svg viewBox="0 0 900 510" style="min-width:860px" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="El frente de opciones: costo contra uniformidad">
+      <text class="ax-h" x="60" y="24">CADA PUNTO ES UN DISE&Ntilde;O COMPLETO QUE CUMPLE TODAS LAS RESTRICCIONES</text>
+
+      <line class="ax-grid" x1="90" y1="400" x2="840" y2="400"/>
+      <line class="ax-grid" x1="90" y1="343" x2="840" y2="343"/>
+      <line class="ax-grid" x1="90" y1="287" x2="840" y2="287"/>
+      <line class="ax-grid" x1="90" y1="230" x2="840" y2="230"/>
+      <line class="ax-grid" x1="90" y1="173" x2="840" y2="173"/>
+      <line class="ax-grid" x1="90" y1="117" x2="840" y2="117"/>
+      <line class="ax-grid" x1="90" y1="60" x2="840" y2="60"/>
+
+      <line class="ax-ejes" x1="90" y1="60" x2="90" y2="400"/>
+      <line class="ax-ejes" x1="90" y1="400" x2="840" y2="400"/>
+
+      <text class="ax-tick" x="82" y="404" text-anchor="end">65</text>
+      <text class="ax-tick" x="82" y="347" text-anchor="end">70</text>
+      <text class="ax-tick" x="82" y="291" text-anchor="end">75</text>
+      <text class="ax-tick" x="82" y="234" text-anchor="end">80</text>
+      <text class="ax-tick" x="82" y="177" text-anchor="end">85</text>
+      <text class="ax-tick" x="82" y="121" text-anchor="end">90</text>
+      <text class="ax-tick" x="82" y="64" text-anchor="end">95</text>
+
+      <text class="ax-tick" x="90" y="420" text-anchor="middle">12 000</text>
+      <text class="ax-tick" x="240" y="420" text-anchor="middle">14 000</text>
+      <text class="ax-tick" x="390" y="420" text-anchor="middle">16 000</text>
+      <text class="ax-tick" x="540" y="420" text-anchor="middle">18 000</text>
+      <text class="ax-tick" x="690" y="420" text-anchor="middle">20 000</text>
+      <text class="ax-tick" x="840" y="420" text-anchor="middle">22 000</text>
+
+      <text class="ax-h" x="465" y="444" text-anchor="middle">COSTO ESTIMADO DEL DISE&Ntilde;O, EN SOLES</text>
+      <text class="ax-h" x="-230" y="30" transform="rotate(-90)" text-anchor="middle">UNIFORMIDAD, EN POR CIENTO</text>
+
+      <circle cx="180" cy="343" r="4.5" fill="var(--rule-strong)"/>
+      <circle cx="255" cy="321" r="4.5" fill="var(--rule-strong)"/>
+      <circle cx="285" cy="355" r="4.5" fill="var(--rule-strong)"/>
+      <circle cx="375" cy="309" r="4.5" fill="var(--rule-strong)"/>
+      <circle cx="405" cy="377" r="4.5" fill="var(--rule-strong)"/>
+      <circle cx="480" cy="298" r="4.5" fill="var(--rule-strong)"/>
+      <circle cx="525" cy="173" r="4.5" fill="var(--rule-strong)"/>
+      <circle cx="607" cy="241" r="4.5" fill="var(--rule-strong)"/>
+      <circle cx="645" cy="332" r="4.5" fill="var(--rule-strong)"/>
+      <circle cx="697" cy="185" r="4.5" fill="var(--rule-strong)"/>
+      <circle cx="735" cy="117" r="4.5" fill="var(--rule-strong)"/>
+      <circle cx="825" cy="139" r="4.5" fill="var(--rule-strong)"/>
+
+      <path d="M225 275 L322 207 L457 139 L585 105 L780 83" fill="none" stroke="var(--agua)" stroke-width="1.6" stroke-dasharray="5 4"/>
+
+      <circle cx="322" cy="207" r="5.5" fill="var(--agua)"/>
+      <circle cx="585" cy="105" r="5.5" fill="var(--agua)"/>
+
+      <circle cx="225" cy="275" r="8" fill="var(--surface)" stroke="var(--agua)" stroke-width="2.5"/>
+      <text class="ax-ts" x="225" y="255" text-anchor="middle" fill="var(--agua)">A</text>
+      <text class="ax-s" x="225" y="240" text-anchor="middle">la m&aacute;s barata</text>
+
+      <circle cx="457" cy="139" r="8" fill="var(--surface)" stroke="var(--agua)" stroke-width="2.5"/>
+      <text class="ax-ts" x="457" y="119" text-anchor="middle" fill="var(--agua)">B</text>
+      <text class="ax-s" x="457" y="104" text-anchor="middle">la equilibrada</text>
+
+      <circle cx="780" cy="83" r="8" fill="var(--surface)" stroke="var(--agua)" stroke-width="2.5"/>
+      <text class="ax-ts" x="780" y="63" text-anchor="middle" fill="var(--agua)">C</text>
+      <text class="ax-s" x="780" y="48" text-anchor="middle">la m&aacute;s uniforme</text>
+
+      <rect x="412" y="324" width="16" height="16" fill="var(--critico)"/>
+      <text class="ax-ts" x="436" y="330" fill="var(--critico)">Tu dise&ntilde;o</text>
+      <text class="ax-s" x="436" y="347">S/ 16 400 &middot; 71 % de uniformidad</text>
+
+      <path class="ax-fl" d="M424 318 C424 280 440 250 452 150" stroke="var(--critico)" stroke-dasharray="4 4"/>
+      <text class="ax-s" x="336" y="290" fill="var(--critico)" font-size="10.5">por casi el mismo dinero</text>
+      <text class="ax-s" x="336" y="304" fill="var(--critico)" font-size="10.5">hay 17 puntos m&aacute;s</text>
+
+      <rect class="ax-box" x="500" y="452" width="340" height="44" rx="6"/>
+      <circle cx="518" cy="468" r="4.5" fill="var(--rule-strong)"/>
+      <text class="ax-s" x="530" y="472">Descartado: otro lo supera en todo</text>
+      <circle cx="518" cy="486" r="5.5" fill="var(--agua)"/>
+      <text class="ax-s" x="530" y="490">Se guarda: nadie lo supera en todo a la vez</text>
+    </svg>
+    </div>
+    <figcaption>El tercer objetivo, el margen de seguridad, no cabe en este plano: por eso el conjunto de compromisos es en realidad una superficie y no una curva. Los n&uacute;meros del gr&aacute;fico son ilustrativos, para mostrar la forma que tiene el resultado. Al estudiante se le presentan tres o cuatro opciones repartidas a lo largo del conjunto, no todas: ver treinta opciones no ense&ntilde;a m&aacute;s que ver tres bien elegidas.</figcaption>
+  </figure>
+
+  <h3>C&oacute;mo se consiguen opciones repartidas y no todas amontonadas</h3>
+  <p class="col">La b&uacute;squeda se corre varias veces seguidas, cada una con una prioridad distinta: una que le da m&aacute;s peso al costo, otra a la uniformidad, otra a la seguridad, y un par intermedias. Cada corrida explora una zona distinta del problema, y el archivo se va llenando con todo lo que ninguna supera. Al final se eligen tres o cuatro bien separadas entre s&iacute;.</p>
+
+  <div class="aviso">
+    <p><b>Una trampa que hay que evitar a prop&oacute;sito.</b> Si las opciones que se muestran salieran siempre del mismo lado &mdash;siempre las m&aacute;s baratas, por ejemplo&mdash; el estudiante aprender&iacute;a que la m&aacute;quina prefiere lo barato, que es una lecci&oacute;n falsa. La selecci&oacute;n tiene que garantizar que haya al menos una opci&oacute;n <em>peor que la suya en costo</em> y mejor en otra cosa. Que exista esa opci&oacute;n es lo que obliga a pensar en compromisos.</p>
+  </div>
+</section>
+
+<!-- ==================== 7 ==================== -->
+<section id="s7">
+  <p class="eyebrow">Secci&oacute;n 7</p>
+  <h2 class="sec">El problema de tiempo, que es el m&aacute;s serio</h2>
+
+  <p class="col">Cada vuelta del bucle exige resolver la red. Si una resoluci&oacute;n completa tarda lo que tarda el simulador en responderle al estudiante, y hacen falta decenas de miles de vueltas, la b&uacute;squeda durar&iacute;a m&aacute;s que la clase entera. <b>Ah&iacute; se cae el m&oacute;dulo si no se resuelve bien.</b></p>
+
+  <div class="pares">
+    <div class="par">
+      <p class="q">Soluci&oacute;n 1</p>
+      <h4>Recalcular solo lo que cambi&oacute;</h4>
+      <p>Cambiar el di&aacute;metro de un tramo no afecta a la red entera: afecta a ese tramo y a todo lo que cuelga aguas abajo de &eacute;l. Si el cambio est&aacute; cerca de una punta, eso puede ser un solo tramo. <b>Recalcular la rama en vez de la red completa es la diferencia entre una b&uacute;squeda de minutos y una de horas.</b></p>
+    </div>
+    <div class="par">
+      <p class="q">Soluci&oacute;n 2</p>
+      <h4>Correr en un hilo aparte</h4>
+      <p>La b&uacute;squeda no ocurre en el mismo hilo que dibuja la pantalla. As&iacute; el estudiante puede seguir mirando su dise&ntilde;o, ver el avance y <b>detener la b&uacute;squeda cuando quiera</b>, qued&aacute;ndose con lo mejor encontrado hasta ese momento.</p>
+    </div>
+    <div class="par">
+      <p class="q">Soluci&oacute;n 3</p>
+      <h4>Presupuesto de tiempo, no de vueltas</h4>
+      <p>No se fija un n&uacute;mero de vueltas sino un tiempo m&aacute;ximo, del orden de algunas decenas de segundos. En un equipo lento dar&aacute; menos vueltas y opciones algo peores, pero <b>siempre devolver&aacute; algo</b> y siempre en el mismo tiempo. En un aula con computadoras desiguales, eso importa.</p>
+    </div>
+    <div class="par">
+      <p class="q">Soluci&oacute;n 4</p>
+      <h4>Descartar antes de calcular</h4>
+      <p>Muchos cambios se pueden rechazar sin resolver nada: si el cambio hace crecer un di&aacute;metro aguas abajo, ya viola una restricci&oacute;n y no hace falta calcular. <b>Filtrar primero lo barato de comprobar</b> ahorra una parte grande del trabajo.</p>
+    </div>
+  </div>
+
+  <div class="aviso mal">
+    <p><b>Esto hay que medirlo, no suponerlo.</b> Los n&uacute;meros concretos &mdash;cu&aacute;nto tarda una resoluci&oacute;n parcial, cu&aacute;ntas vueltas entran en el presupuesto, cu&aacute;nto mejora realmente la resoluci&oacute;n parcial frente a la completa&mdash; salen de medir sobre el motor ya construido, en el Sprint&nbsp;1, y no de estimarlos ahora. Es exactamente lo que pide la historia HU-29. <b>Si al medirlo no alcanza, hay que reducir el tama&ntilde;o de las redes de los escenarios, no recortar la b&uacute;squeda.</b></p>
+  </div>
+</section>
+
+<!-- ==================== 8 ==================== -->
+<section id="s8">
+  <p class="eyebrow">Secci&oacute;n 8</p>
+  <h2 class="sec">De d&oacute;nde sale la explicaci&oacute;n de cada cambio</h2>
+
+  <p class="col">La historia pide que el optimizador explique la raz&oacute;n f&iacute;sica de cada cambio que propone. Conviene ser precisos sobre c&oacute;mo se consigue eso, porque es f&aacute;cil prometer de m&aacute;s: <b>el algoritmo no explica nada.</b> El algoritmo solo prueba cosas. La explicaci&oacute;n se construye despu&eacute;s, comparando el dise&ntilde;o del estudiante con la opci&oacute;n propuesta, tramo por tramo, y preguntando al motor qu&eacute; cambi&oacute; en cada uno.</p>
+
+  <h4>Un ejemplo de lo que lee el estudiante</h4>
+  <div class="dialogo">
+    <p class="q">Opci&oacute;n B, comparada con tu dise&ntilde;o &middot; 4 cambios</p>
+    <p><b>Tramo 3 &mdash; subi&oacute; el di&aacute;metro de 2&Prime; a 2&frac12;&Prime;.</b> En tu dise&ntilde;o la velocidad ah&iacute; era de 3,14 m/s, por encima del l&iacute;mite, y la p&eacute;rdida de carga de 8,4 m. Con el di&aacute;metro mayor la velocidad baja a 2,06 m/s y la p&eacute;rdida a 3,1 m. Esos 5,3 m de presi&oacute;n recuperada son los que llegan a las salidas del final.</p>
+    <p><b>Tramo 7 &mdash; subi&oacute; la clase de C-5 a C-7,5.</b> Con las v&aacute;lvulas cerradas, la presi&oacute;n est&aacute;tica en ese punto llega a 62 m. La clase C-5 aguanta 50 m. Tu dise&ntilde;o funcionaba mientras el agua corr&iacute;a, pero reventaba al cerrar.</p>
+    <p><b>Nodo 12 &mdash; agreg&oacute; una c&aacute;mara rompe-presi&oacute;n.</b> El desnivel acumulado desde la fuente llegaba a 58 m ah&iacute;, por encima del l&iacute;mite del m&eacute;todo. La c&aacute;mara devuelve la carga a cero y lo que sigue vuelve a empezar.</p>
+    <p><b>Tramo 11 &mdash; baj&oacute; el di&aacute;metro de 1&frac12;&Prime; a 1&Prime;.</b> Ah&iacute; sobraba presi&oacute;n y la velocidad era de apenas 0,48 m/s, por debajo del m&iacute;nimo. El di&aacute;metro menor sube la velocidad a 1,08 m/s y ahorra S/&nbsp;340.</p>
+  </div>
+
+  <p class="col">Ninguna de esas frases la invent&oacute; el optimizador. Cada una sale de una plantilla asociada al tipo de cambio, rellenada con los n&uacute;meros que el motor ya calcul&oacute;. <b>Es honesto, es verificable, y es reproducible</b> &mdash; tres propiedades que una explicaci&oacute;n generada libremente no tendr&iacute;a.</p>
+
+  <div class="aviso ag">
+    <p><b>Y aqu&iacute; est&aacute; la lecci&oacute;n de ingenier&iacute;a del m&oacute;dulo.</b> Despu&eacute;s de leer esos cuatro cambios, el estudiante puede estar en desacuerdo con alguno &mdash; por ejemplo, porque en ese terreno no se puede construir una c&aacute;mara. Entonces la bloquea, vuelve a correr la b&uacute;squeda, y ve c&oacute;mo cambian las opciones. Eso le ense&ntilde;a, sin que nadie se lo diga, que <b>la m&aacute;quina optimiza lo que se model&oacute;, no la realidad.</b></p>
+  </div>
+</section>
+
+<!-- ==================== 9 ==================== -->
+<section id="s9">
+  <p class="eyebrow">Secci&oacute;n 9</p>
+  <h2 class="sec">Qu&eacute; pasa si la b&uacute;squeda no encuentra nada</h2>
+  <p class="col">Puede ocurrir: el dise&ntilde;o del estudiante ya es bueno, o el escenario es tan ajustado que casi no hay margen, o el equipo es lento y el tiempo se acab&oacute; pronto. Si el m&oacute;dulo devolviera una pantalla vac&iacute;a, el estudiante quedar&iacute;a sin la lecci&oacute;n y el experimento perder&iacute;a ese dato.</p>
+
+  <p class="col"><b>Por eso hay un segundo optimizador, mucho m&aacute;s tonto y completamente predecible</b>, que aplica las reglas del oficio una por una: si la velocidad se pasa, sube el di&aacute;metro; si la presi&oacute;n est&aacute;tica supera la clase, sube la clase o pone una c&aacute;mara; si sobra presi&oacute;n y la velocidad es baja, baja el di&aacute;metro. No busca el mejor dise&ntilde;o: arregla lo que est&aacute; mal. Siempre devuelve algo, y siempre lo mismo ante la misma entrada.</p>
+
+  <ul class="limpia">
+    <li><b>Si la b&uacute;squeda encontr&oacute; opciones</b>, se muestran esas y el respaldo no aparece.</li>
+    <li><b>Si no encontr&oacute; ninguna</b>, se muestra la del respaldo, diciendo expl&iacute;citamente que viene de aplicar reglas y no de una b&uacute;squeda.</li>
+    <li><b>Si el dise&ntilde;o del estudiante ya est&aacute; en el conjunto de compromisos</b>, se le dice eso, que es la mejor noticia que puede recibir, y se le muestran las otras opciones para que vea qu&eacute; est&aacute; sacrificando.</li>
+  </ul>
+
+  <div class="aviso">
+    <p><b>Ojo con el backlog.</b> Al compactar de 82 a 30 historias, este respaldo qued&oacute; absorbido dentro de la historia del frente de opciones, pero <b>no aparece en ninguno de sus criterios de aceptaci&oacute;n</b>. Hay que agregarle uno, o se va a construir el optimizador sin respaldo y nadie lo va a notar hasta que un estudiante se quede con la pantalla vac&iacute;a el d&iacute;a del experimento.</p>
+  </div>
+</section>
+
+<!-- ==================== 10 ==================== -->
+<section id="s10">
+  <p class="eyebrow">Secci&oacute;n 10</p>
+  <h2 class="sec">Que d&eacute; lo mismo dos veces</h2>
+  <p class="col">El recocido simulado usa azar. Sin cuidado, dos estudiantes con el mismo dise&ntilde;o recibir&iacute;an opciones distintas, y un revisor que quisiera rehacer los n&uacute;meros no podr&iacute;a. Eso no se puede permitir en una tesis.</p>
+
+  <ul class="limpia">
+    <li><b>El azar viene de una semilla fija.</b> No se usa el generador del navegador, que no se puede reproducir. Misma semilla y mismo dise&ntilde;o de partida, mismo resultado, siempre.</li>
+    <li><b>La semilla se guarda en la bit&aacute;cora</b> junto con el dise&ntilde;o entregado y las opciones devueltas. Con esos tres datos se puede repetir cualquier corrida meses despu&eacute;s.</li>
+    <li><b>El presupuesto de tiempo se guarda tambi&eacute;n</b>, porque en un equipo m&aacute;s r&aacute;pido la misma semilla da m&aacute;s vueltas. Para reproducir exactamente hay que repetir con el mismo n&uacute;mero de vueltas, no con el mismo tiempo.</li>
+    <li><b>Se verifica en redes de juguete.</b> En una red de tres o cuatro tramos s&iacute; se pueden probar todas las combinaciones y saber cu&aacute;l es el &oacute;ptimo real. Comprobar que la b&uacute;squeda lo encuentra ah&iacute; es la &uacute;nica forma de confiar en ella en redes grandes.</li>
+  </ul>
+</section>
+
+<!-- ==================== 11 ==================== -->
+<section id="s11">
+  <p class="eyebrow">Secci&oacute;n 11</p>
+  <h2 class="sec">Qu&eacute; mide este m&oacute;dulo para la tesis</h2>
+  <p class="col">No est&aacute; solo para ense&ntilde;ar: tambi&eacute;n produce una de las tres medidas del estudio. <b>La distancia entre el dise&ntilde;o que el estudiante entreg&oacute; y el conjunto de compromisos que encontr&oacute; la b&uacute;squeda.</b></p>
+
+  <p class="col">La idea es directa: si a lo largo de los escenarios esa distancia se acorta, el estudiante est&aacute; entregando dise&ntilde;os cada vez m&aacute;s cercanos a lo que un buscador exhaustivo considerar&iacute;a defendible. Y como la comparaci&oacute;n siempre se hace contra su propio dise&ntilde;o de partida, la medida no depende de qu&eacute; escenario le toc&oacute;.</p>
+
+  <div class="aviso">
+    <p><b>Esto hay que definirlo con precisi&oacute;n antes del experimento, no despu&eacute;s.</b> Los tres objetivos est&aacute;n en unidades distintas &mdash;soles, por ciento, metros&mdash; as&iacute; que hay que decidir c&oacute;mo se normalizan para poder medir una distancia. La propuesta es llevar cada objetivo al rango que aparece en el propio conjunto de compromisos de ese escenario, y medir la distancia al punto m&aacute;s cercano. <b>Se fija una vez y no se toca</b>: cambiar la definici&oacute;n despu&eacute;s de ver los resultados invalida la medida.</p>
+  </div>
+</section>
+
+<!-- ==================== 12 ==================== -->
+<section id="s12">
+  <p class="eyebrow">Secci&oacute;n 12</p>
+  <h2 class="sec">&laquo;&iquest;Y esto es de verdad inteligencia artificial?&raquo;</h2>
+  <p class="col">La pregunta va a venir del jurado. Conviene la respuesta corta, la larga, y saber qu&eacute; <em>no</em> decir.</p>
+
+  <div class="pares">
+    <div class="par">
+      <p class="q">La respuesta corta</p>
+      <h4>S&iacute;, y es de la rama m&aacute;s antigua</h4>
+      <p>La b&uacute;squeda y la optimizaci&oacute;n son una de las &aacute;reas fundacionales de la inteligencia artificial, anterior al aprendizaje autom&aacute;tico. El recocido simulado es un m&eacute;todo cl&aacute;sico de b&uacute;squeda local estoc&aacute;stica, y aparece como tal en cualquier texto de referencia de la disciplina.</p>
+    </div>
+    <div class="par">
+      <p class="q">La respuesta larga</p>
+      <h4>Resuelve un problema que no se puede resolver de frente</h4>
+      <p>Explorar un espacio de m&aacute;s de treinta cifras de combinaciones, con restricciones duras y tres objetivos en conflicto, y devolver soluciones defendibles en decenas de segundos. Eso es exactamente el tipo de problema para el que existe esta rama.</p>
+    </div>
+    <div class="par">
+      <p class="q">Lo que NO hay que decir</p>
+      <h4>No es aprendizaje autom&aacute;tico</h4>
+      <p>No hay modelo entrenado, no hay conjunto de datos, no hay red neuronal. Decir lo contrario ser&iacute;a mentir, y un jurado t&eacute;cnico lo detecta en dos preguntas. Conviene decirlo antes de que lo pregunten.</p>
+    </div>
+    <div class="par">
+      <p class="q">Y por qu&eacute; no usamos aprendizaje</p>
+      <h4>Porque no hay de qu&eacute; aprender</h4>
+      <p>Entrenar un modelo exigir&iacute;a miles de dise&ntilde;os de riego etiquetados como buenos o malos. Ese conjunto de datos no existe, y construirlo ser&iacute;a otra tesis. Adem&aacute;s ser&iacute;a peor: un modelo entrenado no podr&iacute;a explicar sus cambios con la f&iacute;sica, que es justo lo que aqu&iacute; hace falta.</p>
+    </div>
+  </div>
+
+  <div class="aviso bien">
+    <p><b>La frase con la que conviene cerrar el tema.</b> Un modelo entrenado dir&iacute;a &laquo;sube ese di&aacute;metro&raquo; sin poder decir por qu&eacute;. El nuestro dice &laquo;sube ese di&aacute;metro porque la velocidad est&aacute; en 3,14 m/s y el l&iacute;mite es 3,00&raquo;. Para un simulador que existe para ense&ntilde;ar, <b>la segunda respuesta vale infinitamente m&aacute;s que la primera</b>, y esa es la raz&oacute;n de la elecci&oacute;n &mdash; no una limitaci&oacute;n que estemos disculpando.</p>
+  </div>
+</section>
+
+<!-- ==================== 13 ==================== -->
+<section id="s13">
+  <p class="eyebrow">Secci&oacute;n 13</p>
+  <h2 class="sec">Lo que falta decidir</h2>
+  <ul class="limpia">
+    <li><b>El cat&aacute;logo comercial y sus precios.</b> Qu&eacute; di&aacute;metros, qu&eacute; clases y a qu&eacute; precio. Sin esto el objetivo de costo no existe. <b>Es la primera cosa que hay que pedirle a tu pap&aacute;</b>, porque tiene que ser un cat&aacute;logo real de mercado peruano y no uno inventado.</li>
+    <li><b>Cu&aacute;ntas opciones se muestran.</b> La propuesta son tres o cuatro, repartidas a lo largo del conjunto. M&aacute;s no ense&ntilde;a m&aacute;s.</li>
+    <li><b>El presupuesto de tiempo de la b&uacute;squeda.</b> Sale de medir el motor en el Sprint&nbsp;1.</li>
+    <li><b>C&oacute;mo se normaliza la distancia al conjunto de compromisos.</b> Se fija antes del experimento y no se toca.</li>
+    <li><b>Un criterio de aceptaci&oacute;n para el optimizador de respaldo</b>, que se perdi&oacute; al compactar el backlog.</li>
+  </ul>
+</section>
+
+</div>
+
+<footer>
+  <div class="wrap">
+    <p>M&oacute;dulo de optimizaci&oacute;n del simulador de riego presurizado. Complementa la arquitectura l&oacute;gica, el stack de despliegue y el product backlog de 30 historias, en particular las cuatro historias del Sprint&nbsp;4 que construyen este m&oacute;dulo.</p>
+    <p style="margin-top:10px">Los n&uacute;meros de los ejemplos son ilustrativos, para mostrar la forma del resultado. Los valores reales salen del cat&aacute;logo comercial y de la medici&oacute;n del motor, ambos pendientes.</p>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var b = document.getElementById("tema");
+  function actual(){
+    var t = document.documentElement.getAttribute("data-theme");
+    if (t) return t;
+    return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  }
+  b.addEventListener("click", function(){
+    document.documentElement.setAttribute("data-theme", actual() === "dark" ? "light" : "dark");
+  });
+})();
+</script>

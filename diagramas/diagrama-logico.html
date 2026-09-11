@@ -1,0 +1,524 @@
+<title>Diagrama Lógico del Simulador</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=Spectral:ital,wght@0,400;0,500;0,600;1,400;1,600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+
+<style>
+:root{
+  --paper:#EEF1F2; --surface:#FFFFFF; --surface-2:#F7F9F9; --surface-3:#E9EEEF;
+  --ink:#14232B; --ink-soft:#5A6E76; --ink-faint:#6D7E85;
+  --rule:#D2DBDD; --rule-strong:#B4C1C4;
+  --agua:#0D7A8C; --agua-soft:#E1F0F2;
+  --tierra:#A56C36; --tierra-soft:#F3E9DF;
+  --ok:#2C7A57; --ok-soft:#E2F0E9;
+  --alerta:#B5841A; --alerta-soft:#FBF0D8;
+  --critico:#B03A30; --critico-soft:#FAE6E3;
+  --display:"Archivo","Helvetica Neue",Arial,sans-serif;
+  --body:"Spectral",Georgia,serif;
+  --mono:"IBM Plex Mono",Consolas,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){ :root:not([data-theme="light"]){
+  --paper:#0F161A; --surface:#161F25; --surface-2:#1B262C; --surface-3:#223038;
+  --ink:#E2EAEC; --ink-soft:#96A8AF; --ink-faint:#8A9BA1;
+  --rule:#26343B; --rule-strong:#35474F;
+  --agua:#45B9CC; --agua-soft:#10333A;
+  --tierra:#C89A66; --tierra-soft:#33261A;
+  --ok:#4EB185; --ok-soft:#123124;
+  --alerta:#D9AC49; --alerta-soft:#33280F;
+  --critico:#E0736A; --critico-soft:#3A1B18;
+  color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --paper:#0F161A; --surface:#161F25; --surface-2:#1B262C; --surface-3:#223038;
+  --ink:#E2EAEC; --ink-soft:#96A8AF; --ink-faint:#8A9BA1;
+  --rule:#26343B; --rule-strong:#35474F;
+  --agua:#45B9CC; --agua-soft:#10333A;
+  --tierra:#C89A66; --tierra-soft:#33261A;
+  --ok:#4EB185; --ok-soft:#123124;
+  --alerta:#D9AC49; --alerta-soft:#33280F;
+  --critico:#E0736A; --critico-soft:#3A1B18;
+}
+
+*{box-sizing:border-box}
+body{margin:0; background:var(--paper); color:var(--ink);
+  font-family:var(--body); font-size:16px; line-height:1.6; -webkit-font-smoothing:antialiased}
+h1,h2{font-family:var(--display); font-weight:600; margin:0; text-wrap:balance; letter-spacing:-.015em}
+p{margin:0}
+:focus-visible{outline:2px solid var(--agua); outline-offset:3px}
+
+.full{max-width:1780px; margin:0 auto; padding:0 22px}
+
+header.top{padding:26px 0 20px}
+.hdrow{display:flex; justify-content:space-between; align-items:flex-end; gap:22px; flex-wrap:wrap}
+.eyebrow{font-family:var(--display); font-size:10.5px; font-weight:600; letter-spacing:.17em;
+  text-transform:uppercase; color:var(--ink-faint); margin:0}
+header.top h1{font-size:clamp(24px,2.6vw,34px); line-height:1.06; margin:8px 0 0}
+header.top h1 em{font-style:italic; font-family:var(--body); font-weight:600; color:var(--agua)}
+.sub2{font-size:15px; color:var(--ink-soft); margin:7px 0 0; max-width:78ch; font-style:italic}
+.themebtn{font-family:var(--display); font-size:12px; padding:7px 14px; border-radius:99px; cursor:pointer;
+  border:1px solid var(--rule-strong); background:var(--surface); color:var(--ink-soft); flex:none}
+.themebtn:hover{border-color:var(--agua); color:var(--agua)}
+
+.lienzo{overflow-x:auto; background:var(--surface); border:1px solid var(--rule); border-radius:12px; padding:16px}
+.lienzo svg{display:block; height:auto; width:100%; min-width:1420px}
+
+.cierre{display:grid; grid-template-columns:repeat(auto-fit,minmax(228px,1fr)); gap:1px;
+  background:var(--rule); border:1px solid var(--rule); border-radius:10px; overflow:hidden; margin:22px 0 40px}
+.cie{background:var(--surface); padding:16px 18px}
+.cie .k{font-family:var(--mono); font-size:11px; font-weight:600; color:var(--agua); letter-spacing:.04em}
+.cie h2{font-size:14.5px; margin:5px 0 0}
+.cie p{font-size:13.5px; color:var(--ink-soft); margin:6px 0 0; line-height:1.5}
+
+.dg-tier{fill:none; stroke:var(--rule-strong); stroke-width:1.4; stroke-dasharray:6 5}
+.dg-col{fill:var(--surface-2); stroke:var(--rule); stroke-width:1}
+.dg-colia{fill:var(--agua-soft); stroke:var(--agua); stroke-width:1.4}
+.dg-box{fill:var(--surface); stroke:var(--rule-strong); stroke-width:1}
+.dg-boxc{fill:var(--surface); stroke:var(--agua); stroke-width:1.4}
+.dg-store{fill:var(--surface-3); stroke:var(--rule-strong); stroke-width:1}
+.dg-tier-t{font-family:var(--display); font-size:11px; font-weight:700; letter-spacing:.18em; fill:var(--ink-faint)}
+.dg-capa{font-family:var(--display); font-size:13px; font-weight:700; letter-spacing:.1em; fill:var(--ink)}
+.dg-tec{font-family:var(--mono); font-size:10px; fill:var(--agua); font-weight:500}
+.dg-g{font-family:var(--display); font-size:9.5px; font-weight:700; letter-spacing:.15em; fill:var(--ink-faint)}
+.dg-ts{font-family:var(--display); font-size:11.5px; font-weight:600; fill:var(--ink)}
+.dg-chip{font-family:var(--body); font-size:11px; fill:var(--ink)}
+.dg-s{font-family:var(--body); font-size:10.5px; fill:var(--ink-soft)}
+.dg-fl{stroke:var(--rule-strong); stroke-width:1.5; fill:none}
+.dg-fla{stroke:var(--agua); stroke-width:1.7; fill:none}
+.dg-lbl{font-family:var(--mono); font-size:9px; fill:var(--ink-faint); letter-spacing:.05em}
+.dg-front{font-family:var(--display); font-size:10px; font-weight:700; letter-spacing:.2em; fill:var(--critico)}
+</style>
+
+<header class="top">
+  <div class="full">
+    <div class="hdrow">
+      <div>
+        <p class="eyebrow">Arquitectura l&oacute;gica por capas &middot; Simulador de riego presurizado &middot; UPC</p>
+        <h1>Diagrama l&oacute;gico de la <em>aplicaci&oacute;n</em></h1>
+        <p class="sub2">Cinco capas, dos lugares de ejecuci&oacute;n y una frontera de confianza. Abajo, c&oacute;mo se calcula y c&oacute;mo se protege.</p>
+      </div>
+      <button class="themebtn" id="tema" type="button">Cambiar tema</button>
+    </div>
+  </div>
+</header>
+
+<div class="full">
+  <div class="lienzo">
+  <svg viewBox="0 0 1600 1310" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Diagrama l&oacute;gico por capas del simulador de riego presurizado">
+    <defs>
+      <marker id="m" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+        <path d="M0 0 L10 5 L0 10 z" fill="var(--rule-strong)"/>
+      </marker>
+      <marker id="ma" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+        <path d="M0 0 L10 5 L0 10 z" fill="var(--agua)"/>
+      </marker>
+    </defs>
+
+    <!-- ========== ACTORES ========== -->
+    <text class="dg-tier-t" x="24" y="34">ACTORES</text>
+
+    <rect class="dg-box" x="24" y="210" width="130" height="104" rx="8"/>
+    <circle cx="89" cy="244" r="14" fill="var(--agua-soft)" stroke="var(--agua)" stroke-width="1.5"/>
+    <circle cx="89" cy="240" r="5" fill="var(--agua)"/>
+    <path d="M80 253 C82 245 96 245 98 253" fill="none" stroke="var(--agua)" stroke-width="2.2"/>
+    <text class="dg-ts" x="89" y="280" text-anchor="middle">Estudiante</text>
+    <text class="dg-s" x="89" y="298" text-anchor="middle">Dise&ntilde;a y aprende</text>
+
+    <rect class="dg-box" x="24" y="500" width="130" height="104" rx="8"/>
+    <circle cx="89" cy="534" r="14" fill="var(--tierra-soft)" stroke="var(--tierra)" stroke-width="1.5"/>
+    <circle cx="89" cy="530" r="5" fill="var(--tierra)"/>
+    <path d="M80 543 C82 535 96 535 98 543" fill="none" stroke="var(--tierra)" stroke-width="2.2"/>
+    <text class="dg-ts" x="89" y="570" text-anchor="middle">Docente</text>
+    <text class="dg-s" x="89" y="588" text-anchor="middle">Dirige y eval&uacute;a</text>
+
+    <!-- ========== TIER 1 · NAVEGADOR ========== -->
+    <text class="dg-tier-t" x="182" y="34">SE EJECUTA EN EL NAVEGADOR DEL ESTUDIANTE</text>
+    <rect class="dg-tier" x="182" y="44" width="880" height="700" rx="12"/>
+
+    <!-- --- CAPA DE PRESENTACIÓN --- -->
+    <rect class="dg-col" x="200" y="70" width="300" height="656" rx="9"/>
+    <text class="dg-capa" x="350" y="98" text-anchor="middle">CAPA DE PRESENTACI&Oacute;N</text>
+    <text class="dg-tec" x="350" y="118" text-anchor="middle">React &middot; Canvas 2D &middot; Three.js &middot; D3</text>
+    <line x1="216" y1="132" x2="484" y2="132" stroke="var(--rule)" stroke-width="1"/>
+
+    <text class="dg-g" x="216" y="156">DISE&Ntilde;AR</text>
+    <rect class="dg-boxc" x="216" y="164" width="129" height="32" rx="5"/>
+    <text class="dg-chip" x="228" y="185">Vista de planta</text>
+    <rect class="dg-boxc" x="355" y="164" width="129" height="32" rx="5"/>
+    <text class="dg-chip" x="367" y="185">Vista de perfil</text>
+    <rect class="dg-boxc" x="216" y="202" width="129" height="32" rx="5"/>
+    <text class="dg-chip" x="228" y="223">Tabla de tramos</text>
+    <rect class="dg-box" x="355" y="202" width="129" height="32" rx="5"/>
+    <text class="dg-chip" x="367" y="223">Datos del cultivo</text>
+
+    <text class="dg-g" x="216" y="266">ENTENDER</text>
+    <rect class="dg-boxc" x="216" y="274" width="129" height="32" rx="5"/>
+    <text class="dg-chip" x="228" y="295">Vista en 3D</text>
+    <rect class="dg-boxc" x="355" y="274" width="129" height="32" rx="5"/>
+    <text class="dg-chip" x="367" y="295">Predicci&oacute;n</text>
+    <rect class="dg-boxc" x="216" y="312" width="129" height="32" rx="5"/>
+    <text class="dg-chip" x="228" y="333">Avisos y ayuda</text>
+    <rect class="dg-box" x="355" y="312" width="129" height="32" rx="5"/>
+    <text class="dg-chip" x="367" y="333">Teor&iacute;a</text>
+
+    <text class="dg-g" x="216" y="376">CERRAR</text>
+    <rect class="dg-box" x="216" y="384" width="129" height="32" rx="5"/>
+    <text class="dg-chip" x="228" y="405">Entregar dise&ntilde;o</text>
+    <rect class="dg-boxc" x="355" y="384" width="129" height="32" rx="5"/>
+    <text class="dg-chip" x="367" y="405">Ver opciones</text>
+    <rect class="dg-boxc" x="216" y="422" width="129" height="32" rx="5"/>
+    <text class="dg-chip" x="228" y="443">Cuestionarios</text>
+    <rect class="dg-box" x="355" y="422" width="129" height="32" rx="5"/>
+    <text class="dg-chip" x="367" y="443">Reporte en PDF</text>
+
+    <text class="dg-g" x="216" y="486">PANEL DEL DOCENTE</text>
+    <rect class="dg-box" x="216" y="494" width="129" height="32" rx="5"/>
+    <text class="dg-chip" x="228" y="515">Escenarios</text>
+    <rect class="dg-box" x="355" y="494" width="129" height="32" rx="5"/>
+    <text class="dg-chip" x="367" y="515">Avance del grupo</text>
+    <rect class="dg-box" x="216" y="532" width="129" height="32" rx="5"/>
+    <text class="dg-chip" x="228" y="553">Historial</text>
+    <rect class="dg-box" x="355" y="532" width="129" height="32" rx="5"/>
+    <text class="dg-chip" x="367" y="553">Cuentas</text>
+
+    <line x1="216" y1="596" x2="484" y2="596" stroke="var(--rule)" stroke-width="1"/>
+    <text class="dg-g" x="216" y="622">SU &Uacute;NICA REGLA</text>
+    <text class="dg-s" x="216" y="646">Muestran y recogen. No calculan.</text>
+    <text class="dg-s" x="216" y="668">Las cuatro vistas leen del mismo</text>
+    <text class="dg-s" x="216" y="690">dise&ntilde;o: no pueden contradecirse.</text>
+
+    <!-- --- CAPA DE SIMULACIÓN --- -->
+    <rect class="dg-col" x="520" y="70" width="250" height="656" rx="9"/>
+    <text class="dg-capa" x="645" y="98" text-anchor="middle">CAPA DE SIMULACI&Oacute;N</text>
+    <text class="dg-tec" x="645" y="118" text-anchor="middle">Motor propio &middot; m&eacute;todo normalizado</text>
+    <line x1="536" y1="132" x2="754" y2="132" stroke="var(--rule)" stroke-width="1"/>
+
+    <text class="dg-g" x="536" y="156">AQU&Iacute; SE HACEN LOS C&Aacute;LCULOS</text>
+    <rect class="dg-boxc" x="536" y="164" width="218" height="74" rx="7"/>
+    <text class="dg-ts" x="550" y="187">Red y presi&oacute;n</text>
+    <text class="dg-s" x="550" y="207">Cu&aacute;nta presi&oacute;n y cu&aacute;nta agua</text>
+    <text class="dg-s" x="550" y="225">hay en cada punto de la red.</text>
+
+    <rect class="dg-boxc" x="536" y="250" width="218" height="74" rx="7"/>
+    <text class="dg-ts" x="550" y="273">Demanda del cultivo</text>
+    <text class="dg-s" x="550" y="293">Cu&aacute;nta agua debe salir por</text>
+    <text class="dg-s" x="550" y="311">cada gotero del campo.</text>
+
+    <rect class="dg-boxc" x="536" y="336" width="218" height="74" rx="7"/>
+    <text class="dg-ts" x="550" y="359">Reglas y alertas</text>
+    <text class="dg-s" x="550" y="379">Velocidad, resistencia del tubo,</text>
+    <text class="dg-s" x="550" y="397">desnivel y riego parejo.</text>
+
+    <line x1="536" y1="440" x2="754" y2="440" stroke="var(--rule)" stroke-width="1"/>
+    <text class="dg-g" x="536" y="466">SU &Uacute;NICA REGLA</text>
+    <text class="dg-s" x="536" y="490">No sabe que existe una pantalla</text>
+    <text class="dg-s" x="536" y="512">ni una base de datos. Solo sabe</text>
+    <text class="dg-s" x="536" y="534">de agua. Por eso se puede</text>
+    <text class="dg-s" x="536" y="556">comprobar solo.</text>
+
+    <rect class="dg-boxc" x="536" y="590" width="218" height="46" rx="6"/>
+    <text class="dg-tec" x="645" y="608" text-anchor="middle">RESPONDE EN MENOS</text>
+    <text class="dg-tec" x="645" y="624" text-anchor="middle">DE UN PARPADEO</text>
+
+    <text class="dg-s" x="536" y="664">El detalle de lo que calcula</text>
+    <text class="dg-s" x="536" y="686">est&aacute; en el panel de abajo.</text>
+
+    <!-- --- CAPA DE IA --- -->
+    <rect class="dg-colia" x="790" y="70" width="254" height="656" rx="9"/>
+    <text class="dg-capa" x="917" y="98" text-anchor="middle">CAPA DE IA</text>
+    <text class="dg-tec" x="917" y="118" text-anchor="middle">Optimizaci&oacute;n &middot; recocido simulado</text>
+    <line x1="806" y1="132" x2="1028" y2="132" stroke="var(--agua)" stroke-width="1" opacity="0.4"/>
+
+    <text class="dg-g" x="806" y="156">LO QUE PROPONE</text>
+    <rect class="dg-boxc" x="806" y="164" width="222" height="74" rx="7"/>
+    <text class="dg-ts" x="820" y="187">Buscador de opciones</text>
+    <text class="dg-s" x="820" y="207">Prueba miles de variantes</text>
+    <text class="dg-s" x="820" y="225">partiendo de tu dise&ntilde;o.</text>
+
+    <rect class="dg-boxc" x="806" y="250" width="222" height="74" rx="7"/>
+    <text class="dg-ts" x="820" y="273">Explicador de cambios</text>
+    <text class="dg-s" x="820" y="293">Por qu&eacute; cambiar&iacute;a cada</text>
+    <text class="dg-s" x="820" y="311">tramo, y cu&aacute;nto mejora.</text>
+
+    <rect class="dg-box" x="806" y="336" width="222" height="74" rx="7"/>
+    <text class="dg-ts" x="820" y="359">Respaldo por reglas</text>
+    <text class="dg-s" x="820" y="379">Si la b&uacute;squeda no halla nada,</text>
+    <text class="dg-s" x="820" y="397">arregla lo que est&aacute; mal.</text>
+
+    <line x1="806" y1="440" x2="1028" y2="440" stroke="var(--agua)" stroke-width="1" opacity="0.4"/>
+    <text class="dg-g" x="806" y="466">SU &Uacute;NICA REGLA</text>
+    <text class="dg-s" x="806" y="490">Usa el mismo motor de la</text>
+    <text class="dg-s" x="806" y="512">izquierda. No puede hacer</text>
+    <text class="dg-s" x="806" y="534">trampa ni saltarse un l&iacute;mite.</text>
+
+    <text class="dg-g" x="806" y="576">C&Oacute;MO EST&Aacute; HECHA</text>
+    <text class="dg-s" x="806" y="600">C&oacute;digo propio, sin servicios</text>
+    <text class="dg-s" x="806" y="622">externos ni costo por uso.</text>
+    <text class="dg-s" x="806" y="644">Trabaja en un carril aparte.</text>
+
+    <rect class="dg-boxc" x="806" y="668" width="222" height="40" rx="6"/>
+    <text class="dg-tec" x="917" y="684" text-anchor="middle">SE HABILITA RECI&Eacute;N AL</text>
+    <text class="dg-tec" x="917" y="698" text-anchor="middle">ENTREGAR EL DISE&Ntilde;O</text>
+
+    <!-- ========== TIER 2 · SERVIDOR ========== -->
+    <text class="dg-tier-t" x="1090" y="34">SE EJECUTA EN EL SERVIDOR</text>
+    <rect class="dg-tier" x="1090" y="44" width="486" height="700" rx="12"/>
+
+    <!-- --- CAPA DE NEGOCIO --- -->
+    <rect class="dg-col" x="1108" y="70" width="290" height="656" rx="9"/>
+    <text class="dg-capa" x="1253" y="98" text-anchor="middle">CAPA DE NEGOCIO</text>
+    <text class="dg-tec" x="1253" y="118" text-anchor="middle">API REST &middot; Node.js &middot; sesi&oacute;n firmada</text>
+    <line x1="1124" y1="132" x2="1382" y2="132" stroke="var(--rule)" stroke-width="1"/>
+
+    <text class="dg-g" x="1124" y="156">OPERACI&Oacute;N DEL CURSO</text>
+    <rect class="dg-box" x="1124" y="164" width="124" height="32" rx="5"/>
+    <text class="dg-chip" x="1136" y="185">Cuentas y roles</text>
+    <rect class="dg-box" x="1258" y="164" width="124" height="32" rx="5"/>
+    <text class="dg-chip" x="1270" y="185">Escenarios</text>
+    <rect class="dg-box" x="1124" y="202" width="124" height="32" rx="5"/>
+    <text class="dg-chip" x="1136" y="223">Versiones</text>
+    <rect class="dg-box" x="1258" y="202" width="124" height="32" rx="5"/>
+    <text class="dg-chip" x="1270" y="223">Armado del PDF</text>
+
+    <text class="dg-g" x="1124" y="266">SOPORTE DE LA INVESTIGACI&Oacute;N</text>
+    <rect class="dg-boxc" x="1124" y="274" width="258" height="32" rx="5"/>
+    <text class="dg-chip" x="1136" y="295">Registro de todo lo que hace el alumno</text>
+    <rect class="dg-boxc" x="1124" y="312" width="124" height="32" rx="5"/>
+    <text class="dg-chip" x="1136" y="333">Cuestionarios</text>
+    <rect class="dg-box" x="1258" y="312" width="124" height="32" rx="5"/>
+    <text class="dg-chip" x="1270" y="333">Resultados</text>
+
+    <line x1="1124" y1="380" x2="1382" y2="380" stroke="var(--rule)" stroke-width="1"/>
+    <text class="dg-g" x="1124" y="406">SU &Uacute;NICA REGLA</text>
+    <text class="dg-s" x="1124" y="430">Guarda y ordena, pero no calcula</text>
+    <text class="dg-s" x="1124" y="452">hidr&aacute;ulica. Si lo hiciera habr&iacute;a dos</text>
+    <text class="dg-s" x="1124" y="474">calculadoras y alg&uacute;n d&iacute;a dir&iacute;an</text>
+    <text class="dg-s" x="1124" y="496">cosas distintas.</text>
+
+    <text class="dg-g" x="1124" y="540">LA DECISI&Oacute;N QUE TOMA</text>
+    <rect class="dg-boxc" x="1124" y="550" width="258" height="62" rx="6"/>
+    <text class="dg-ts" x="1136" y="574">Cu&aacute;ndo se abre la capa de IA</text>
+    <text class="dg-s" x="1136" y="594">Solo despu&eacute;s de que el alumno entregue</text>
+    <text class="dg-s" x="1136" y="606">su dise&ntilde;o.</text>
+
+    <text class="dg-s" x="1124" y="650">La pantalla obedece esa decisi&oacute;n: si a&uacute;n no</text>
+    <text class="dg-s" x="1124" y="672">hubo entrega, la capa de IA ni siquiera</text>
+    <text class="dg-s" x="1124" y="694">se carga. As&iacute; nadie puede copiar la</text>
+    <text class="dg-s" x="1124" y="716">respuesta antes de intentarlo.</text>
+
+    <!-- --- CAPA DE DATOS --- -->
+    <rect class="dg-col" x="1418" y="70" width="140" height="656" rx="9"/>
+    <text class="dg-capa" x="1488" y="98" text-anchor="middle" font-size="12">CAPA DE DATOS</text>
+    <text class="dg-tec" x="1488" y="118" text-anchor="middle">PostgreSQL</text>
+    <line x1="1432" y1="132" x2="1544" y2="132" stroke="var(--rule)" stroke-width="1"/>
+
+    <text class="dg-g" x="1432" y="156">QU&Eacute; GUARDA</text>
+    <rect class="dg-store" x="1432" y="164" width="112" height="38" rx="5"/>
+    <text class="dg-chip" x="1443" y="188">Cuentas</text>
+    <rect class="dg-store" x="1432" y="210" width="112" height="38" rx="5"/>
+    <text class="dg-chip" x="1443" y="234">Dise&ntilde;os</text>
+    <rect class="dg-store" x="1432" y="256" width="112" height="38" rx="5"/>
+    <text class="dg-chip" x="1443" y="280">Escenarios</text>
+    <rect class="dg-store" x="1432" y="302" width="112" height="38" rx="5"/>
+    <text class="dg-chip" x="1443" y="326">Respuestas</text>
+    <rect class="dg-boxc" x="1432" y="348" width="112" height="38" rx="5"/>
+    <text class="dg-chip" x="1443" y="372">Registro</text>
+
+    <line x1="1432" y1="418" x2="1544" y2="418" stroke="var(--rule)" stroke-width="1"/>
+    <text class="dg-g" x="1432" y="444">EL REGISTRO</text>
+    <text class="dg-s" x="1432" y="468">Guarda cada acci&oacute;n</text>
+    <text class="dg-s" x="1432" y="490">del alumno, con su</text>
+    <text class="dg-s" x="1432" y="512">hora. Solo se agrega:</text>
+    <text class="dg-s" x="1432" y="534">nada se cambia ni</text>
+    <text class="dg-s" x="1432" y="556">se borra.</text>
+    <text class="dg-s" x="1432" y="592">El estudio se hace</text>
+    <text class="dg-s" x="1432" y="614">una sola vez, con</text>
+    <text class="dg-s" x="1432" y="636">alumnos reales: los</text>
+    <text class="dg-s" x="1432" y="658">n&uacute;meros se vuelven a</text>
+    <text class="dg-s" x="1432" y="680">sacar sin repetirlo.</text>
+
+    <!-- ========== FLECHAS ENTRE CAPAS ========== -->
+    <path class="dg-fl" d="M154 238 L196 238" marker-end="url(#m)"/>
+    <text class="dg-lbl" x="175" y="228" text-anchor="middle">USA</text>
+    <path class="dg-fl" d="M196 286 L154 286" marker-end="url(#m)"/>
+    <text class="dg-lbl" x="175" y="306" text-anchor="middle">VE</text>
+
+    <path class="dg-fl" d="M154 528 L196 528" marker-end="url(#m)"/>
+    <text class="dg-lbl" x="175" y="518" text-anchor="middle">USA</text>
+    <path class="dg-fl" d="M196 576 L154 576" marker-end="url(#m)"/>
+    <text class="dg-lbl" x="175" y="596" text-anchor="middle">VE</text>
+
+    <path class="dg-fla" d="M500 372 L516 372" marker-end="url(#ma)"/>
+    <path class="dg-fla" d="M516 402 L500 402" marker-end="url(#ma)"/>
+    <text class="dg-lbl" x="508" y="358" text-anchor="middle">PREGUNTA</text>
+    <text class="dg-lbl" x="508" y="422" text-anchor="middle">RESPONDE</text>
+
+    <path class="dg-fla" d="M770 372 L786 372" marker-end="url(#ma)"/>
+    <path class="dg-fla" d="M786 402 L770 402" marker-end="url(#ma)"/>
+    <text class="dg-lbl" x="778" y="358" text-anchor="middle">MISMO</text>
+    <text class="dg-lbl" x="778" y="422" text-anchor="middle">MOTOR</text>
+
+    <path class="dg-fl" d="M1062 372 L1086 372" marker-end="url(#m)"/>
+    <path class="dg-fl" d="M1086 402 L1062 402" marker-end="url(#m)"/>
+    <text class="dg-lbl" x="1074" y="350" text-anchor="middle">HTTPS</text>
+    <text class="dg-lbl" x="1074" y="362" text-anchor="middle">REST</text>
+    <text class="dg-lbl" x="1074" y="424" text-anchor="middle">JWT</text>
+
+    <path class="dg-fl" d="M1398 372 L1414 372" marker-end="url(#m)"/>
+    <path class="dg-fl" d="M1414 402 L1398 402" marker-end="url(#m)"/>
+    <text class="dg-lbl" x="1406" y="358" text-anchor="middle">SQL</text>
+
+    <!-- conector hacia el panel del cálculo -->
+    <path class="dg-fla" d="M645 726 L645 784" marker-end="url(#ma)" stroke-dasharray="5 4"/>
+
+    <!-- ========== PANEL DEL CÁLCULO ========== -->
+    <text class="dg-tier-t" x="24" y="778">DENTRO DE LA CAPA DE SIMULACI&Oacute;N &middot; C&Oacute;MO SE LLEGA DEL DATO DEL ALUMNO AL RESULTADO</text>
+    <rect class="dg-col" x="24" y="790" width="1552" height="210" rx="10"/>
+
+    <!-- Panel 1 -->
+    <rect class="dg-box" x="44" y="814" width="470" height="170" rx="8"/>
+    <text class="dg-g" x="58" y="838">1 &middot; LO QUE INGRESA EL ALUMNO</text>
+    <text class="dg-s" x="58" y="866">&middot; Caudal del sector</text>
+    <text class="dg-s" x="284" y="866">&middot; Material del tubo</text>
+    <text class="dg-s" x="58" y="890">&middot; Longitud de cada tramo</text>
+    <text class="dg-s" x="284" y="890">&middot; Accesorios de cada tramo</text>
+    <text class="dg-s" x="58" y="914">&middot; Desnivel de cada tramo</text>
+    <text class="dg-s" x="284" y="914">&middot; C&aacute;maras y v&aacute;lvulas</text>
+    <text class="dg-s" x="58" y="938">&middot; Di&aacute;metro y clase del tubo</text>
+    <text class="dg-s" x="284" y="938">&middot; Modelo del gotero</text>
+    <text class="dg-s" x="58" y="968" fill="var(--ink-faint)">El caudal se puede escribir directo, o dejar que salga de lo que pide el cultivo.</text>
+
+    <!-- Panel 2 -->
+    <rect class="dg-boxc" x="540" y="814" width="530" height="170" rx="8"/>
+    <text class="dg-g" x="554" y="838">2 &middot; LO QUE CALCULA EL MOTOR</text>
+    <text class="dg-s" x="554" y="866">&middot; Longitud inclinada del tramo</text>
+    <text class="dg-s" x="810" y="866">&middot; L&iacute;nea piezom&eacute;trica</text>
+    <text class="dg-s" x="554" y="890">&middot; Velocidad del agua</text>
+    <text class="dg-s" x="810" y="890">&middot; Presi&oacute;n est&aacute;tica, v&aacute;lvulas cerradas</text>
+    <text class="dg-s" x="554" y="914">&middot; P&eacute;rdida de carga, con Hazen-Williams</text>
+    <text class="dg-s" x="810" y="914">&middot; Caudal real de cada gotero</text>
+    <text class="dg-s" x="554" y="938">&middot; P&eacute;rdidas en los accesorios</text>
+    <text class="dg-s" x="810" y="938">&middot; Uniformidad del riego</text>
+    <text class="dg-s" x="554" y="962">&middot; Presi&oacute;n en cada nodo</text>
+
+    <!-- Panel 3 -->
+    <rect class="dg-box" x="1096" y="814" width="460" height="170" rx="8"/>
+    <text class="dg-g" x="1110" y="838">3 &middot; LO QUE DEVUELVE A LA PANTALLA</text>
+    <text class="dg-s" x="1110" y="866">&middot; La tabla por tramo, con las columnas y</text>
+    <text class="dg-s" x="1120" y="886">unidades del m&eacute;todo de dise&ntilde;o normalizado</text>
+    <text class="dg-s" x="1110" y="912">&middot; El perfil dibujado: terreno, tuber&iacute;a y presi&oacute;n</text>
+    <text class="dg-s" x="1110" y="936">&middot; Los avisos de lo que qued&oacute; fuera de rango</text>
+    <rect class="dg-boxc" x="1110" y="948" width="432" height="26" rx="5"/>
+    <text class="dg-tec" x="1326" y="966" text-anchor="middle">EL PROTOTIPO YA REPRODUCE EL M&Eacute;TODO CON ERROR DE 0 %</text>
+
+    <path class="dg-fla" d="M514 899 L536 899" marker-end="url(#ma)"/>
+    <path class="dg-fla" d="M1070 899 L1092 899" marker-end="url(#ma)"/>
+
+    <!-- ========== FRONTERA DE CONFIANZA ========== -->
+    <line x1="1076" y1="20" x2="1076" y2="752" stroke="var(--critico)" stroke-width="1.6" stroke-dasharray="7 5"/>
+    <text class="dg-front" x="1076" y="400" text-anchor="middle" transform="rotate(-90 1076 400)">FRONTERA DE CONFIANZA</text>
+    <text class="dg-lbl" x="1062" y="764" text-anchor="end" fill="var(--critico)">EL USUARIO PUEDE VER Y MODIFICAR TODO LO DE ESTE LADO</text>
+    <text class="dg-lbl" x="1090" y="764" fill="var(--critico)">ESTE LADO LO CONTROLAMOS NOSOTROS</text>
+
+    <!-- ========== BANDA DE SEGURIDAD ========== -->
+    <text class="dg-tier-t" x="24" y="1030">C&Oacute;MO SE PROTEGE &middot; LO QUE SE COMPRUEBA EN CADA PEDIDO, NO UNA SOLA VEZ AL ENTRAR</text>
+    <rect class="dg-col" x="24" y="1042" width="1552" height="196" rx="10"/>
+
+    <rect class="dg-boxc" x="44" y="1066" width="361" height="158" rx="8"/>
+    <text class="dg-g" x="58" y="1090">1 &middot; EN LA FRONTERA</text>
+    <text class="dg-s" x="58" y="1118">&middot; Todo viaja cifrado entre el navegador y el servidor</text>
+    <text class="dg-s" x="58" y="1142">&middot; La sesi&oacute;n va firmada y dice qui&eacute;n es y qu&eacute; rol tiene</text>
+    <text class="dg-s" x="58" y="1166">&middot; El servidor vuelve a revisar todo lo que le llega</text>
+    <text class="dg-s" x="58" y="1190">&middot; L&iacute;mite de intentos para entrar</text>
+    <text class="dg-s" x="58" y="1214" fill="var(--ink-faint)">Aunque la pantalla ya lo haya validado antes.</text>
+
+    <rect class="dg-boxc" x="427" y="1066" width="361" height="158" rx="8"/>
+    <text class="dg-g" x="441" y="1090">2 &middot; PERMISOS</text>
+    <text class="dg-s" x="441" y="1118">&middot; El alumno ve solo sus dise&ntilde;os</text>
+    <text class="dg-s" x="441" y="1142">&middot; El docente ve solo los de su sal&oacute;n</text>
+    <text class="dg-s" x="441" y="1166">&middot; El permiso se comprueba en el servidor, en cada pedido</text>
+    <text class="dg-s" x="441" y="1190">&middot; Las pruebas se califican en el servidor, no en la pantalla</text>
+    <text class="dg-s" x="441" y="1214" fill="var(--ink-faint)">Nunca se cree lo que dice el navegador.</text>
+
+    <rect class="dg-boxc" x="810" y="1066" width="361" height="158" rx="8"/>
+    <text class="dg-g" x="824" y="1090">3 &middot; DATOS PERSONALES</text>
+    <text class="dg-s" x="824" y="1118">&middot; Se pide lo m&iacute;nimo: nombre y correo de la universidad</text>
+    <text class="dg-s" x="824" y="1142">&middot; Las contrase&ntilde;as se guardan cifradas, nunca legibles</text>
+    <text class="dg-s" x="824" y="1166">&middot; Lo que se exporta para el estudio sale sin nombres</text>
+    <text class="dg-s" x="824" y="1190">&middot; Consentimiento informado antes de participar</text>
+    <text class="dg-s" x="824" y="1214" fill="var(--ink-faint)">Ley 29733 de protecci&oacute;n de datos personales.</text>
+
+    <rect class="dg-boxc" x="1193" y="1066" width="361" height="158" rx="8"/>
+    <text class="dg-g" x="1207" y="1090">4 &middot; INTEGRIDAD Y RESPALDO</text>
+    <text class="dg-s" x="1207" y="1118">&middot; Al registro solo se le agrega, ni siquiera desde la app</text>
+    <text class="dg-s" x="1207" y="1142">&middot; Copia de seguridad antes y despu&eacute;s de cada sesi&oacute;n</text>
+    <text class="dg-s" x="1207" y="1166">&middot; Las claves del servidor nunca llegan al navegador</text>
+    <text class="dg-s" x="1207" y="1190">&middot; Versiones de las herramientas fijas durante el estudio</text>
+    <text class="dg-s" x="1207" y="1214" fill="var(--ink-faint)">La sesi&oacute;n con alumnos no se puede repetir.</text>
+
+    <!-- ========== LEYENDA ========== -->
+    <line x1="24" y1="1264" x2="1576" y2="1264" stroke="var(--rule)" stroke-width="1"/>
+
+    <rect class="dg-boxc" x="24" y="1278" width="18" height="18" rx="4"/>
+    <text class="dg-s" x="50" y="1292">Sostiene algo que la tesis debe demostrar</text>
+
+    <rect class="dg-box" x="340" y="1278" width="18" height="18" rx="4"/>
+    <text class="dg-s" x="366" y="1292">Necesario, pero no cambia lo que se mide</text>
+
+    <rect class="dg-colia" x="660" y="1278" width="18" height="18" rx="4"/>
+    <text class="dg-s" x="686" y="1292">La capa de IA, dentro del navegador</text>
+
+    <rect class="dg-store" x="960" y="1278" width="18" height="18" rx="4"/>
+    <text class="dg-s" x="986" y="1292">Lo que queda guardado</text>
+
+    <text class="dg-lbl" x="1576" y="1052" text-anchor="end">TODO EL C&Aacute;LCULO OCURRE EN EL EQUIPO DEL ESTUDIANTE &middot; EL SERVIDOR SOLO GUARDA Y ORDENA</text>
+  </svg>
+  </div>
+
+  <div class="cierre">
+    <div class="cie">
+      <p class="k">CAPA 1</p>
+      <h2>Presentaci&oacute;n</h2>
+      <p>Diecis&eacute;is pantallas en cuatro grupos: dise&ntilde;ar, entender, cerrar y el panel del docente. Ninguna calcula.</p>
+    </div>
+    <div class="cie">
+      <p class="k">CAPA 2</p>
+      <h2>Simulaci&oacute;n</h2>
+      <p>Aqu&iacute; se hacen todos los c&aacute;lculos, con el m&eacute;todo de dise&ntilde;o normalizado. Se comprueba antes de que nadie lo use.</p>
+    </div>
+    <div class="cie">
+      <p class="k">CAPA 3</p>
+      <h2>IA</h2>
+      <p>Propone varias opciones y explica cada cambio. Usa el mismo motor, as&iacute; que no puede hacer trampa.</p>
+    </div>
+    <div class="cie">
+      <p class="k">CAPA 4</p>
+      <h2>Negocio</h2>
+      <p>Guarda, ordena y decide cu&aacute;ndo se abre la capa de IA. No calcula nada de hidr&aacute;ulica.</p>
+    </div>
+    <div class="cie">
+      <p class="k">TRANSVERSAL</p>
+      <h2>Seguridad</h2>
+      <p>Todo lo que cruza la frontera se vuelve a comprobar en el servidor. Lo que corre en el navegador no se cree nunca.</p>
+    </div>
+    <div class="cie">
+      <p class="k">CAPA 5</p>
+      <h2>Datos</h2>
+      <p>Una sola copia de todo. El registro de lo que hacen los alumnos solo se agranda: nada se cambia ni se borra.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  var b = document.getElementById("tema");
+  function actual(){
+    var t = document.documentElement.getAttribute("data-theme");
+    if (t) return t;
+    return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  }
+  b.addEventListener("click", function(){
+    document.documentElement.setAttribute("data-theme", actual() === "dark" ? "light" : "dark");
+  });
+})();
+</script>

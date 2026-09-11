@@ -1,0 +1,388 @@
+{
+  "meta": {
+    "nombre": "Diagrama de Funcionalidad",
+    "subtitulo": "Del Excel al experimento: qué hace la aplicación, paso a paso, y qué la sostiene como tesis",
+    "proyecto": "Simulador de riego presurizado para la comprensión del diseño hidráulico de tuberías",
+    "equipo": ["Sosa Colca, Angello Rodolfo", "Tongo Alejandro, Milagros Salet"],
+    "programa": "Ingeniería de Software · Universidad Peruana de Ciencias Aplicadas",
+    "proposito": "Documento de presentación ante el comité. Se lee en cinco minutos: primero el recorrido completo en un diagrama, después lo que lo sostiene como tesis de Ingeniería de Software.",
+    "version": "3",
+    "para_que_sirve_este_json": "Regenerar el documento y su diagrama en otra sesión sin perder ni el contenido ni las decisiones de forma. La sección 'reglas_de_redaccion' es tan importante como el contenido: describe cómo hay que escribirlo."
+  },
+
+  "reglas_de_redaccion": [
+    "Nada de jerga técnica sin traducir. Prohibido nombrar lenguajes, frameworks o librerías en el diagrama y en el cuerpo del documento.",
+    "Prohibido usar los nombres académicos de los conceptos pedagógicos sin explicarlos. En vez de «conflicto cognitivo» va «es un choque a propósito».",
+    "Cada paso del diagrama se compone de tres partes: título en criollo, explicación en criollo, y una etiqueta corta que nombra la consecuencia, precedida por una flecha →.",
+    "No asignar tiempos ni duraciones a las etapas. Se decidió quitarlos.",
+    "No declarar estado de implementación en presente: nada está construido todavía. La tabla de alcance habla en futuro: «se construye», «se construye acotado», «solo se especifica».",
+    "El caudal se deriva del cultivo por defecto, pero NO decir «nunca se escribe»: el método de referencia lo pide como dato y tiene razón para su usuario. La app mantiene los dos modos.",
+    "Las redes malladas son una exclusión declarada, no trabajo futuro.",
+    "Registro lingüístico peruano: tuteo, nunca voseo. Prohibido «arrastrá», «cambiá», «movés».",
+    "La banda de software no se presenta como infraestructura de apoyo sino como el objeto de estudio: cuatro problemas difíciles y la prueba concreta de que se resolvieron."
+  ],
+
+  "identidad_visual": {
+    "origen": "Se toma el sistema de diseño del propio simulador para que documento y aplicación se lean como una sola pieza.",
+    "tipografias": {
+      "display": "Archivo, Helvetica Neue, Arial, sans-serif",
+      "cuerpo": "Spectral, Georgia, serif",
+      "datos": "IBM Plex Mono, Consolas, monospace",
+      "fuente_web": "https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=Spectral:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
+    },
+    "paleta": {
+      "claro": {
+        "paper": "#EEF1F2", "surface": "#FFFFFF", "surface-2": "#F7F9F9", "surface-3": "#E9EEEF",
+        "ink": "#14232B", "ink-soft": "#5A6E76", "ink-faint": "#6D7E85",
+        "rule": "#D2DBDD", "rule-strong": "#B4C1C4",
+        "agua": "#0D7A8C", "agua-soft": "#E1F0F2",
+        "tierra": "#A56C36", "tierra-soft": "#F3E9DF",
+        "ok": "#2C7A57", "ok-soft": "#E2F0E9",
+        "alerta": "#B5841A", "alerta-soft": "#FBF0D8",
+        "critico": "#B03A30", "critico-soft": "#FAE6E3"
+      },
+      "oscuro": {
+        "paper": "#0F161A", "surface": "#161F25", "surface-2": "#1B262C", "surface-3": "#223038",
+        "ink": "#E2EAEC", "ink-soft": "#96A8AF", "ink-faint": "#8A9BA1",
+        "rule": "#26343B", "rule-strong": "#35474F",
+        "agua": "#45B9CC", "agua-soft": "#10333A",
+        "tierra": "#C89A66", "tierra-soft": "#33261A",
+        "ok": "#4EB185", "ok-soft": "#123124",
+        "alerta": "#D9AC49", "alerta-soft": "#33280F",
+        "critico": "#E0736A", "critico-soft": "#3A1B18"
+      }
+    },
+    "clases_svg": {
+      "fx-h":   { "uso": "encabezado de etapa y de carril", "estilo": "display 12px peso 700, letter-spacing .14em, color ink-faint" },
+      "fx-n":   { "uso": "número de paso", "estilo": "mono 11px, color agua" },
+      "fx-t":   { "uso": "título del paso", "estilo": "display 13.5px peso 600, color ink" },
+      "fx-s":   { "uso": "línea de explicación", "estilo": "cuerpo 12.5px, color ink-soft" },
+      "fx-swg": { "uso": "etiqueta de consecuencia, con flecha →", "estilo": "mono 9.5px, letter-spacing .06em, color ink-faint" },
+      "fx-swt": { "uso": "título de las cajas de software", "estilo": "display 13px peso 700, color ink" },
+      "fx-box":  { "relleno": "surface", "borde": "rule-strong 1.3", "uso": "paso normal" },
+      "fx-3d":   { "relleno": "agua-soft", "borde": "agua 1.5", "uso": "paso destacado: vistas del diseño" },
+      "fx-ia":   { "relleno": "tierra-soft", "borde": "tierra 1.5", "uso": "paso de la máquina optimizadora" },
+      "fx-gate": { "relleno": "critico-soft", "borde": "critico 2", "uso": "la compuerta de entrega" },
+      "fx-mini": { "relleno": "surface", "borde": "agua 1.2", "uso": "paso dentro del bucle" },
+      "fx-loop": { "relleno": "ninguno", "borde": "agua 1.5 discontinuo 8 5", "uso": "marco del bucle y su flecha de retorno" },
+      "fx-lane": { "relleno": "surface-2", "borde": "ink-soft 1.6", "uso": "carril de la capa de software" },
+      "fx-sw":   { "relleno": "surface", "borde": "ink-soft 1.3", "uso": "caja de problema de ingeniería" },
+      "fx-ar":   { "borde": "ink-soft 1.6", "uso": "flechas entre etapas y líneas punteadas al carril" }
+    }
+  },
+
+  "diagrama": {
+    "viewBox": "0 0 1040 836",
+    "ancho_minimo_px": 900,
+    "contenedor": "envolver en un div con overflow-x auto",
+    "columnas": [
+      { "etapa": 1, "x": 30,  "ancho": 256 },
+      { "etapa": 2, "x": 368, "ancho": 256 },
+      { "etapa": 3, "x": 706, "ancho": 300 }
+    ],
+    "flechas_entre_etapas": [
+      { "de": "etapa 1", "a": "etapa 2", "path": "M292 300 L362 300" },
+      { "de": "etapa 2", "a": "etapa 3", "path": "M630 300 L700 300" }
+    ],
+
+    "etapas": [
+      {
+        "n": 1,
+        "titulo": "ETAPA 1 · DESCUBRIR EL PROBLEMA",
+        "subtitulo": "Que se dé cuenta de que no sabe",
+        "idea": "El error tiene que llegar antes que la explicación. La ausencia de ayuda es deliberada y dura exactamente un escenario.",
+        "pasos": [
+          {
+            "n": "01", "clase": "fx-box", "caja": { "x": 30, "y": 62, "w": 256, "h": 76 },
+            "titulo": "Se mide qué sabe al empezar",
+            "lineas": ["Un cuestionario corto, antes de", "tocar el programa."],
+            "etiqueta": null,
+            "concepto_academico": "Pretest · línea base del cuasi-experimento"
+          },
+          {
+            "n": "02", "clase": "fx-box", "caja": { "x": 30, "y": 148, "w": 256, "h": 90 },
+            "titulo": "Recibe un riego que funciona",
+            "lineas": ["Un sistema ya diseñado y andando.", "Todavía no construye nada: solo", "lo explora."],
+            "etiqueta": null,
+            "concepto_academico": "Explorar antes de explicar. Construir exige saber; romper solo exige curiosidad."
+          },
+          {
+            "n": "03", "clase": "fx-box", "caja": { "x": 30, "y": 248, "w": 256, "h": 90 },
+            "titulo": "Se le pide que lo rompa",
+            "lineas": ["«Achica la tubería hasta que el", "agua no alcance al final.»"],
+            "etiqueta": "→ ES UN CHOQUE A PROPÓSITO",
+            "concepto_academico": "Conflicto cognitivo"
+          },
+          {
+            "n": "04", "clase": "fx-box", "caja": { "x": 30, "y": 348, "w": 256, "h": 90 },
+            "titulo": "Intenta entender qué pasó",
+            "lineas": ["El programa no le dice la causa.", "Descubre que no sabe explicarlo."],
+            "etiqueta": "→ AHÍ APARECE LA PREGUNTA",
+            "concepto_academico": "Falla productiva. El primer escenario no emite alertas."
+          },
+          {
+            "n": "05", "clase": "fx-box", "caja": { "x": 30, "y": 448, "w": 256, "h": 90 },
+            "titulo": "Recién ahí se le explica",
+            "lineas": ["La teoría llega cuando ya le hace", "falta, con sus propios números."],
+            "etiqueta": "→ SE ENTIENDE, NO SE MEMORIZA",
+            "concepto_academico": "Teoría situada: alcanzable desde el punto donde surge la duda, no como anexo."
+          }
+        ]
+      },
+      {
+        "n": 2,
+        "titulo": "ETAPA 2 · DISEÑAR",
+        "subtitulo": "Prueba, se equivoca y corrige",
+        "idea": "El bucle es el mecanismo de aprendizaje. La complejidad de la pantalla se desbloquea escenario por escenario.",
+        "pasos": [
+          {
+            "n": "06", "clase": "fx-box", "caja": { "x": 368, "y": 62, "w": 256, "h": 90 },
+            "titulo": "Carga los datos del campo",
+            "lineas": ["Qué cultivo, cuánta tierra, qué", "clima, qué suelo."],
+            "etiqueta": "→ DE AHÍ SALE CUÁNTA AGUA HACE FALTA",
+            "concepto_academico": "Cadena agronómica: ET₀ × Kc → lámina neta → ÷ eficiencia → lámina bruta → × área → volumen → ÷ jornada → caudal de diseño → ÷ salidas."
+          },
+          {
+            "n": "07", "clase": "fx-3d", "caja": { "x": 368, "y": 162, "w": 256, "h": 104 },
+            "titulo": "Ve su diseño de tres formas",
+            "lineas": ["Desde arriba, de costado, y en una", "tabla de números. Tocar una tubería", "la marca en las tres a la vez."],
+            "etiqueta": "→ COMPARARLAS ES DONDE SE ENTIENDE",
+            "concepto_academico": "Representaciones múltiples enlazadas. Planta, perfil y tabla por tramo conviven sin pestañas; las celdas de entrada son editables en la propia tabla."
+          }
+        ],
+        "bucle": {
+          "marco": { "clase": "fx-loop", "x": 368, "y": 278, "w": 256, "h": 260 },
+          "etiqueta": "SE REPITE HASTA QUE FUNCIONE",
+          "etiqueta_pos": { "x": 496, "y": 300, "anchor": "middle" },
+          "flecha_retorno": "M610 516 C636 516 636 378 612 378",
+          "pasos": [
+            { "caja": { "x": 384, "y": 312, "w": 224, "h": 40 }, "titulo": "Cambia algo", "sub": "un diámetro, una altura" },
+            { "caja": { "x": 384, "y": 358, "w": 224, "h": 40 }, "titulo": "Adivina qué va a pasar", "sub": "antes de ver el resultado",
+              "concepto_academico": "Predicción guiada. Tres formatos que rotan: dirección, magnitud y causa. Solo en cambios consecuentes. El acierto se reporta contra el azar." },
+            { "caja": { "x": 384, "y": 404, "w": 224, "h": 40 }, "titulo": "Recién ahí ve el número", "sub": "y si le había acertado" },
+            { "caja": { "x": 384, "y": 450, "w": 224, "h": 40 }, "titulo": "Pide ayuda por niveles", "sub": "pista · causa · soluciones",
+              "concepto_academico": "Diagnóstico escalonado. Nivel 1 síntoma vago, nivel 2 causa, nivel 3 salidas ordenadas. Cada uno hay que pedirlo, y el nivel usado queda registrado: su descenso es la medida de competencia diagnóstica." },
+            { "caja": { "x": 384, "y": 496, "w": 224, "h": 40 }, "titulo": "Corrige y dice por qué", "sub": "funcionó lo que hizo",
+              "concepto_academico": "Autoexplicación. Solo se pregunta tras el éxito: explicar un fracaso refuerza el error." }
+          ]
+        }
+      },
+      {
+        "n": 3,
+        "titulo": "ETAPA 3 · PROBAR",
+        "subtitulo": "Y compararse con la máquina",
+        "idea": "La vista en tres dimensiones y la máquina optimizadora no son adornos: cada una es el único lugar donde se puede confrontar una creencia equivocada concreta.",
+        "pasos": [
+          {
+            "n": "08", "clase": "fx-3d", "caja": { "x": 706, "y": 62, "w": 300, "h": 110 },
+            "titulo": "Mira el campo en tres dimensiones",
+            "lineas": ["Dos comprobaciones que un corte de", "perfil no puede mostrar:", "A · ¿aguanta cuando se cierran las llaves?"],
+            "etiqueta": "B · AGRUPAR EL CAMPO POR ZONAS DE PRESIÓN",
+            "concepto_academico": "Tarea A confronta C5 (envolvente estática). Tarea B confronta C6 (sectorización por bandas de presión, Δp ≤ 20 %). Si el navegador no soporta 3D, degrada al perfil con aviso."
+          },
+          {
+            "n": "09", "clase": "fx-gate", "caja": { "x": 706, "y": 182, "w": 300, "h": 90 },
+            "titulo": "Entrega su diseño",
+            "lineas": ["Queda cerrado y firmado. Hasta este", "momento el programa no le mostró", "ninguna solución."],
+            "etiqueta": null,
+            "concepto_academico": "La compuerta. No protege la interfaz: protege la validez interna del cuasi-experimento. Si el optimizador estuviera antes, parte de los participantes copiaría."
+          },
+          {
+            "n": "10", "clase": "fx-ia", "caja": { "x": 706, "y": 282, "w": 300, "h": 114 },
+            "titulo": "La máquina mejora SU diseño",
+            "lineas": ["No inventa otro distinto: parte del que", "él hizo y le muestra varias opciones,", "cada una con su costo y su riesgo."],
+            "etiqueta": "→ ÉL ELIGE UNA Y TIENE QUE DEFENDERLA",
+            "concepto_academico": "Confronta C7. Devuelve un frente de opciones, no un óptimo. Explica la razón física de cada cambio. Se le pueden fijar restricciones y volver a correr: enseña que optimiza lo modelado, no la realidad. Respaldo por reglas si no converge."
+          },
+          {
+            "n": "11", "clase": "fx-box", "caja": { "x": 706, "y": 406, "w": 300, "h": 84 },
+            "titulo": "Se lleva el informe",
+            "lineas": ["El plano, todos los números, y qué", "decidió él y qué la máquina."],
+            "etiqueta": "→ EN PDF, LISTO PARA ENTREGAR",
+            "concepto_academico": "Distinguir el origen de cada decisión convierte el reporte en evidencia evaluable."
+          },
+          {
+            "n": "12", "clase": "fx-box", "caja": { "x": 706, "y": 500, "w": 300, "h": 72 },
+            "titulo": "Se vuelve a medir qué sabe",
+            "lineas": ["Las mismas preguntas del inicio."],
+            "etiqueta": "→ LA DIFERENCIA ES LO QUE APRENDIÓ",
+            "concepto_academico": "Postest. Ítems mapeados contra C1–C7."
+          }
+        ]
+      }
+    ],
+
+    "capa_software": {
+      "carril": { "clase": "fx-lane", "x": 30, "y": 590, "w": 976, "h": 234 },
+      "encabezado": "SIN ESTE SOFTWARE, NADA DE ARRIBA FUNCIONA",
+      "subencabezado": "Cuatro problemas que no se resuelven comprando una herramienta, y la prueba concreta de que cada uno se resolvió.",
+      "encabezado_pos": { "x": 52, "y": 614 }, "subencabezado_pos": { "x": 52, "y": 636 },
+      "lineas_punteadas_desde_las_columnas": [
+        "M158 538 L158 588", "M496 538 L496 588", "M856 572 L856 588"
+      ],
+      "cajas": [
+        {
+          "caja": { "x": 44, "y": 652, "w": 226, "h": 158 },
+          "titulo": ["Un mismo cálculo, tres", "exigencias que se contradicen"],
+          "lineas": ["Responder al instante cuando el", "alumno mueve algo. Aguantar diez", "mil pruebas seguidas. Y dar", "siempre el mismo número."],
+          "prueba": "→ MISMO RESULTADO EN LOS TRES USOS",
+          "traduccion_tecnica": "Núcleo de cálculo independiente de la interfaz. Lo consumen tres entornos con exigencias incompatibles: la pantalla (< 200 ms), el optimizador (~10⁴ llamadas) y el banco de verificación."
+        },
+        {
+          "caja": { "x": 284, "y": 652, "w": 226, "h": 158 },
+          "titulo": ["Si el cálculo miente,", "todo lo demás sobra"],
+          "lineas": ["Un error aquí no se ve: el alumno", "aprende algo falso y el estudio", "mide ruido. Se contrasta contra", "un método profesional en uso."],
+          "prueba": "→ TABLA DE ERROR, CASO POR CASO",
+          "traduccion_tecnica": "Verificación contra tres referencias independientes: la hoja profesional del Ing. Tongo Pizarro, EPANET y problemas resueltos de bibliografía. Más pruebas basadas en propiedades sobre invariantes físicas."
+        },
+        {
+          "caja": { "x": 524, "y": 652, "w": 226, "h": 158 },
+          "titulo": ["Buscar entre miles de", "diseños sin congelar nada"],
+          "lineas": ["Hecho de la forma obvia, la", "pantalla se traba mientras", "busca. Hay que recalcular solo", "la parte que cambió."],
+          "prueba": "→ MILISEGUNDOS CONTRA Nº DE NODOS",
+          "traduccion_tecnica": "Optimizador en hilo aparte y recálculo incremental del subárbol afectado. Es el único resultado experimental de software del proyecto."
+        },
+        {
+          "caja": { "x": 764, "y": 652, "w": 228, "h": 158 },
+          "titulo": ["Un estudio que se hace", "una sola vez"],
+          "lineas": ["Son alumnos reales, en fechas", "reales, sin repetición. Si se", "guarda solo el resumen, un cambio", "de criterio pierde el dato."],
+          "prueba": "→ CUALQUIER MEDIDA SE RECALCULA",
+          "traduccion_tecnica": "Registro de eventos en solo-anexado. Las métricas se derivan después, por consulta, no se calculan al vuelo."
+        }
+      ]
+    },
+
+    "pie_de_figura": "El estudiante ve hidráulica; lo que se evalúa en esta tesis es lo que hay debajo. Esa banda no es infraestructura de apoyo: es el objeto de estudio. Cada uno de esos cuatro problemas es difícil por una razón distinta, ninguno se resuelve comprando una herramienta, y de los cuatro se puede mostrar una prueba concreta —una tabla, una medición— que un jurado puede revisar. La pantalla de trabajo no está dividida en pestañas: planta, perfil y tabla conviven a la vista, porque el aprendizaje ocurre justamente al conectar las tres lecturas de un mismo hecho. Las tres decisiones que definen el proceso: el primer escenario no tiene alertas, para que el error preceda a la explicación; el diagnóstico se pide en tres niveles, para que diagnosticar siga siendo tarea del estudiante; y la máquina está bloqueada hasta la entrega, para que la comparación mida algo."
+  },
+
+  "secciones_del_documento": {
+    "afirmacion_central": "No es una aplicación de riego. Es un motor de simulación verificado y un proceso de aprendizaje instrumentado, cuya eficacia se mide con un experimento de tres grupos.",
+
+    "de_donde_venimos": {
+      "titulo": "Por qué la hoja de cálculo no alcanzaba",
+      "limites": [
+        "Entrega el resultado, no el porqué. Devuelve una presión residual y no dice qué pasaría si el diámetro fuera menor.",
+        "El caudal cae del cielo: se escribe a mano, así que el estudiante nunca ve que sale de lo que la planta necesita.",
+        "No se puede equivocar barato. Probar una alternativa cuesta rehacer las celdas, y sin error rápido no hay ciclo de aprendizaje."
+      ],
+      "conclusion": "La reformulación no agrega funcionalidades: convierte un flujo lineal de cálculo en un proceso con decisiones."
+    },
+
+    "entregables": [
+      { "n": 1, "nombre": "Una biblioteca", "texto": "El núcleo de cálculo hidráulico, independiente de la interfaz, versionado, con su suite de pruebas y verificado contra tres referencias independientes. Reutilizable fuera de esta aplicación." },
+      { "n": 2, "nombre": "Una aplicación instrumentada", "texto": "No solo simula: mide. El ciclo de predicción, el diagnóstico escalonado y la telemetría son subsistemas diseñados con un propósito de medición, no accesorios de interfaz." },
+      { "n": 3, "nombre": "Un conjunto de datos", "texto": "El registro anonimizado de un experimento real de tres grupos en educación en ingeniería. Reutilizable por terceros y publicable, y sale del mismo experimento sin trabajo adicional." }
+    ],
+
+    "decisiones_de_ingenieria": [
+      { "n": 1, "titulo": "El cálculo se construye aparte de la aplicación", "texto": "Obligado por una contradicción real: la pantalla exige respuesta inmediata y el optimizador llama al mismo cálculo miles de veces seguidas. Un motor mezclado con la interfaz no puede cumplir las dos cosas, y además no se puede verificar por separado ni reutilizar fuera de aquí." },
+      { "n": 2, "titulo": "Verificación contra tres referencias independientes", "texto": "Una hoja de cálculo profesional en uso, problemas resueltos de bibliografía y un simulador hidráulico estándar. Con error documentado por caso, no una afirmación general." },
+      { "n": 3, "titulo": "Pruebas basadas en propiedades sobre invariantes físicas", "texto": "La presión nunca aumenta aguas abajo en un tramo horizontal; insertar una cámara rompe-presión nunca sube la presión aguas abajo; la uniformidad siempre cae entre cero y uno. Encuentran errores que las pruebas escritas a mano no encuentran." },
+      { "n": 4, "titulo": "Telemetría por eventos, con métricas derivadas después", "texto": "El experimento se corre una sola vez, con estudiantes reales. Si en el análisis cambia la definición de una métrica, con el registro crudo se recalcula; sin él, el dato se perdió." },
+      { "n": 5, "titulo": "Reproducibilidad como entregable", "texto": "Semilla fija en el optimizador, dependencias fijadas y una tubería que va del registro crudo a las tablas del documento. Cualquier revisor puede re-derivar los resultados." }
+    ],
+
+    "alcance": {
+      "encabezados": ["Módulo", "Alcance comprometido", "Detalle"],
+      "nota": "La idea se enriquece por completo; lo que se compromete a construir se acota y se declara desde ahora.",
+      "filas": [
+        { "modulo": "M1 · Simulador base y gestión", "alcance": "Se construye", "detalle": "Acotado: red predefinida editable en sus parámetros" },
+        { "modulo": "M2 · Motor hidráulico topográfico", "alcance": "Se construye", "detalle": "Completo y verificado contra tres referencias" },
+        { "modulo": "M4 · Eficiencia y uniformidad", "alcance": "Se construye", "detalle": "Completo" },
+        { "modulo": "M5 · Control de presión y costos", "alcance": "Se construye", "detalle": "Completo" },
+        { "modulo": "M9 · Base agronómica", "alcance": "Se construye", "detalle": "Completo" },
+        { "modulo": "M10 · Predicción guiada y teoría situada", "alcance": "Se construye", "detalle": "Completo" },
+        { "modulo": "M3 · Visualización 3D", "alcance": "Se construye acotado", "detalle": "Solo las dos tareas con objetivo de aprendizaje propio" },
+        { "modulo": "M6 · Optimización con IA", "alcance": "Se construye acotado", "detalle": "Con respaldo por reglas si la metaheurística no converge" },
+        { "modulo": "M7 · Terreno", "alcance": "Se construye acotado", "detalle": "Perfiles reales pre-extraídos, sin canalización de datos satelitales" },
+        { "modulo": "M8 · Validación y panel docente", "alcance": "Se construye acotado", "detalle": "Pretest, postest y panel mínimo de seguimiento" },
+        { "modulo": "Edición estructural libre de la red", "alcance": "Solo se especifica", "detalle": "Diseñado y documentado en el plan de continuidad" },
+        { "modulo": "Panel docente extendido", "alcance": "Solo se especifica", "detalle": "Diseñado y documentado en el plan de continuidad" },
+        { "modulo": "Redes malladas", "alcance": "Excluido", "detalle": "Exigen métodos iterativos. El sistema resuelve solo redes abiertas, y eso es lo que permite el tiempo real" }
+      ]
+    },
+
+    "evaluacion": {
+      "nota": "Separar los dos niveles evita la confusión más común: tomar una validación de usabilidad por una validación de aprendizaje.",
+      "nivel_software": {
+        "pregunta": "¿El sistema hace bien lo que dice?",
+        "texto": "Verificación del motor contra las tres referencias con error documentado. Estudio de rendimiento del recálculo incremental frente al completo. Pruebas por propiedades y de referencia fija. Pruebas de carga."
+      },
+      "nivel_educativo": {
+        "pregunta": "¿Sirve para lo que fue construido?",
+        "texto": "Diseño cuasi-experimental de tres grupos —método tradicional, aplicación sin vista tridimensional, aplicación completa—, con ganancia normalizada de Hake, análisis de varianza y tamaño de efecto. Instrumento validado por juicio de experto y prueba piloto.",
+        "metricas_de_proceso": "Cuánto bajó el nivel de ayuda necesario para diagnosticar, cuánto mejoró la tasa de acierto al predecir, cuánto se acortó la distancia entre su diseño y el frente de la optimización."
+      }
+    },
+
+    "concepciones_erroneas": {
+      "nota": "Cada escenario existe para provocar una y desmentirla; cada ítem del pretest y del postest mide una. Es lo que hace que el instrumento evalúe comprensión y no destreza de cálculo.",
+      "filas": [
+        { "id": "C1", "cree": "Presión y caudal son lo mismo", "es": "Variables acopladas pero distintas", "donde": "Etapa 2" },
+        { "id": "C2", "cree": "Más diámetro da más presión", "es": "Da menos pérdida, que no es lo mismo", "donde": "Etapa 2" },
+        { "id": "C3", "cree": "Subir en cota cuesta caudal", "es": "Cuesta presión; el caudal lo fija la demanda", "donde": "Etapa 2" },
+        { "id": "C4", "cree": "La velocidad la fija la fuente", "es": "La fija el diámetro para un caudal dado", "donde": "Etapa 2" },
+        { "id": "C5", "cree": "Si funciona regando, funciona siempre", "es": "Al cerrar válvulas la presión estática sube y revienta", "donde": "Solo en la vista 3D · tarea A", "exclusivo": true },
+        { "id": "C6", "cree": "La uniformidad depende del emisor", "es": "Depende de la distribución de presiones", "donde": "Solo en la vista 3D · tarea B", "exclusivo": true },
+        { "id": "C7", "cree": "Existe un diseño óptimo único", "es": "Es multicriterio, con restricciones fuera del modelo", "donde": "Solo en el contraste con la máquina", "exclusivo": true }
+      ],
+      "hipotesis": "Con C5, C6 y C7 ancladas a partes concretas del sistema, la comparación entre grupos deja de ser «¿la vista tridimensional ayuda?» y pasa a ser falsable: el grupo con vista tridimensional debería superar al grupo sin ella en los ítems que miden C5 y C6, y no necesariamente en los demás."
+    },
+
+    "titulo_propuesto": {
+      "texto": "Aplicación web de simulación interactiva con núcleo de cálculo verificado para la comprensión conceptual del diseño hidráulico de tuberías en riego presurizado, en estudiantes de Ingeniería Agrónoma",
+      "resaltar": ["núcleo de cálculo verificado", "comprensión conceptual", "presurizado"],
+      "razon": "Verificado dice que hay ingeniería de software y no solo desarrollo. Conceptual dice que se mide algo más que destreza de cálculo. Presurizado corrige el error de dominio que el documento arrastra hoy."
+    }
+  },
+
+  "metodo_de_referencia": {
+    "fuente": "EXCEL TUBERÍAS · Aplicativo de Diseño de Tuberías de Riego, del Ing. Tongo Pizarro, Moisés",
+    "unidades": "Q en l/s · Ø en pulgadas · L en km · hf en m/km · cotas en m.s.n.m.",
+    "formulas": {
+      "longitud_inclinada": "L = raíz(H² + Dt²)",
+      "perdida_disponible": "(H + Pr_anterior) / L",
+      "diametro_preliminar": "D = (Q / (0.0004264 · C · S^0.54))^(1/2.63)",
+      "perdida_unitaria": "hf = (1/0.0004264)^1.85 · Q^1.85 / C^1.85 / D^4.87",
+      "perdidas_locales": "Hr = (v²/2g) · Kr",
+      "pi": "3.1416, como lo escribe la hoja"
+    },
+    "coeficientes_kr": { "entrada": 0.5, "codo_45": 0.2, "codo_25": 0.1, "ampliacion": 0.1, "reduccion": 0.37 },
+    "criterio_velocidad": { "vibracion": "> 3.00 m/s", "correcto": "0.60 a 3.00 m/s", "sedimentacion": "< 0.60 m/s" },
+    "guardas": { "desnivel_sin_crp": "50 m", "longitud_de_tramo": "500 m" },
+    "coeficiente_c": { "pvc": 140, "nota": "Criterio del libro. El documento de tesis decía 150. Pendiente de decidir y justificar." },
+    "clases_de_tuberia": { "C-5": 50, "C-7.5": 75, "C-10": 100, "C-15": 150 },
+    "verificacion": {
+      "caso": "Tramo RESERVORIO → CRP-1. Q = 2 l/s, C = 140, Ø = 2 pulgadas, cotas 3000 → 2990, progresivas 0+000 → 0+020, Pr anterior 2.5 m",
+      "resultados": [
+        { "magnitud": "Velocidad media v", "libro": "0.9867603132201427", "app": "0.9867603132201427", "error": "0.000000 %" },
+        { "magnitud": "Pérdida de carga Hf", "libro": "0.5068456652968484", "app": "0.5068456652968484", "error": "0.000000 %" },
+        { "magnitud": "Presión residual Pr", "libro": "11.993154334703151", "app": "11.993154334703151", "error": "0.000000 %" },
+        { "magnitud": "Cota piezométrica final", "libro": "3001.9931543347034", "app": "3001.9931543347034", "error": "0.000000 %" }
+      ],
+      "hallazgo": "Las dos hojas del libro usan constantes distintas para lo mismo: HTubería da 1 717 268 con el exponente 1.85, y TEORÍA tiene escrito 1 742 143, que corresponde al exponente exacto 1/0.54. Difieren 1.43 % y esa diferencia va entera a la pérdida de carga. Hay que elegir una y dejarla escrita."
+    }
+  },
+
+  "pendientes": {
+    "bloqueantes": [
+      "Redactar los ítems del pretest y postest mapeados contra C1–C7",
+      "Juicio de experto sobre el instrumento (docente de hidráulica)",
+      "Prueba piloto del instrumento antes del experimento",
+      "Negociar el acceso a estudiantes de Ingeniería Agrónoma (riesgo R01)"
+    ],
+    "documentales": [
+      "Decidir y justificar C = 140 frente a 150 para PVC",
+      "Actualizar el título vigente, que dice 2D y riego por gravedad",
+      "Enriquecer los objetivos específicos sin renumerar, para que el aporte de software sea explícito",
+      "Definir el umbral numérico de éxito del proyecto"
+    ],
+    "tecnicos": [
+      "Extraer los perfiles reales peruanos y guardarlos como archivos fijos",
+      "Decidir la herramienta de análisis estadístico (Python o R) y montar el cuaderno de derivación",
+      "Decidir cómo se genera el PDF (cliente o servidor)",
+      "Reestructurar el repositorio en workspaces, con el núcleo como paquete",
+      "Corregir el registro lingüístico de los prototipos: hay voseo y los usuarios son peruanos"
+    ]
+  }
+}

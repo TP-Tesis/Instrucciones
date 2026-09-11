@@ -105,7 +105,7 @@ Un jurado lo va a preguntar, así que va escrito:
 
 | Herramienta | ¿Calcula bien? | Por qué no enseña |
 |---|---|---|
-| **Hoja de cálculo profesional** | Sí — es nuestro método de referencia | Entrega el resultado sin el porqué. Explorar cuesta rehacer las celdas. |
+| **Hoja de cálculo de diseño** | Sí — reproduce el método normalizado | Entrega el resultado sin el porqué. Explorar cuesta rehacer las celdas. |
 | **EPANET y similares** | Sí — es el estándar de la industria | No diagnostica en lenguaje del estudiante, no pide anticipación, no mide aprendizaje, y su curva de entrada es alta. |
 | **Clase magistral, video, PDF** | No aplica | Explican, pero no devuelven la consecuencia de *tu* decisión. |
 
@@ -121,7 +121,7 @@ No es «una app que simula riego». Son cuatro piezas, y cada una existe por una
 
 ### El motor de cálculo verificado
 
-Lo que hay debajo de todo. Resuelve la red completa en menos de doscientos milisegundos, reproduce el método profesional de referencia con **error de cero por ciento**, y se verifica contra tres fuentes independientes antes de que ningún estudiante lo toque.
+Lo que hay debajo de todo. Resuelve la red completa en menos de doscientos milisegundos, reproduce el método de diseño normalizado con **error de cero por ciento**, y se verifica contra tres fuentes independientes antes de que ningún estudiante lo toque.
 
 Es la base de las otras tres: sin un cálculo en el que se pueda confiar, todo lo demás enseña algo falso.
 
@@ -131,7 +131,7 @@ Tres representaciones del mismo estado, a la vista al mismo tiempo y sincronizad
 
 - **Planta** — la red a escala real sobre el campo
 - **Perfil** — terreno, tubería y línea de presión disponible; la franja entre las dos últimas *es* la presión
-- **Tabla por tramo** — las mismas columnas y unidades del método profesional, con las celdas de entrada editables ahí mismo
+- **Tabla por tramo** — las mismas columnas y unidades del método normalizado, con las celdas de entrada editables ahí mismo
 
 Tocar un tramo lo resalta en las tres. **Comparar las tres lecturas de un mismo hecho es donde se construye el modelo mental.**
 

@@ -1,0 +1,1067 @@
+<title>Arquitectura del Simulador</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=Spectral:ital,wght@0,400;0,500;0,600;1,400;1,600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+
+<style>
+:root{
+  --paper:#EEF1F2; --surface:#FFFFFF; --surface-2:#F7F9F9; --surface-3:#E9EEEF;
+  --ink:#14232B; --ink-soft:#5A6E76; --ink-faint:#6D7E85;
+  --rule:#D2DBDD; --rule-strong:#B4C1C4;
+  --agua:#0D7A8C; --agua-soft:#E1F0F2;
+  --tierra:#A56C36; --tierra-soft:#F3E9DF;
+  --ok:#2C7A57; --ok-soft:#E2F0E9;
+  --alerta:#B5841A; --alerta-soft:#FBF0D8;
+  --critico:#B03A30; --critico-soft:#FAE6E3;
+  --display:"Archivo","Helvetica Neue",Arial,sans-serif;
+  --body:"Spectral",Georgia,serif;
+  --mono:"IBM Plex Mono",Consolas,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){ :root:not([data-theme="light"]){
+  --paper:#0F161A; --surface:#161F25; --surface-2:#1B262C; --surface-3:#223038;
+  --ink:#E2EAEC; --ink-soft:#96A8AF; --ink-faint:#8A9BA1;
+  --rule:#26343B; --rule-strong:#35474F;
+  --agua:#45B9CC; --agua-soft:#10333A;
+  --tierra:#C89A66; --tierra-soft:#33261A;
+  --ok:#4EB185; --ok-soft:#123124;
+  --alerta:#D9AC49; --alerta-soft:#33280F;
+  --critico:#E0736A; --critico-soft:#3A1B18;
+  color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --paper:#0F161A; --surface:#161F25; --surface-2:#1B262C; --surface-3:#223038;
+  --ink:#E2EAEC; --ink-soft:#96A8AF; --ink-faint:#8A9BA1;
+  --rule:#26343B; --rule-strong:#35474F;
+  --agua:#45B9CC; --agua-soft:#10333A;
+  --tierra:#C89A66; --tierra-soft:#33261A;
+  --ok:#4EB185; --ok-soft:#123124;
+  --alerta:#D9AC49; --alerta-soft:#33280F;
+  --critico:#E0736A; --critico-soft:#3A1B18;
+}
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth; scroll-padding-top:20px}
+@media (prefers-reduced-motion:reduce){ html{scroll-behavior:auto} }
+body{margin:0; background:var(--paper); color:var(--ink);
+  font-family:var(--body); font-size:16.5px; line-height:1.68; -webkit-font-smoothing:antialiased}
+h1,h2,h3,h4{font-family:var(--display); font-weight:600; margin:0; text-wrap:balance; letter-spacing:-.015em}
+p{margin:14px 0 0}
+:focus-visible{outline:2px solid var(--agua); outline-offset:3px}
+.mono{font-family:var(--mono); font-variant-numeric:tabular-nums}
+
+.wrap{max-width:1200px; margin:0 auto; padding:0 26px}
+.col{max-width:70ch}
+.eyebrow{font-family:var(--display); font-size:11px; font-weight:600; letter-spacing:.16em;
+  text-transform:uppercase; color:var(--ink-faint); margin:0}
+
+header.top{background:var(--surface); border-bottom:1px solid var(--rule); padding:46px 0 36px}
+.hdrow{display:flex; justify-content:space-between; align-items:flex-start; gap:24px; flex-wrap:wrap}
+header.top h1{font-size:clamp(32px,5vw,52px); line-height:1.03; margin:14px 0 0; max-width:16ch}
+header.top h1 em{font-style:italic; font-family:var(--body); font-weight:600; color:var(--agua)}
+.sub2{font-size:17px; color:var(--ink-soft); margin:16px 0 0; max-width:64ch; font-style:italic}
+.themebtn{font-family:var(--display); font-size:12px; padding:7px 14px; border-radius:99px; cursor:pointer;
+  border:1px solid var(--rule-strong); background:var(--surface); color:var(--ink-soft)}
+.themebtn:hover{border-color:var(--agua); color:var(--agua)}
+
+.regla{background:var(--agua-soft); border-top:3px solid var(--agua); padding:20px 0}
+.regla p{margin:0; max-width:80ch; font-size:16px}
+.regla b{font-family:var(--display); font-weight:600}
+
+section{padding:42px 0 44px; border-bottom:1px solid var(--rule)}
+section:last-of-type{border-bottom:0}
+h2.sec{font-size:clamp(23px,2.9vw,30px); margin:9px 0 0; max-width:26ch}
+h3{font-size:19px; margin:32px 0 0}
+.lead{font-size:19px; line-height:1.55; margin:18px 0 0; max-width:58ch}
+.lead b{color:var(--agua); font-weight:600}
+
+figure{margin:30px 0 0}
+.scroll{overflow-x:auto}
+figure svg{display:block; height:auto; width:100%; min-width:900px}
+figcaption{font-size:14px; color:var(--ink-faint); margin-top:14px; max-width:72ch; line-height:1.55}
+
+.ax-band{fill:var(--surface-2); stroke:var(--rule); stroke-width:1}
+.ax-core{fill:var(--agua-soft); stroke:var(--agua); stroke-width:1.5}
+.ax-box{fill:var(--surface); stroke:var(--rule-strong); stroke-width:1}
+.ax-boxc{fill:var(--surface); stroke:var(--agua); stroke-width:1.5}
+.ax-store{fill:var(--surface-3); stroke:var(--rule-strong); stroke-width:1}
+.ax-h{font-family:var(--display); font-size:10.5px; font-weight:700; letter-spacing:.15em; fill:var(--ink-faint)}
+.ax-hc{font-family:var(--display); font-size:10.5px; font-weight:700; letter-spacing:.15em; fill:var(--agua)}
+.ax-t{font-family:var(--display); font-size:12.5px; font-weight:600; fill:var(--ink)}
+.ax-ts{font-family:var(--display); font-size:11.5px; font-weight:600; fill:var(--ink)}
+.ax-s{font-family:var(--body); font-size:11.5px; fill:var(--ink-soft)}
+.ax-n{font-family:var(--mono); font-size:10.5px; fill:var(--agua); font-weight:500}
+.ax-fl{stroke:var(--rule-strong); stroke-width:1.4; fill:none}
+.ax-fla{stroke:var(--agua); stroke-width:1.6; fill:none}
+.ax-dash{stroke:var(--ink-faint); stroke-width:1.2; fill:none; stroke-dasharray:4 4}
+
+table{border-collapse:collapse; width:100%; font-size:14.5px; margin:24px 0 0; line-height:1.5}
+th,td{text-align:left; vertical-align:top; padding:10px 14px 10px 0; border-bottom:1px solid var(--rule)}
+th{font-family:var(--display); font-size:10.5px; font-weight:600; letter-spacing:.13em; text-transform:uppercase;
+  color:var(--ink-faint); border-bottom:1px solid var(--rule-strong); padding-bottom:8px}
+td.code{font-family:var(--mono); font-size:12.5px; color:var(--agua); white-space:nowrap; font-weight:500}
+td b{font-family:var(--display); font-weight:600; font-size:14px}
+.scroll table{margin-top:0; min-width:760px}
+
+.tag{display:inline-block; font-family:var(--mono); font-size:11px; font-weight:600;
+  padding:2px 7px; border-radius:4px; background:var(--agua-soft); color:var(--agua); white-space:nowrap}
+.tag.al{background:var(--alerta-soft); color:var(--alerta)}
+.tag.ok{background:var(--ok-soft); color:var(--ok)}
+.tag.cr{background:var(--critico-soft); color:var(--critico)}
+
+ul.limpia{list-style:none; margin:20px 0 0; padding:0; max-width:74ch}
+ul.limpia li{padding:12px 0 12px 26px; border-bottom:1px solid var(--rule); position:relative; font-size:15.5px}
+ul.limpia li:last-child{border-bottom:0}
+ul.limpia li::before{content:"—"; position:absolute; left:0; color:var(--agua); font-family:var(--mono)}
+ul.limpia b{font-family:var(--display); font-weight:600}
+
+.aviso{margin-top:24px; padding:16px 20px; border-radius:6px; background:var(--alerta-soft);
+  border-left:3px solid var(--alerta); font-size:15px; max-width:76ch}
+.aviso p{margin:0}
+.aviso p + p{margin-top:9px}
+.aviso b{font-family:var(--display); font-weight:600}
+.aviso.bien{background:var(--ok-soft); border-left-color:var(--ok)}
+.aviso.ag{background:var(--agua-soft); border-left-color:var(--agua)}
+
+.pares{display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:1px;
+  background:var(--rule); border:1px solid var(--rule); border-radius:6px; overflow:hidden; margin-top:24px}
+.par{background:var(--surface); padding:18px 20px}
+.par h4{font-size:14px; margin:0}
+.par .q{font-family:var(--display); font-size:10.5px; font-weight:600; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--ink-faint); margin:0 0 6px}
+.par p{font-size:14.5px; margin:8px 0 0; color:var(--ink-soft)}
+
+footer{background:var(--surface); border-top:1px solid var(--rule); padding:34px 0 44px}
+footer p{font-size:13.5px; color:var(--ink-faint); max-width:72ch}
+</style>
+
+<header class="top">
+  <div class="wrap">
+    <div class="hdrow">
+      <div>
+        <p class="eyebrow">Arquitectura l&oacute;gica &middot; Simulador de riego presurizado &middot; UPC</p>
+        <h1>C&oacute;mo est&aacute; <em>armado</em> por dentro</h1>
+        <p class="sub2">Las cuatro capas del sistema, el recorrido completo del estudiante y el del docente, y las once decisiones de dise&ntilde;o con lo que cuesta cada una. Todo lo que implica construir esta aplicaci&oacute;n.</p>
+      </div>
+      <button class="themebtn" id="tema" type="button">Cambiar tema</button>
+    </div>
+  </div>
+</header>
+
+<div class="regla">
+  <div class="wrap">
+    <p><b>C&oacute;mo se lee este documento.</b> Primero las exigencias que el sistema no puede incumplir, porque de ah&iacute; sale la forma. Despu&eacute;s el diagrama por capas con sus interfaces, sus m&oacute;dulos y su tecnolog&iacute;a. Luego el recorrido completo de cada usuario, momento por momento, diciendo qu&eacute; capa responde en cada uno. Y al final, las decisiones con su costo: eso es lo que hay que poder defender.</p>
+  </div>
+</div>
+
+<div class="wrap">
+
+<!-- ==================== 1 ==================== -->
+<section id="s1">
+  <p class="eyebrow">Secci&oacute;n 1</p>
+  <h2 class="sec">Las cinco fuerzas que obligan a esta forma</h2>
+  <p class="col">Una arquitectura no se elige por gusto: se deriva de las exigencias que el sistema no puede incumplir. Estas cinco son las nuestras, y cada una deja una marca visible en el diagrama.</p>
+
+  <div class="pares">
+    <div class="par">
+      <p class="q">Fuerza 1</p>
+      <h4>El mismo c&aacute;lculo, tres exigencias que se contradicen</h4>
+      <p>Tiene que responder al instante cuando el estudiante mueve algo, aguantar diez mil pruebas seguidas del optimizador, y dar siempre el mismo n&uacute;mero en los tres usos. <b>Consecuencia:</b> el c&aacute;lculo vive aparte, sin saber que existe una pantalla.</p>
+    </div>
+    <div class="par">
+      <p class="q">Fuerza 2</p>
+      <h4>Si el c&aacute;lculo miente, todo lo dem&aacute;s sobra</h4>
+      <p>Un error ah&iacute; no se ve: el estudiante aprende algo falso y el estudio mide ruido. <b>Consecuencia:</b> el n&uacute;cleo tiene que ser verificable por s&iacute; solo, sin abrir la aplicaci&oacute;n.</p>
+    </div>
+    <div class="par">
+      <p class="q">Fuerza 3</p>
+      <h4>Buscar entre miles de dise&ntilde;os sin congelar la pantalla</h4>
+      <p>Hecho de la forma obvia, la interfaz se traba mientras el optimizador busca. <b>Consecuencia:</b> el optimizador corre aislado, con su propia copia del c&aacute;lculo.</p>
+    </div>
+    <div class="par">
+      <p class="q">Fuerza 4</p>
+      <h4>Un estudio que se hace una sola vez</h4>
+      <p>Son estudiantes reales, en fechas reales, sin repetici&oacute;n. Si se guarda solo el resumen, un cambio de criterio pierde el dato. <b>Consecuencia:</b> se guarda todo lo que pasa y las m&eacute;tricas se derivan despu&eacute;s.</p>
+    </div>
+    <div class="par">
+      <p class="q">Fuerza 5</p>
+      <h4>Tres grupos que no pueden ver lo mismo</h4>
+      <p>Si un participante del grupo sin 3D llega a la vista 3D, el experimento se cae. <b>Consecuencia:</b> la restricci&oacute;n del experimento es una pieza de software, no una advertencia en el manual.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== 2 ==================== -->
+<section id="s2">
+  <p class="eyebrow">Secci&oacute;n 2 &middot; El diagrama principal</p>
+  <h2 class="sec">Arquitectura l&oacute;gica por capas</h2>
+  <p class="col">Los dos actores a la izquierda, y a la derecha las cuatro capas con sus interfaces, sus m&oacute;dulos y la tecnolog&iacute;a de cada una. <b>La capa que m&aacute;s hay que mirar es la segunda</b>: el n&uacute;cleo de simulaci&oacute;n no es un servidor aparte, se descarga con la aplicaci&oacute;n y corre en el equipo del estudiante.</p>
+
+  <figure>
+    <div class="scroll">
+    <svg viewBox="0 0 1320 800" style="min-width:1240px" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Arquitectura l&oacute;gica por capas del simulador">
+      <defs>
+        <marker id="m1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M0 0 L10 5 L0 10 z" fill="var(--rule-strong)"/>
+        </marker>
+        <marker id="m2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M0 0 L10 5 L0 10 z" fill="var(--agua)"/>
+        </marker>
+      </defs>
+
+      <!-- ====== ACTORES ====== -->
+      <text class="ax-h" x="16" y="24">ACTORES</text>
+      <rect class="ax-box" x="16" y="150" width="118" height="98" rx="6"/>
+      <circle cx="75" cy="182" r="14" fill="var(--agua-soft)" stroke="var(--agua)" stroke-width="1.4"/>
+      <circle cx="75" cy="178" r="5" fill="var(--agua)"/>
+      <path d="M66 190 C68 183 82 183 84 190" fill="none" stroke="var(--agua)" stroke-width="2"/>
+      <text class="ax-ts" x="75" y="216" text-anchor="middle">Estudiante</text>
+      <text class="ax-s" x="75" y="234" text-anchor="middle" font-size="10.5">Ing. Agr&oacute;noma</text>
+
+      <rect class="ax-box" x="16" y="430" width="118" height="98" rx="6"/>
+      <circle cx="75" cy="462" r="14" fill="var(--tierra-soft)" stroke="var(--tierra)" stroke-width="1.4"/>
+      <circle cx="75" cy="458" r="5" fill="var(--tierra)"/>
+      <path d="M66 470 C68 463 82 463 84 470" fill="none" stroke="var(--tierra)" stroke-width="2"/>
+      <text class="ax-ts" x="75" y="496" text-anchor="middle">Docente</text>
+      <text class="ax-s" x="75" y="514" text-anchor="middle" font-size="10.5">Hidr&aacute;ulica Aplicada</text>
+
+      <!-- ====== CAPA DE PRESENTACIÓN ====== -->
+      <text class="ax-h" x="162" y="24">CAPA DE PRESENTACI&Oacute;N</text>
+      <rect class="ax-band" x="162" y="34" width="340" height="666" rx="8"/>
+      <text class="ax-t" x="332" y="62" text-anchor="middle" font-size="14">Aplicaci&oacute;n web</text>
+      <text class="ax-s" x="332" y="82" text-anchor="middle">React &middot; TypeScript &middot; sin instalar nada</text>
+      <text class="ax-h" x="176" y="106">INTERFACES</text>
+
+      <rect class="ax-box" x="176" y="114" width="152" height="34" rx="5"/>
+      <text class="ax-s" x="190" y="136" font-size="10.5">Inicio de sesi&oacute;n</text>
+      <rect class="ax-box" x="336" y="114" width="152" height="34" rx="5"/>
+      <text class="ax-s" x="350" y="136" font-size="10.5">Selecci&oacute;n de escenario</text>
+
+      <rect class="ax-boxc" x="176" y="156" width="152" height="34" rx="5"/>
+      <text class="ax-s" x="190" y="178" font-size="10.5">Dise&ntilde;o en planta</text>
+      <rect class="ax-boxc" x="336" y="156" width="152" height="34" rx="5"/>
+      <text class="ax-s" x="350" y="178" font-size="10.5">Perfil y l&iacute;nea de presi&oacute;n</text>
+
+      <rect class="ax-boxc" x="176" y="198" width="152" height="34" rx="5"/>
+      <text class="ax-s" x="190" y="220" font-size="10.5">Tabla por tramo</text>
+      <rect class="ax-box" x="336" y="198" width="152" height="34" rx="5"/>
+      <text class="ax-s" x="350" y="220" font-size="10.5">Base agron&oacute;mica</text>
+
+      <rect class="ax-boxc" x="176" y="240" width="152" height="34" rx="5"/>
+      <text class="ax-s" x="190" y="262" font-size="10.5">Predicci&oacute;n y diagn&oacute;stico</text>
+      <rect class="ax-boxc" x="336" y="240" width="152" height="34" rx="5"/>
+      <text class="ax-s" x="350" y="262" font-size="10.5">Vista 3D del terreno</text>
+
+      <rect class="ax-box" x="176" y="282" width="152" height="34" rx="5"/>
+      <text class="ax-s" x="190" y="304" font-size="10.5">Entrega del dise&ntilde;o</text>
+      <rect class="ax-boxc" x="336" y="282" width="152" height="34" rx="5"/>
+      <text class="ax-s" x="350" y="304" font-size="10.5">Frente de opciones (IA)</text>
+
+      <rect class="ax-box" x="176" y="324" width="152" height="34" rx="5"/>
+      <text class="ax-s" x="190" y="346" font-size="10.5">Teor&iacute;a situada</text>
+      <rect class="ax-box" x="336" y="324" width="152" height="34" rx="5"/>
+      <text class="ax-s" x="350" y="346" font-size="10.5">Cuestionarios</text>
+
+      <rect class="ax-box" x="176" y="366" width="152" height="34" rx="5"/>
+      <text class="ax-s" x="190" y="388" font-size="10.5">Reporte en PDF</text>
+      <rect class="ax-box" x="336" y="366" width="152" height="34" rx="5"/>
+      <text class="ax-s" x="350" y="388" font-size="10.5">Panel del docente</text>
+
+      <rect class="ax-box" x="176" y="408" width="152" height="34" rx="5"/>
+      <text class="ax-s" x="190" y="430" font-size="10.5">Publicaci&oacute;n de escenarios</text>
+      <rect class="ax-box" x="336" y="408" width="152" height="34" rx="5"/>
+      <text class="ax-s" x="350" y="430" font-size="10.5">Historial de versiones</text>
+
+      <text class="ax-h" x="176" y="486">C&Oacute;MO SE DIBUJA</text>
+      <rect class="ax-box" x="176" y="494" width="312" height="42" rx="5"/>
+      <text class="ax-ts" x="190" y="512" font-size="11">Canvas 2D</text>
+      <text class="ax-s" x="190" y="528" font-size="10.5">Planta y perfil, redibujados en cada cambio</text>
+      <rect class="ax-box" x="176" y="544" width="312" height="42" rx="5"/>
+      <text class="ax-ts" x="190" y="562" font-size="11">Three.js sobre WebGL</text>
+      <text class="ax-s" x="190" y="578" font-size="10.5">Relieve, envolvente est&aacute;tica y bandas de presi&oacute;n</text>
+      <rect class="ax-box" x="176" y="594" width="312" height="42" rx="5"/>
+      <text class="ax-ts" x="190" y="612" font-size="11">D3</text>
+      <text class="ax-s" x="190" y="628" font-size="10.5">Escalas, ejes y cotas del perfil</text>
+
+      <text class="ax-s" x="176" y="666" font-size="10.5" fill="var(--ink-faint)">Ninguna interfaz calcula: todas leen del mismo</text>
+      <text class="ax-s" x="176" y="682" font-size="10.5" fill="var(--ink-faint)">estado y le preguntan al n&uacute;cleo de la derecha.</text>
+
+      <!-- ====== CAPA DE SIMULACIÓN ====== -->
+      <text class="ax-hc" x="530" y="24">CAPA DE SIMULACI&Oacute;N Y OPTIMIZACI&Oacute;N</text>
+      <rect class="ax-core" x="530" y="34" width="250" height="666" rx="8"/>
+      <text class="ax-t" x="655" y="62" text-anchor="middle" font-size="14">N&uacute;cleo de c&aacute;lculo</text>
+      <text class="ax-s" x="655" y="82" text-anchor="middle">TypeScript puro, sin dependencias</text>
+
+      <rect class="ax-boxc" x="544" y="114" width="222" height="76" rx="6"/>
+      <text class="ax-ts" x="558" y="136">Motor hidr&aacute;ulico</text>
+      <text class="ax-s" x="558" y="156" font-size="10.5">Hazen-Williams, p&eacute;rdidas locales,</text>
+      <text class="ax-s" x="558" y="172" font-size="10.5">emisores, c&aacute;maras y v&aacute;lvulas</text>
+
+      <rect class="ax-boxc" x="544" y="202" width="222" height="76" rx="6"/>
+      <text class="ax-ts" x="558" y="224">Modelo agron&oacute;mico</text>
+      <text class="ax-s" x="558" y="244" font-size="10.5">Del cultivo y el clima a la l&aacute;mina,</text>
+      <text class="ax-s" x="558" y="260" font-size="10.5">y de ah&iacute; al caudal de cada salida</text>
+
+      <rect class="ax-boxc" x="544" y="290" width="222" height="76" rx="6"/>
+      <text class="ax-ts" x="558" y="312">Reglas y alertas</text>
+      <text class="ax-s" x="558" y="332" font-size="10.5">Velocidad, clase, desnivel,</text>
+      <text class="ax-s" x="558" y="348" font-size="10.5">uniformidad y escorrent&iacute;a</text>
+
+      <rect class="ax-boxc" x="544" y="378" width="222" height="92" rx="6"/>
+      <text class="ax-ts" x="558" y="400">Optimizador &middot; IA</text>
+      <text class="ax-s" x="558" y="420" font-size="10.5">Recocido simulado con semilla fija.</text>
+      <text class="ax-s" x="558" y="436" font-size="10.5">Devuelve el frente de opciones.</text>
+      <text class="ax-n" x="558" y="458">EN UN HILO APARTE &middot; WEB WORKER</text>
+
+      <text class="ax-h" x="544" y="500">POR QU&Eacute; NO ES UN SERVIDOR</text>
+      <text class="ax-s" x="544" y="522" font-size="10.5">Corre en el equipo del estudiante para que</text>
+      <text class="ax-s" x="544" y="538" font-size="10.5">la respuesta llegue en menos de doscientos</text>
+      <text class="ax-s" x="544" y="554" font-size="10.5">milisegundos y no dependa de la conexi&oacute;n.</text>
+      <text class="ax-s" x="544" y="580" font-size="10.5">La misma definici&oacute;n del c&aacute;lculo la usan la</text>
+      <text class="ax-s" x="544" y="596" font-size="10.5">pantalla, el optimizador y las pruebas de</text>
+      <text class="ax-s" x="544" y="612" font-size="10.5">verificaci&oacute;n. No hay una segunda copia.</text>
+
+      <!-- ====== CAPA DE NEGOCIO ====== -->
+      <text class="ax-h" x="808" y="24">CAPA DE NEGOCIO</text>
+      <rect class="ax-band" x="808" y="34" width="310" height="666" rx="8"/>
+      <text class="ax-t" x="963" y="62" text-anchor="middle" font-size="14">Servidor de aplicaciones</text>
+      <text class="ax-s" x="963" y="82" text-anchor="middle">API REST &middot; Node.js + Express</text>
+      <text class="ax-h" x="822" y="106">M&Oacute;DULOS</text>
+
+      <rect class="ax-box" x="822" y="114" width="140" height="52" rx="5"/>
+      <text class="ax-ts" x="834" y="134" font-size="11">Seguridad y sesi&oacute;n</text>
+      <text class="ax-s" x="834" y="152" font-size="10.5">HTTPS, JWT con rol</text>
+      <rect class="ax-box" x="972" y="114" width="132" height="52" rx="5"/>
+      <text class="ax-ts" x="984" y="134" font-size="11">Escenarios</text>
+      <text class="ax-s" x="984" y="152" font-size="10.5">y terrenos</text>
+
+      <rect class="ax-box" x="822" y="174" width="140" height="52" rx="5"/>
+      <text class="ax-ts" x="834" y="194" font-size="11">Dise&ntilde;os</text>
+      <text class="ax-s" x="834" y="212" font-size="10.5">y versiones</text>
+      <rect class="ax-boxc" x="972" y="174" width="132" height="52" rx="5"/>
+      <text class="ax-ts" x="984" y="194" font-size="11">Bit&aacute;cora</text>
+      <text class="ax-s" x="984" y="212" font-size="10.5">de eventos</text>
+
+      <rect class="ax-box" x="822" y="234" width="140" height="52" rx="5"/>
+      <text class="ax-ts" x="834" y="254" font-size="11">Instrumento</text>
+      <text class="ax-s" x="834" y="272" font-size="10.5">de evaluaci&oacute;n</text>
+      <rect class="ax-boxc" x="972" y="234" width="132" height="52" rx="5"/>
+      <text class="ax-ts" x="984" y="254" font-size="11">Asignaci&oacute;n</text>
+      <text class="ax-s" x="984" y="272" font-size="10.5">de grupos</text>
+
+      <rect class="ax-box" x="822" y="294" width="140" height="52" rx="5"/>
+      <text class="ax-ts" x="834" y="314" font-size="11">C&aacute;lculo</text>
+      <text class="ax-s" x="834" y="332" font-size="10.5">de m&eacute;tricas</text>
+      <rect class="ax-box" x="972" y="294" width="132" height="52" rx="5"/>
+      <text class="ax-ts" x="984" y="314" font-size="11">Generaci&oacute;n</text>
+      <text class="ax-s" x="984" y="332" font-size="10.5">del reporte</text>
+
+      <text class="ax-h" x="822" y="386">LA REGLA DE ESTA CAPA</text>
+      <text class="ax-s" x="822" y="408" font-size="10.5">El servidor no calcula hidr&aacute;ulica. Si lo hiciera,</text>
+      <text class="ax-s" x="822" y="424" font-size="10.5">habr&iacute;a un segundo motor que nadie verific&oacute;, y</text>
+      <text class="ax-s" x="822" y="440" font-size="10.5">tarde o temprano dir&iacute;a algo distinto al primero.</text>
+      <text class="ax-s" x="822" y="468" font-size="10.5">Aqu&iacute; viven las dos compuertas del experimento:</text>
+      <text class="ax-s" x="822" y="484" font-size="10.5">qui&eacute;n ve el 3D y cu&aacute;ndo se abre el optimizador.</text>
+
+      <!-- ====== CAPA DE DATOS ====== -->
+      <text class="ax-h" x="1146" y="24">CAPA DE DATOS</text>
+      <rect class="ax-band" x="1146" y="34" width="158" height="666" rx="8"/>
+      <text class="ax-t" x="1225" y="62" text-anchor="middle" font-size="14">Base de datos</text>
+      <text class="ax-s" x="1225" y="82" text-anchor="middle">PostgreSQL</text>
+
+      <rect class="ax-store" x="1160" y="114" width="130" height="56" rx="5"/>
+      <text class="ax-ts" x="1172" y="136" font-size="11">Cuentas</text>
+      <text class="ax-s" x="1172" y="154" font-size="10.5">y grupos</text>
+
+      <rect class="ax-store" x="1160" y="182" width="130" height="56" rx="5"/>
+      <text class="ax-ts" x="1172" y="204" font-size="11">Dise&ntilde;os</text>
+      <text class="ax-s" x="1172" y="222" font-size="10.5">versionados</text>
+
+      <rect class="ax-store" x="1160" y="250" width="130" height="56" rx="5"/>
+      <text class="ax-ts" x="1172" y="272" font-size="11">Bit&aacute;cora</text>
+      <text class="ax-s" x="1172" y="290" font-size="10.5">de eventos</text>
+
+      <rect class="ax-store" x="1160" y="318" width="130" height="56" rx="5"/>
+      <text class="ax-ts" x="1172" y="340" font-size="11">Escenarios</text>
+      <text class="ax-s" x="1172" y="358" font-size="10.5">y terreno</text>
+
+      <rect class="ax-store" x="1160" y="386" width="130" height="56" rx="5"/>
+      <text class="ax-ts" x="1172" y="408" font-size="11">&Iacute;tems y</text>
+      <text class="ax-s" x="1172" y="426" font-size="10.5">respuestas</text>
+
+      <text class="ax-s" x="1160" y="474" font-size="10.5" fill="var(--ink-faint)">Una sola copia,</text>
+      <text class="ax-s" x="1160" y="490" font-size="10.5" fill="var(--ink-faint)">en un solo lugar.</text>
+
+      <!-- ====== FLECHAS ====== -->
+      <path class="ax-fl" d="M134 176 L158 176" marker-end="url(#m1)"/>
+      <text class="ax-s" x="146" y="164" font-size="9.5" fill="var(--ink-faint)">dise&ntilde;a, predice, entrega</text>
+      <path class="ax-fl" d="M158 218 L134 218" marker-end="url(#m1)"/>
+      <text class="ax-s" x="146" y="246" font-size="9.5" fill="var(--ink-faint)">ve presi&oacute;n y alertas</text>
+
+      <path class="ax-fl" d="M134 456 L158 456" marker-end="url(#m1)"/>
+      <text class="ax-s" x="146" y="444" font-size="9.5" fill="var(--ink-faint)">publica y consulta</text>
+      <path class="ax-fl" d="M158 498 L134 498" marker-end="url(#m1)"/>
+      <text class="ax-s" x="146" y="526" font-size="9.5" fill="var(--ink-faint)">ve el avance del grupo</text>
+
+      <path class="ax-fla" d="M502 292 L526 292" marker-end="url(#m2)"/>
+      <path class="ax-fla" d="M526 320 L502 320" marker-end="url(#m2)"/>
+      <text class="ax-n" x="514" y="278" text-anchor="middle">LLAMADA EN MEMORIA</text>
+      <text class="ax-s" x="514" y="344" text-anchor="middle" font-size="9.5" fill="var(--ink-faint)">sin red &middot; &lt; 200 ms</text>
+
+      <path class="ax-fl" d="M1118 292 L1142 292" marker-end="url(#m1)"/>
+      <path class="ax-fl" d="M1142 320 L1118 320" marker-end="url(#m1)"/>
+      <text class="ax-s" x="1130" y="278" text-anchor="middle" font-size="9.5" fill="var(--ink-faint)">SQL</text>
+
+      <path class="ax-fl" d="M420 700 L420 742 L900 742 L900 700" marker-end="url(#m1)" marker-start="url(#m1)"/>
+      <text class="ax-n" x="660" y="734" text-anchor="middle">HTTPS &middot; REST &middot; JWT</text>
+      <text class="ax-s" x="660" y="766" text-anchor="middle" font-size="10.5" fill="var(--ink-faint)">La aplicaci&oacute;n habla con el servidor por encima del n&uacute;cleo de simulaci&oacute;n: el n&uacute;cleo nunca sale a la red.</text>
+    </svg>
+    </div>
+    <figcaption>Las cajas con borde de color son las que sostienen directamente una afirmaci&oacute;n de la tesis: las vistas que confrontan una concepci&oacute;n err&oacute;nea, el n&uacute;cleo verificado, la bit&aacute;cora que solo admite agregar y las dos compuertas del experimento. Las dem&aacute;s se podr&iacute;an construir de varias maneras sin que cambie nada de lo que el estudio mide.</figcaption>
+  </figure>
+
+  <div class="aviso">
+    <p><b>La tecnolog&iacute;a es una propuesta, no un compromiso.</b> React, Node.js y PostgreSQL son las que ya figuran en la justificaci&oacute;n del proyecto; Three.js y el hilo aparte se agregan porque el 3D y el optimizador los exigen. Lo que <em>no</em> se puede cambiar sin redibujar el diagrama son las cuatro capas y la regla de que el n&uacute;cleo corre en el navegador. Si ma&ntilde;ana se cambia React por otra cosa, este diagrama sigue siendo v&aacute;lido.</p>
+  </div>
+
+
+  <h3>Qu&eacute; hace cada capa, en una l&iacute;nea</h3>
+  <p class="col">Esta es la lectura que hay que poder dar de memoria, porque es la que muestra que las capas no est&aacute;n puestas por costumbre.</p>
+  <div class="scroll">
+  <table>
+    <thead><tr><th style="width:16%">Capa</th><th style="width:26%">Su &uacute;nica responsabilidad</th><th style="width:24%">De qui&eacute;n depende</th><th>Qu&eacute; pasa si se mezcla con otra</th></tr></thead>
+    <tbody>
+      <tr><td><b>Presentaci&oacute;n</b></td><td>Mostrar el estado vigente, recoger lo que la persona hace y ordenar el ciclo de aprendizaje.</td><td>De la capa de simulaci&oacute;n para preguntar, y de la de negocio para guardar.</td><td>Si una interfaz calcula por su cuenta, las tres vistas empiezan a mostrar n&uacute;meros distintos del mismo hecho.</td></tr>
+      <tr><td><b>Simulaci&oacute;n y optimizaci&oacute;n</b></td><td>Saber de hidr&aacute;ulica, de riego y de c&oacute;mo se diagnostica. Buscar alternativas.</td><td><b>De nadie.</b> Esa es la propiedad que la hace verificable.</td><td>Si conoce la pantalla o la base de datos, deja de poder probarse sola y la verificaci&oacute;n del motor se vuelve imposible.</td></tr>
+      <tr><td><b>Negocio</b></td><td>Administrar cuentas, grupos, escenarios, versiones, eventos e &iacute;tems, y decidir qui&eacute;n puede ver qu&eacute;.</td><td>De la capa de datos.</td><td>Si un m&oacute;dulo recalcula hidr&aacute;ulica, aparece un segundo motor que nadie verific&oacute;.</td></tr>
+      <tr><td><b>Datos</b></td><td>Conservar. Nada m&aacute;s.</td><td>De nadie.</td><td>Si se guardan m&eacute;tricas ya calculadas, un cambio de criterio a mitad del estudio pierde el dato original.</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3>Dentro de la presentaci&oacute;n hay cuatro piezas que no se ven</h3>
+  <p class="col">No son pantallas, pero sin ellas las pantallas no funcionan juntas. Conviene saber nombrarlas, porque son las que un asesor va a preguntar d&oacute;nde est&aacute;n.</p>
+  <ul class="limpia">
+    <li><b>El estado del dise&ntilde;o.</b> Una sola fuente de verdad. Planta, perfil, tabla y vista 3D leen de aqu&iacute;; ninguna guarda su propia copia. Es lo que garantiza que las cuatro no puedan discrepar.</li>
+    <li><b>El ciclo de aprendizaje.</b> Impone el orden: predicci&oacute;n, resultado, diagn&oacute;stico escalonado, autoexplicaci&oacute;n. Vive aqu&iacute; y no dentro de una vista, porque si viviera dentro de una vista, la 3D podr&iacute;a saltarse la regla y los grupos dejar&iacute;an de recibir la misma intervenci&oacute;n.</li>
+    <li><b>Las compuertas del experimento.</b> El servidor decide a qu&eacute; grupo pertenece cada quien y si ya hubo entrega; la presentaci&oacute;n <em>obedece esa decisi&oacute;n no construyendo</em> la vista 3D o el optimizador. La decisi&oacute;n es del servidor; el cumplimiento, del cliente.</li>
+    <li><b>El emisor de eventos.</b> Convierte cada interacci&oacute;n en un hecho registrable y lo pone en una cola. No decide nada y no bloquea nada: si se cae la red, los eventos esperan y se env&iacute;an despu&eacute;s.</li>
+  </ul>
+</section>
+
+<!-- ==================== 3 ==================== -->
+<section id="s3">
+  <p class="eyebrow">Secci&oacute;n 3 &middot; Journey</p>
+  <h2 class="sec">El recorrido del estudiante, de principio a fin</h2>
+  <p class="col">Ocho momentos, en orden, desde que entra por primera vez hasta que se lleva su PDF. Debajo de cada uno, qu&eacute; capa de la arquitectura responde. <b>Es el mismo recorrido para los tres grupos del experimento, salvo en el momento 5.</b></p>
+
+  <figure>
+    <div class="scroll">
+    <svg viewBox="0 0 1300 252" style="min-width:1180px" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Los ocho momentos del recorrido del estudiante">
+      <defs>
+        <marker id="j" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M0 0 L10 5 L0 10 z" fill="var(--rule-strong)"/>
+        </marker>
+      </defs>
+
+      <rect class="ax-box" x="20" y="46" width="140" height="104" rx="7"/>
+      <circle cx="42" cy="70" r="11" fill="var(--agua)"/>
+      <text x="42" y="74" text-anchor="middle" font-family="var(--mono)" font-size="11" font-weight="600" fill="var(--surface)">1</text>
+      <text class="ax-ts" x="34" y="106" font-size="11.5">Entra y queda</text>
+      <text class="ax-ts" x="34" y="122" font-size="11.5">en un grupo</text>
+      <rect x="34" y="132" width="112" height="3" rx="1.5" fill="var(--tierra)"/>
+      <text class="ax-s" x="34" y="168" font-size="9.5" fill="var(--ink-faint)">Negocio</text>
+
+      <rect class="ax-box" x="180" y="46" width="140" height="104" rx="7"/>
+      <circle cx="202" cy="70" r="11" fill="var(--agua)"/>
+      <text x="202" y="74" text-anchor="middle" font-family="var(--mono)" font-size="11" font-weight="600" fill="var(--surface)">2</text>
+      <text class="ax-ts" x="194" y="106" font-size="11.5">Prueba de</text>
+      <text class="ax-ts" x="194" y="122" font-size="11.5">entrada</text>
+      <rect x="194" y="132" width="112" height="3" rx="1.5" fill="var(--tierra)"/>
+      <text class="ax-s" x="194" y="168" font-size="9.5" fill="var(--ink-faint)">Negocio</text>
+
+      <rect class="ax-box" x="340" y="46" width="140" height="104" rx="7"/>
+      <circle cx="362" cy="70" r="11" fill="var(--agua)"/>
+      <text x="362" y="74" text-anchor="middle" font-family="var(--mono)" font-size="11" font-weight="600" fill="var(--surface)">3</text>
+      <text class="ax-ts" x="354" y="106" font-size="11.5">Abre un</text>
+      <text class="ax-ts" x="354" y="122" font-size="11.5">escenario real</text>
+      <rect x="354" y="132" width="112" height="3" rx="1.5" fill="var(--ok)"/>
+      <text class="ax-s" x="354" y="168" font-size="9.5" fill="var(--ink-faint)">Presentaci&oacute;n</text>
+
+      <rect class="ax-boxc" x="500" y="46" width="140" height="104" rx="7"/>
+      <circle cx="522" cy="70" r="11" fill="var(--agua)"/>
+      <text x="522" y="74" text-anchor="middle" font-family="var(--mono)" font-size="11" font-weight="600" fill="var(--surface)">4</text>
+      <text class="ax-ts" x="514" y="106" font-size="11.5">Dise&ntilde;a y prueba</text>
+      <text class="ax-ts" x="514" y="122" font-size="11.5">alternativas</text>
+      <rect x="514" y="132" width="112" height="3" rx="1.5" fill="var(--agua)"/>
+      <text class="ax-s" x="514" y="168" font-size="9.5" fill="var(--ink-faint)">Simulaci&oacute;n</text>
+
+      <rect class="ax-boxc" x="660" y="46" width="140" height="104" rx="7"/>
+      <circle cx="682" cy="70" r="11" fill="var(--agua)"/>
+      <text x="682" y="74" text-anchor="middle" font-family="var(--mono)" font-size="11" font-weight="600" fill="var(--surface)">5</text>
+      <text class="ax-ts" x="674" y="106" font-size="11.5">Confronta lo</text>
+      <text class="ax-ts" x="674" y="122" font-size="11.5">invisible en 3D</text>
+      <rect x="674" y="132" width="112" height="3" rx="1.5" fill="var(--agua)"/>
+      <text class="ax-s" x="674" y="168" font-size="9.5" fill="var(--critico)">Solo un grupo</text>
+
+      <rect class="ax-boxc" x="820" y="46" width="140" height="104" rx="7"/>
+      <circle cx="842" cy="70" r="11" fill="var(--agua)"/>
+      <text x="842" y="74" text-anchor="middle" font-family="var(--mono)" font-size="11" font-weight="600" fill="var(--surface)">6</text>
+      <text class="ax-ts" x="834" y="106" font-size="11.5">Predice y</text>
+      <text class="ax-ts" x="834" y="122" font-size="11.5">diagnostica</text>
+      <rect x="834" y="132" width="112" height="3" rx="1.5" fill="var(--ok)"/>
+      <text class="ax-s" x="834" y="168" font-size="9.5" fill="var(--ink-faint)">Presentaci&oacute;n</text>
+
+      <rect class="ax-boxc" x="980" y="46" width="140" height="104" rx="7"/>
+      <circle cx="1002" cy="70" r="11" fill="var(--agua)"/>
+      <text x="1002" y="74" text-anchor="middle" font-family="var(--mono)" font-size="11" font-weight="600" fill="var(--surface)">7</text>
+      <text class="ax-ts" x="994" y="106" font-size="11.5">Entrega y</text>
+      <text class="ax-ts" x="994" y="122" font-size="11.5">compara con la IA</text>
+      <rect x="994" y="132" width="112" height="3" rx="1.5" fill="var(--agua)"/>
+      <text class="ax-s" x="994" y="168" font-size="9.5" fill="var(--ink-faint)">Simulaci&oacute;n</text>
+
+      <rect class="ax-box" x="1140" y="46" width="140" height="104" rx="7"/>
+      <circle cx="1162" cy="70" r="11" fill="var(--agua)"/>
+      <text x="1162" y="74" text-anchor="middle" font-family="var(--mono)" font-size="11" font-weight="600" fill="var(--surface)">8</text>
+      <text class="ax-ts" x="1154" y="106" font-size="11.5">Explica, cierra</text>
+      <text class="ax-ts" x="1154" y="122" font-size="11.5">y exporta</text>
+      <rect x="1154" y="132" width="112" height="3" rx="1.5" fill="var(--tierra)"/>
+      <text class="ax-s" x="1154" y="168" font-size="9.5" fill="var(--ink-faint)">Negocio</text>
+
+      <path class="ax-fl" d="M160 98 L176 98" marker-end="url(#j)"/>
+      <path class="ax-fl" d="M320 98 L336 98" marker-end="url(#j)"/>
+      <path class="ax-fl" d="M480 98 L496 98" marker-end="url(#j)"/>
+      <path class="ax-fl" d="M640 98 L656 98" marker-end="url(#j)"/>
+      <path class="ax-fl" d="M800 98 L816 98" marker-end="url(#j)"/>
+      <path class="ax-fl" d="M960 98 L976 98" marker-end="url(#j)"/>
+      <path class="ax-fl" d="M1120 98 L1136 98" marker-end="url(#j)"/>
+
+      <path class="ax-dash" d="M950 190 C950 214 620 214 580 190"/>
+      <text class="ax-s" x="765" y="232" text-anchor="middle" font-size="10.5" fill="var(--ink-faint)">Los momentos 4, 5 y 6 se repiten escenario tras escenario. Es el bucle donde ocurre el aprendizaje.</text>
+
+      <text class="ax-h" x="20" y="24">EL RECORRIDO DEL ESTUDIANTE &middot; QU&Eacute; CAPA RESPONDE EN CADA MOMENTO</text>
+    </svg>
+    </div>
+    <figcaption>La barra de color bajo cada momento dice de d&oacute;nde sale la respuesta. Cuando la barra es azul, el estudiante est&aacute; hablando con el n&uacute;cleo que corre en su propio equipo: por eso esos momentos son instant&aacute;neos y los otros no necesitan serlo.</figcaption>
+  </figure>
+
+  <h3>El mismo recorrido, en detalle</h3>
+  <div class="scroll">
+  <table>
+    <thead><tr><th style="width:15%">Momento</th><th style="width:22%">Qu&eacute; hace</th><th style="width:16%">Qu&eacute; interfaz usa</th><th style="width:16%">Qu&eacute; capa responde</th><th style="width:19%">Qu&eacute; queda registrado</th><th>Causa</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><b>1 &middot; Entra</b></td>
+        <td>Inicia sesi&oacute;n por primera vez. El sistema lo asigna a uno de los tres grupos del experimento.</td>
+        <td>Inicio de sesi&oacute;n</td>
+        <td>Negocio &rarr; Datos</td>
+        <td>Su cuenta, su grupo y la fecha de ingreso.</td>
+        <td class="code">&mdash;</td>
+      </tr>
+      <tr>
+        <td><b>2 &middot; Prueba de entrada</b></td>
+        <td>Responde el cuestionario antes de ver el simulador. No puede saltarlo.</td>
+        <td>Cuestionarios</td>
+        <td>Negocio &rarr; Datos</td>
+        <td>Respuesta por &iacute;tem, con su creencia asociada. Es el punto de partida.</td>
+        <td class="code">&mdash;</td>
+      </tr>
+      <tr>
+        <td><b>3 &middot; Abre un escenario</b></td>
+        <td>Elige un caso sobre terreno real peruano. El perfil se descarga una vez y ya no vuelve a pedirse.</td>
+        <td>Selecci&oacute;n de escenario</td>
+        <td>Negocio &rarr; Presentaci&oacute;n</td>
+        <td>Qu&eacute; escenario abri&oacute; y cu&aacute;ndo.</td>
+        <td class="code">C6</td>
+      </tr>
+      <tr>
+        <td><b>4 &middot; Dise&ntilde;a</b></td>
+        <td>Traza la red, asigna di&aacute;metros y clases, mueve cotas, coloca c&aacute;maras y v&aacute;lvulas. Prueba alternativas sin costo.</td>
+        <td>Planta, perfil, tabla por tramo y base agron&oacute;mica</td>
+        <td><b>Simulaci&oacute;n</b>, en su propio equipo</td>
+        <td>Cada cambio, con el estado anterior y el posterior.</td>
+        <td class="code">C3 &middot; C4 &middot; C5</td>
+      </tr>
+      <tr>
+        <td><b>5 &middot; Confronta en 3D</b></td>
+        <td>Cierra las v&aacute;lvulas y ve reventar el dise&ntilde;o que funcionaba regando. Agrupa salidas en sectores leyendo el campo por bandas de presi&oacute;n.</td>
+        <td>Vista 3D del terreno</td>
+        <td><b>Simulaci&oacute;n</b> + compuerta de grupo</td>
+        <td>Qu&eacute; tareas complet&oacute; y con cu&aacute;ntos intentos.</td>
+        <td class="code">C5 &middot; C6</td>
+      </tr>
+      <tr>
+        <td><b>6 &middot; Predice y diagnostica</b></td>
+        <td>Antes de cada cambio con consecuencia dice qu&eacute; va a pasar. Cuando algo falla recibe el s&iacute;ntoma y pide la causa solo si la necesita.</td>
+        <td>Predicci&oacute;n y diagn&oacute;stico &middot; teor&iacute;a situada</td>
+        <td>Presentaci&oacute;n &rarr; Simulaci&oacute;n</td>
+        <td>Predicci&oacute;n, formato, resultado real, acierto, y hasta qu&eacute; nivel de ayuda lleg&oacute; a pedir.</td>
+        <td class="code">C1 &middot; C2</td>
+      </tr>
+      <tr>
+        <td><b>7 &middot; Entrega y compara</b></td>
+        <td>Firma su dise&ntilde;o, y reci&eacute;n ah&iacute; se abre el optimizador. Recibe el frente de opciones, bloquea lo que la realidad le impone, vuelve a correr, elige una y justifica por escrito.</td>
+        <td>Entrega del dise&ntilde;o &middot; frente de opciones</td>
+        <td><b>Simulaci&oacute;n</b> + compuerta de entrega</td>
+        <td>El dise&ntilde;o entregado, las opciones devueltas, cu&aacute;l eligi&oacute; y su justificaci&oacute;n.</td>
+        <td class="code">C1</td>
+      </tr>
+      <tr>
+        <td><b>8 &middot; Cierra</b></td>
+        <td>Explica por qu&eacute; funcion&oacute;, responde la prueba de salida y exporta su PDF con el plano, la tabla y los indicadores.</td>
+        <td>Cuestionarios &middot; reporte en PDF</td>
+        <td>Negocio &rarr; Datos</td>
+        <td>Su autoexplicaci&oacute;n y el postest, ligados al pretest del momento 2.</td>
+        <td class="code">C1 &middot; C2</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="aviso ag">
+    <p><b>C&oacute;mo se explica este cuadro en la sustentaci&oacute;n.</b> La columna de la derecha es la que cierra el argumento: <em>ning&uacute;n momento del recorrido existe porque quede bonito</em>. Cada uno ataca una causa del planteamiento, y el momento 5 es el &uacute;nico que no todos viven &mdash; esa diferencia deliberada es lo que permite probar si el 3D aporta algo por encima del 2D.</p>
+  </div>
+</section>
+
+<!-- ==================== 4 ==================== -->
+<section id="s4">
+  <p class="eyebrow">Secci&oacute;n 4 &middot; Journey</p>
+  <h2 class="sec">El recorrido del docente</h2>
+  <p class="col">M&aacute;s corto, pero es el que sostiene la operaci&oacute;n del experimento. Sin &eacute;l no hay escenarios que resolver ni datos que analizar.</p>
+
+  <figure>
+    <div class="scroll">
+    <svg viewBox="0 0 1060 208" style="min-width:1000px" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Los cinco momentos del recorrido del docente">
+      <defs>
+        <marker id="k" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M0 0 L10 5 L0 10 z" fill="var(--rule-strong)"/>
+        </marker>
+      </defs>
+
+      <rect class="ax-box" x="20" y="46" width="180" height="98" rx="7"/>
+      <circle cx="44" cy="70" r="11" fill="var(--tierra)"/>
+      <text x="44" y="74" text-anchor="middle" font-family="var(--mono)" font-size="11" font-weight="600" fill="var(--surface)">1</text>
+      <text class="ax-ts" x="34" y="104" font-size="11.5">Prepara el curso</text>
+      <text class="ax-s" x="34" y="124" font-size="10.5">Crea su grupo y da de alta</text>
+      <text class="ax-s" x="34" y="138" font-size="10.5">a los estudiantes</text>
+
+      <rect class="ax-box" x="230" y="46" width="180" height="98" rx="7"/>
+      <circle cx="254" cy="70" r="11" fill="var(--tierra)"/>
+      <text x="254" y="74" text-anchor="middle" font-family="var(--mono)" font-size="11" font-weight="600" fill="var(--surface)">2</text>
+      <text class="ax-ts" x="244" y="104" font-size="11.5">Publica escenarios</text>
+      <text class="ax-s" x="244" y="124" font-size="10.5">Elige los casos sobre</text>
+      <text class="ax-s" x="244" y="138" font-size="10.5">terreno real y los abre</text>
+
+      <rect class="ax-box" x="440" y="46" width="180" height="98" rx="7"/>
+      <circle cx="464" cy="70" r="11" fill="var(--tierra)"/>
+      <text x="464" y="74" text-anchor="middle" font-family="var(--mono)" font-size="11" font-weight="600" fill="var(--surface)">3</text>
+      <text class="ax-ts" x="454" y="104" font-size="11.5">Acompa&ntilde;a la sesi&oacute;n</text>
+      <text class="ax-s" x="454" y="124" font-size="10.5">Ve el avance del grupo</text>
+      <text class="ax-s" x="454" y="138" font-size="10.5">mientras trabajan</text>
+
+      <rect class="ax-box" x="650" y="46" width="180" height="98" rx="7"/>
+      <circle cx="674" cy="70" r="11" fill="var(--tierra)"/>
+      <text x="674" y="74" text-anchor="middle" font-family="var(--mono)" font-size="11" font-weight="600" fill="var(--surface)">4</text>
+      <text class="ax-ts" x="664" y="104" font-size="11.5">Revisa trayectorias</text>
+      <text class="ax-s" x="664" y="124" font-size="10.5">Historial de versiones de</text>
+      <text class="ax-s" x="664" y="138" font-size="10.5">cada estudiante</text>
+
+      <rect class="ax-boxc" x="860" y="46" width="180" height="98" rx="7"/>
+      <circle cx="884" cy="70" r="11" fill="var(--tierra)"/>
+      <text x="884" y="74" text-anchor="middle" font-family="var(--mono)" font-size="11" font-weight="600" fill="var(--surface)">5</text>
+      <text class="ax-ts" x="874" y="104" font-size="11.5">Exporta resultados</text>
+      <text class="ax-s" x="874" y="124" font-size="10.5">Para el an&aacute;lisis estad&iacute;stico,</text>
+      <text class="ax-s" x="874" y="138" font-size="10.5">fuera de la aplicaci&oacute;n</text>
+
+      <path class="ax-fl" d="M200 95 L226 95" marker-end="url(#k)"/>
+      <path class="ax-fl" d="M410 95 L436 95" marker-end="url(#k)"/>
+      <path class="ax-fl" d="M620 95 L646 95" marker-end="url(#k)"/>
+      <path class="ax-fl" d="M830 95 L856 95" marker-end="url(#k)"/>
+
+      <text class="ax-h" x="20" y="24">EL RECORRIDO DEL DOCENTE</text>
+      <text class="ax-s" x="20" y="188" font-size="10.5" fill="var(--ink-faint)">Todo su recorrido vive en la capa de negocio: el docente nunca ejecuta el motor de c&aacute;lculo, solo consulta lo que otros produjeron.</text>
+    </svg>
+    </div>
+    <figcaption>El momento 5 tiene borde de color porque es el que convierte la aplicaci&oacute;n en un instrumento de investigaci&oacute;n. Sin esa exportaci&oacute;n, todo lo dem&aacute;s sigue siendo una herramienta educativa m&aacute;s.</figcaption>
+  </figure>
+
+  <div class="scroll">
+  <table>
+    <thead><tr><th style="width:18%">Momento</th><th style="width:26%">Qu&eacute; hace</th><th style="width:20%">Qu&eacute; interfaz usa</th><th>Qu&eacute; m&oacute;dulo lo resuelve</th></tr></thead>
+    <tbody>
+      <tr><td><b>1 &middot; Prepara el curso</b></td><td>Crea su grupo, da de alta a los estudiantes y confirma qui&eacute;n queda en qu&eacute; grupo del experimento.</td><td>Panel del docente</td><td>Seguridad y sesi&oacute;n &middot; Asignaci&oacute;n de grupos</td></tr>
+      <tr><td><b>2 &middot; Publica escenarios</b></td><td>Elige entre los casos disponibles sobre terreno real peruano y los abre para su grupo, sin pedirle nada al equipo de desarrollo.</td><td>Publicaci&oacute;n de escenarios</td><td>Escenarios y terrenos</td></tr>
+      <tr><td><b>3 &middot; Acompa&ntilde;a la sesi&oacute;n</b></td><td>Ve qui&eacute;n va por d&oacute;nde mientras la clase trabaja. No interviene en el diagn&oacute;stico: eso lo hace el estudiante.</td><td>Panel del docente</td><td>C&aacute;lculo de m&eacute;tricas</td></tr>
+      <tr><td><b>4 &middot; Revisa trayectorias</b></td><td>Abre el historial de versiones de un estudiante y ve c&oacute;mo lleg&oacute; a su dise&ntilde;o, no solo el resultado final.</td><td>Historial de versiones</td><td>Dise&ntilde;os y versiones</td></tr>
+      <tr><td><b>5 &middot; Exporta resultados</b></td><td>Descarga los datos del grupo en un formato analizable, sin informaci&oacute;n que identifique a nadie.</td><td>Panel del docente</td><td>C&aacute;lculo de m&eacute;tricas &middot; Bit&aacute;cora de eventos</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="aviso">
+    <p><b>Lo que el docente no puede hacer, y es a prop&oacute;sito.</b> No puede ver las respuestas de los cuestionarios antes de que termine el ciclo, no puede mover a un estudiante de grupo una vez asignado, y no puede editar la bit&aacute;cora. Las tres restricciones existen para que los datos del experimento sigan siendo defendibles.</p>
+  </div>
+</section>
+
+<!-- ==================== 5 ==================== -->
+<section id="s5">
+  <p class="eyebrow">Secci&oacute;n 5 &middot; La decisi&oacute;n central</p>
+  <h2 class="sec">Un solo c&aacute;lculo, tres consumidores</h2>
+  <p class="lead">Si el c&aacute;lculo est&aacute; escrito dentro de la pantalla, <b>no se puede verificar, no se puede optimizar y no se puede probar</b>. Sacarlo afuera es la decisi&oacute;n de la que dependen las otras.</p>
+
+  <figure>
+    <div class="scroll">
+    <svg viewBox="0 0 1000 330" style="min-width:940px" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Los tres consumidores del motor de c&aacute;lculo">
+      <defs>
+        <marker id="q" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M0 0 L10 5 L0 10 z" fill="var(--agua)"/>
+        </marker>
+      </defs>
+
+      <rect class="ax-boxc" x="350" y="122" width="300" height="86" rx="8"/>
+      <text class="ax-t" x="500" y="152" text-anchor="middle" font-size="15">Motor de c&aacute;lculo</text>
+      <text class="ax-s" x="500" y="174" text-anchor="middle">Una sola definici&oacute;n de c&oacute;mo se comporta</text>
+      <text class="ax-s" x="500" y="190" text-anchor="middle">el agua en la red. Sin interfaz, sin base de datos.</text>
+
+      <rect class="ax-box" x="40" y="34" width="252" height="76" rx="6"/>
+      <text class="ax-ts" x="56" y="58">La pantalla</text>
+      <text class="ax-s" x="56" y="78">Una consulta por cada cambio.</text>
+      <text class="ax-s" x="56" y="96">Necesita respuesta inmediata.</text>
+      <path class="ax-fla" d="M292 72 C330 72 330 140 346 148" marker-end="url(#q)"/>
+
+      <rect class="ax-box" x="40" y="128" width="252" height="76" rx="6"/>
+      <text class="ax-ts" x="56" y="152">El optimizador</text>
+      <text class="ax-s" x="56" y="172">Miles de consultas seguidas.</text>
+      <text class="ax-s" x="56" y="190">Necesita volumen, no latencia.</text>
+      <path class="ax-fla" d="M292 166 L346 166" marker-end="url(#q)"/>
+
+      <rect class="ax-box" x="40" y="222" width="252" height="76" rx="6"/>
+      <text class="ax-ts" x="56" y="246">El arn&eacute;s de verificaci&oacute;n</text>
+      <text class="ax-s" x="56" y="266">Casos del m&eacute;todo normalizado</text>
+      <text class="ax-s" x="56" y="284">y de bibliograf&iacute;a. Corre solo.</text>
+      <path class="ax-fla" d="M292 260 C330 260 330 192 346 184" marker-end="url(#q)"/>
+
+      <rect class="ax-box" x="708" y="128" width="252" height="76" rx="6"/>
+      <text class="ax-ts" x="724" y="152">Siempre el mismo n&uacute;mero</text>
+      <text class="ax-s" x="724" y="172">Lo que el estudiante ve es lo que</text>
+      <text class="ax-s" x="724" y="190">el optimizador us&oacute; y lo que se verific&oacute;.</text>
+      <path class="ax-fla" d="M654 166 L704 166" marker-end="url(#q)"/>
+
+      <text class="ax-n" x="500" y="242" text-anchor="middle">SI HUBIERA DOS COPIAS DEL C&Aacute;LCULO, TARDE O TEMPRANO DIR&Iacute;AN COSAS DISTINTAS</text>
+      <text class="ax-s" x="500" y="266" text-anchor="middle">y la que el estudiante ve no ser&iacute;a la que se verific&oacute;</text>
+    </svg>
+    </div>
+    <figcaption>La caja de la derecha no es un componente: es la propiedad que se obtiene. Es tambi&eacute;n lo que permite afirmar en la tesis que el error frente al m&eacute;todo de referencia es el que se document&oacute;, y no otro.</figcaption>
+  </figure>
+
+  <div class="aviso ag">
+    <p><b>Lo que esto implica al construir.</b> El n&uacute;cleo se escribe primero y se termina primero &mdash; es todo el Sprint&nbsp;1&mdash;, antes de que exista una sola pantalla. Suena al rev&eacute;s, pero es la &uacute;nica forma de que la verificaci&oacute;n signifique algo: si se escribe despu&eacute;s de la interfaz, ya arrastra decisiones tomadas para que la pantalla se vea bien.</p>
+  </div>
+</section>
+
+<!-- ==================== 6 ==================== -->
+<section id="s6">
+  <p class="eyebrow">Secci&oacute;n 6</p>
+  <h2 class="sec">Qu&eacute; ocurre cuando el estudiante cambia un di&aacute;metro</h2>
+  <p class="col">El recorrido completo de una sola interacci&oacute;n. Es el camino que m&aacute;s veces se repite en toda la aplicaci&oacute;n, y el que fija el l&iacute;mite de tiempo de respuesta.</p>
+
+  <figure>
+    <div class="scroll">
+    <svg viewBox="0 0 1240 468" style="min-width:1140px" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Recorrido de un cambio de di&aacute;metro, paso a paso y por carriles">
+      <defs>
+        <marker id="r" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse">
+          <path d="M0 0 L10 5 L0 10 z" fill="var(--agua)"/>
+        </marker>
+      </defs>
+
+      <text class="ax-h" x="20" y="22">QU&Eacute; CAPA ACT&Uacute;A</text>
+      <line x1="140" y1="44" x2="1230" y2="44" stroke="var(--rule)" stroke-width="1"/>
+      <line x1="140" y1="114" x2="1230" y2="114" stroke="var(--rule)" stroke-width="1"/>
+      <line x1="140" y1="184" x2="1230" y2="184" stroke="var(--rule)" stroke-width="1"/>
+      <line x1="140" y1="254" x2="1230" y2="254" stroke="var(--rule)" stroke-width="1"/>
+      <line x1="140" y1="324" x2="1230" y2="324" stroke="var(--rule)" stroke-width="1"/>
+      <line x1="140" y1="394" x2="1230" y2="394" stroke="var(--rule)" stroke-width="1"/>
+
+      <text class="ax-ts" x="20" y="76">La vista</text>
+      <text class="ax-ts" x="20" y="146">El estado</text>
+      <text class="ax-ts" x="20" y="216">El ciclo de</text>
+      <text class="ax-ts" x="20" y="232">aprendizaje</text>
+      <text class="ax-ts" x="20" y="286">El n&uacute;cleo</text>
+      <text class="ax-ts" x="20" y="356">El registro</text>
+
+      <rect class="ax-box" x="150" y="52" width="166" height="54" rx="6"/>
+      <text class="ax-n" x="164" y="72">1</text>
+      <text class="ax-s" x="180" y="72">Escribe el nuevo</text>
+      <text class="ax-s" x="180" y="90">di&aacute;metro en la tabla</text>
+
+      <rect class="ax-box" x="150" y="192" width="166" height="54" rx="6"/>
+      <text class="ax-n" x="164" y="212">2</text>
+      <text class="ax-s" x="180" y="212">&iquest;Este cambio tiene</text>
+      <text class="ax-s" x="180" y="230">consecuencia? S&iacute;</text>
+
+      <rect class="ax-boxc" x="330" y="52" width="166" height="54" rx="6"/>
+      <text class="ax-n" x="344" y="72">3</text>
+      <text class="ax-s" x="360" y="72">Pregunta primero:</text>
+      <text class="ax-s" x="360" y="90">&laquo;&iquest;qu&eacute; va a pasar?&raquo;</text>
+
+      <rect class="ax-box" x="330" y="122" width="166" height="54" rx="6"/>
+      <text class="ax-n" x="344" y="142">4</text>
+      <text class="ax-s" x="360" y="142">Guarda el valor y</text>
+      <text class="ax-s" x="360" y="160">la predicci&oacute;n</text>
+
+      <rect class="ax-boxc" x="510" y="262" width="166" height="54" rx="6"/>
+      <text class="ax-n" x="524" y="282">5</text>
+      <text class="ax-s" x="540" y="282">Resuelve la red</text>
+      <text class="ax-s" x="540" y="300">completa otra vez</text>
+
+      <rect class="ax-boxc" x="690" y="262" width="166" height="54" rx="6"/>
+      <text class="ax-n" x="704" y="282">6</text>
+      <text class="ax-s" x="720" y="282">Eval&uacute;a las reglas:</text>
+      <text class="ax-s" x="720" y="300">qu&eacute; qued&oacute; fuera</text>
+
+      <rect class="ax-box" x="870" y="52" width="166" height="54" rx="6"/>
+      <text class="ax-n" x="884" y="72">7</text>
+      <text class="ax-s" x="900" y="72">Redibuja las tres</text>
+      <text class="ax-s" x="900" y="90">vistas y el color</text>
+
+      <rect class="ax-box" x="870" y="192" width="166" height="54" rx="6"/>
+      <text class="ax-n" x="884" y="212">8</text>
+      <text class="ax-s" x="900" y="212">Compara lo predicho</text>
+      <text class="ax-s" x="900" y="230">con lo que pas&oacute;</text>
+
+      <rect class="ax-boxc" x="150" y="332" width="1066" height="54" rx="6"/>
+      <text class="ax-n" x="164" y="352">9</text>
+      <text class="ax-s" x="180" y="352">Se agrega el hecho completo a la bit&aacute;cora: qu&eacute; cambi&oacute;, qu&eacute; predijo el estudiante, qu&eacute; result&oacute; y cu&aacute;ndo.</text>
+      <text class="ax-s" x="180" y="370">Nada de lo anterior se modifica ni se borra. De aqu&iacute; salen despu&eacute;s las tres medidas de la tesis.</text>
+
+      <path class="ax-fla" d="M233 106 L233 188" marker-end="url(#r)"/>
+      <path class="ax-fla" d="M316 219 C324 219 324 79 326 79" marker-end="url(#r)"/>
+      <path class="ax-fla" d="M413 106 L413 118" marker-end="url(#r)"/>
+      <path class="ax-fla" d="M496 149 C504 149 504 289 506 289" marker-end="url(#r)"/>
+      <path class="ax-fla" d="M676 289 L686 289" marker-end="url(#r)"/>
+      <path class="ax-fla" d="M856 289 C864 289 864 79 866 79" marker-end="url(#r)"/>
+      <path class="ax-fla" d="M953 106 L953 188" marker-end="url(#r)"/>
+      <path class="ax-fla" d="M953 246 L953 330" marker-end="url(#r)"/>
+
+      <text class="ax-n" x="150" y="428">OBJETIVO DE TIEMPO &middot; MENOS DE UN SEGUNDO DESDE EL PASO 4 HASTA EL PASO 7</text>
+      <text class="ax-s" x="150" y="452">El paso 9 no bloquea a nadie: ocurre despu&eacute;s de que el estudiante ya vio el resultado en pantalla.</text>
+    </svg>
+    </div>
+    <figcaption>Los pasos 2 y 3 son la raz&oacute;n por la que el ciclo de aprendizaje es una capa propia y no una pantalla: la pregunta se interpone <em>antes</em> de que el n&uacute;cleo calcule. Si esa regla viviera dentro de una vista, la vista 3D podr&iacute;a salt&aacute;rsela sin que nadie lo note, y los dos grupos que usan el simulador dejar&iacute;an de recibir la misma intervenci&oacute;n.</figcaption>
+  </figure>
+</section>
+
+<!-- ==================== 7 ==================== -->
+<section id="s7">
+  <p class="eyebrow">Secci&oacute;n 7</p>
+  <h2 class="sec">Las dos compuertas que protegen el experimento</h2>
+  <p class="col">Son la parte de la arquitectura que un producto comercial no tendr&iacute;a. Existen porque el sistema no solo ense&ntilde;a: tambi&eacute;n mide, y la medici&oacute;n se arruina si cualquiera puede ver cualquier cosa.</p>
+
+  <div class="pares">
+    <div class="par">
+      <p class="q">Compuerta 1</p>
+      <h4>La vista 3D, seg&uacute;n el grupo</h4>
+      <p>El sistema pregunta a qu&eacute; grupo pertenece quien entr&oacute;, y el 3D existe o no existe para esa persona. <b>No es una opci&oacute;n oculta en un men&uacute;:</b> si el grupo no la tiene, la vista no se carga. As&iacute; la hip&oacute;tesis secundaria sobre el 3D se puede probar.</p>
+    </div>
+    <div class="par">
+      <p class="q">Compuerta 2</p>
+      <h4>El optimizador, despu&eacute;s de entregar</h4>
+      <p>Permanece cerrado hasta que el estudiante firma su dise&ntilde;o. Si estuviera disponible antes, parte de los participantes copiar&iacute;a la respuesta y el grupo experimental quedar&iacute;a contaminado justo en la variable que se mide.</p>
+    </div>
+  </div>
+
+  <div class="aviso">
+    <p><b>D&oacute;nde tienen que vivir estas compuertas.</b> En la capa que coordina, nunca en las vistas. Una comprobaci&oacute;n escrita dentro de un bot&oacute;n se puede saltar; una condici&oacute;n que decide si el componente llega siquiera a existir, no. Es una diferencia peque&ntilde;a de c&oacute;digo y enorme de validez.</p>
+  </div>
+</section>
+
+<!-- ==================== 8 ==================== -->
+<section id="s8">
+  <p class="eyebrow">Secci&oacute;n 8</p>
+  <h2 class="sec">Por qu&eacute; se guarda todo y no se guarda ninguna m&eacute;trica</h2>
+  <p class="col">La bit&aacute;cora de eventos solo admite agregar: nada se modifica y nada se borra. Las tres medidas de la tesis no se almacenan &mdash; se calculan cada vez que se piden, recorriendo esa bit&aacute;cora.</p>
+
+  <ul class="limpia">
+    <li><b>Cu&aacute;nto baj&oacute; la ayuda que necesit&oacute;</b> &mdash; se cuenta, por escenario, hasta qu&eacute; nivel de diagn&oacute;stico lleg&oacute; a pedir.</li>
+    <li><b>Cu&aacute;nto mejor&oacute; al anticipar</b> &mdash; se comparan las predicciones registradas con los resultados reales, contra lo que dar&iacute;a el azar.</li>
+    <li><b>Cu&aacute;nto se acerc&oacute; al frente de opciones</b> &mdash; se mide la distancia entre el dise&ntilde;o entregado y las soluciones que devolvi&oacute; el optimizador.</li>
+  </ul>
+
+  <div class="aviso bien">
+    <p><b>El argumento de ingenier&iacute;a, en una frase.</b> Una m&eacute;trica guardada es una decisi&oacute;n tomada demasiado pronto. Si a mitad del estudio se decide que &laquo;pedir ayuda de nivel 2&raquo; cuenta distinto, con la bit&aacute;cora completa se recalcula todo; con la m&eacute;trica ya guardada, hay que repetir el experimento &mdash; y no hay c&oacute;mo, porque los estudiantes ya pasaron por el curso.</p>
+  </div>
+</section>
+
+<!-- ==================== 9 ==================== -->
+<section id="s9">
+  <p class="eyebrow">Secci&oacute;n 9</p>
+  <h2 class="sec">D&oacute;nde corre cada cosa</h2>
+  <p class="col">La vista l&oacute;gica dice <em>qu&eacute; hace cada parte</em>; esta dice <em>d&oacute;nde se ejecuta</em>. Son dos preguntas distintas y conviene no mezclarlas.</p>
+
+  <figure>
+    <div class="scroll">
+    <svg viewBox="0 0 1000 392" style="min-width:940px" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Vista de despliegue">
+      <defs>
+        <marker id="d" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M0 0 L10 5 L0 10 z" fill="var(--rule-strong)"/>
+        </marker>
+      </defs>
+
+      <text class="ax-h" x="20" y="22">EL EQUIPO DEL ESTUDIANTE &middot; SOLO UN NAVEGADOR, SIN INSTALAR NADA</text>
+      <rect class="ax-band" x="20" y="30" width="520" height="290" rx="8"/>
+
+      <rect class="ax-boxc" x="38" y="56" width="230" height="72" rx="6"/>
+      <text class="ax-ts" x="54" y="80">Motor de c&aacute;lculo</text>
+      <text class="ax-s" x="54" y="100">Corre aqu&iacute;, no en el servidor:</text>
+      <text class="ax-s" x="54" y="116">es la &uacute;nica forma de responder al instante.</text>
+
+      <rect class="ax-box" x="286" y="56" width="236" height="72" rx="6"/>
+      <text class="ax-ts" x="302" y="80">Las vistas</text>
+      <text class="ax-s" x="302" y="100">2D siempre; 3D solo si el grupo</text>
+      <text class="ax-s" x="302" y="116">la tiene y el equipo la soporta.</text>
+
+      <rect class="ax-boxc" x="38" y="146" width="230" height="72" rx="6"/>
+      <text class="ax-ts" x="54" y="170">Optimizador, aislado</text>
+      <text class="ax-s" x="54" y="190">En su propio hilo, con su copia</text>
+      <text class="ax-s" x="54" y="206">del motor. No congela la pantalla.</text>
+
+      <rect class="ax-box" x="286" y="146" width="236" height="72" rx="6"/>
+      <text class="ax-ts" x="302" y="170">Cola de eventos</text>
+      <text class="ax-s" x="302" y="190">Acumula y env&iacute;a por tandas.</text>
+      <text class="ax-s" x="302" y="206">Si se cae la red, no se pierden.</text>
+
+      <rect class="ax-box" x="38" y="236" width="484" height="64" rx="6"/>
+      <text class="ax-ts" x="54" y="260">Escenario cargado en memoria</text>
+      <text class="ax-s" x="54" y="282">El perfil del terreno se descarga una vez al abrir y ya no vuelve a pedirse.</text>
+
+      <path class="ax-fl" d="M540 176 L616 176" marker-end="url(#d)"/>
+      <path class="ax-fl" d="M616 200 L540 200" marker-end="url(#d)"/>
+      <text class="ax-n" x="546" y="168">poco tr&aacute;fico</text>
+      <text class="ax-s" x="546" y="222">y tolerante a la latencia</text>
+
+      <text class="ax-h" x="620" y="22">EL SERVIDOR</text>
+      <rect class="ax-band" x="620" y="30" width="360" height="290" rx="8"/>
+
+      <rect class="ax-box" x="638" y="56" width="324" height="62" rx="6"/>
+      <text class="ax-ts" x="654" y="80">Servicios de la aplicaci&oacute;n</text>
+      <text class="ax-s" x="654" y="102">Cuentas, escenarios, versiones, &iacute;tems y eventos.</text>
+
+      <rect class="ax-box" x="638" y="134" width="324" height="62" rx="6"/>
+      <text class="ax-ts" x="654" y="158">C&aacute;lculo de m&eacute;tricas</text>
+      <text class="ax-s" x="654" y="180">Consulta sobre la bit&aacute;cora, solo cuando el docente pide.</text>
+
+      <rect class="ax-store" x="638" y="212" width="324" height="88" rx="6"/>
+      <text class="ax-ts" x="654" y="236">Base de datos</text>
+      <text class="ax-s" x="654" y="258">Dise&ntilde;os versionados, bit&aacute;cora de eventos,</text>
+      <text class="ax-s" x="654" y="274">escenarios y terrenos, banco de &iacute;tems.</text>
+      <text class="ax-s" x="654" y="292">Una sola copia, en un solo lugar.</text>
+
+      <text class="ax-n" x="20" y="348">CONSECUENCIA DE PONER EL C&Aacute;LCULO EN EL EQUIPO DEL ESTUDIANTE</text>
+      <text class="ax-s" x="20" y="370">La aplicaci&oacute;n sigue us&aacute;ndose aunque la conexi&oacute;n sea mala: solo se pierde el env&iacute;o de eventos, que puede esperar.</text>
+    </svg>
+    </div>
+    <figcaption>Esta decisi&oacute;n atiende directamente el contexto del caso de estudio: aulas con navegador e internet de calidad variable, sin software especializado instalado. Un c&aacute;lculo en el servidor har&iacute;a que cada cambio de di&aacute;metro dependiera de la conexi&oacute;n, y el ciclo de error y correcci&oacute;n &mdash; que es el coraz&oacute;n de la propuesta &mdash; dejar&iacute;a de ser inmediato.</figcaption>
+  </figure>
+</section>
+
+<!-- ==================== 10 ==================== -->
+<section id="s10">
+  <p class="eyebrow">Secci&oacute;n 10</p>
+  <h2 class="sec">Las decisiones, con lo que cuesta cada una</h2>
+  <p class="col">Toda decisi&oacute;n de arquitectura compra algo y paga algo. Escribir el precio es lo que la distingue de una preferencia.</p>
+
+  <div class="scroll">
+  <table>
+    <thead><tr><th style="width:52px">N.&ordm;</th><th style="width:24%">Decisi&oacute;n</th><th style="width:25%">Qu&eacute; se gana</th><th style="width:25%">Qu&eacute; se paga</th><th>Por qu&eacute; igual conviene</th></tr></thead>
+    <tbody>
+      <tr><td class="code">D1</td><td><b>El c&aacute;lculo vive aparte, sin conocer la pantalla</b></td><td>Se puede verificar solo, reutilizar en el optimizador y probar en cada cambio.</td><td>M&aacute;s trabajo inicial: hay que definir bien la frontera antes de escribir nada.</td><td>Sin esto, la afirmaci&oacute;n central de la tesis &mdash; que el c&aacute;lculo es correcto &mdash; no se puede sostener.</td></tr>
+      <tr><td class="code">D2</td><td><b>El c&aacute;lculo corre en el equipo del estudiante</b></td><td>Respuesta inmediata sin depender de la conexi&oacute;n.</td><td>El equipo del laboratorio tiene que poder con &eacute;l; hay que medirlo.</td><td>El ciclo corto de error y correcci&oacute;n es la intervenci&oacute;n que el estudio mide. Si depende de la red, no hay intervenci&oacute;n.</td></tr>
+      <tr><td class="code">D3</td><td><b>Solo redes abiertas, sin mallas</b></td><td>La red se resuelve en un recorrido, sin iteraci&oacute;n global: de ah&iacute; sale el l&iacute;mite de tiempo.</td><td>No sirve para redes urbanas ni anillos.</td><td>El riego presurizado por gravedad es ramificado. La restricci&oacute;n coincide con el dominio.</td></tr>
+      <tr><td class="code">D4</td><td><b>El optimizador corre aislado, con su copia del motor</b></td><td>La pantalla no se congela y la b&uacute;squeda se puede detener.</td><td>Hay que pasar y traer el dise&ntilde;o entre dos contextos separados.</td><td>Un optimizador que congela la pantalla no se usa, y si no se usa no aporta al estudio.</td></tr>
+      <tr><td class="code">D5</td><td><b>Semilla fija en la b&uacute;squeda</b></td><td>Dos corridas iguales dan el mismo resultado: el estudio es repetible.</td><td>Se pierde variedad entre estudiantes con el mismo dise&ntilde;o.</td><td>Un revisor tiene que poder rehacer los n&uacute;meros. Sin semilla fija, no puede.</td></tr>
+      <tr><td class="code">D6</td><td><b>La bit&aacute;cora solo admite agregar</b></td><td>Cualquier m&eacute;trica se puede recalcular despu&eacute;s, aunque cambie su definici&oacute;n.</td><td>Crece m&aacute;s r&aacute;pido y las consultas son m&aacute;s trabajosas.</td><td>El experimento se hace una sola vez. El dato perdido no se recupera.</td></tr>
+      <tr><td class="code">D7</td><td><b>Las compuertas viven en la capa que coordina</b></td><td>El grupo sin 3D no puede llegar al 3D ni por accidente.</td><td>La l&oacute;gica del experimento se mete en el producto.</td><td>Es un instrumento de investigaci&oacute;n, no solo una aplicaci&oacute;n. La validez es un requisito, no un a&ntilde;adido.</td></tr>
+      <tr><td class="code">D8</td><td><b>Un solo estado del dise&ntilde;o para las tres vistas</b></td><td>Planta, perfil y tabla no pueden discrepar: leen del mismo sitio.</td><td>Cada vista tiene que adaptarse a una forma com&uacute;n en vez de a la suya.</td><td>Comparar tres lecturas del mismo hecho es el mecanismo pedag&oacute;gico. Si discrepan, ense&ntilde;a al rev&eacute;s.</td></tr>
+      <tr><td class="code">D9</td><td><b>El perfil del terreno se descarga una vez</b></td><td>Mover la vista y probar alternativas no genera tr&aacute;fico.</td><td>Los escenarios tienen que ser de tama&ntilde;o acotado y estar preparados de antemano.</td><td>Coincide con el uso real: un escenario por sesi&oacute;n, explorado muchas veces.</td></tr>
+      <tr><td class="code">D10</td><td><b>Un solo lenguaje en el navegador, con tipos</b></td><td>El motor, las vistas y el optimizador comparten las mismas definiciones sin traducir nada entre ellos.</td><td>Obliga a escribir los tipos antes de tener algo que mostrar.</td><td>Un di&aacute;metro confundido con un caudal no da error: da un resultado equivocado. Es el error m&aacute;s caro del proyecto.</td></tr>
+      <tr><td class="code">D11</td><td><b>El an&aacute;lisis estad&iacute;stico ocurre fuera de la aplicaci&oacute;n</b></td><td>No hay que construir ni validar un m&oacute;dulo de estad&iacute;stica, y el revisor usa las herramientas que ya conoce.</td><td>El docente tiene que exportar y trabajar en otra herramienta.</td><td>Construir estad&iacute;stica propia agregar&iacute;a una fuente de error que despu&eacute;s habr&iacute;a que defender. La exportaci&oacute;n es suficiente.</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<!-- ==================== 11 ==================== -->
+<section id="s11">
+  <p class="eyebrow">Secci&oacute;n 11</p>
+  <h2 class="sec">C&oacute;mo se comprueba que cada capa hace lo suyo</h2>
+  <p class="col">La forma de la arquitectura decide qu&eacute; se puede probar y c&oacute;mo. Esta tabla es la contraparte directa de los criterios de aceptaci&oacute;n del backlog.</p>
+
+  <div class="scroll">
+  <table>
+    <thead><tr><th style="width:20%">Capa</th><th style="width:30%">C&oacute;mo se comprueba</th><th>Qu&eacute; error atrapa</th></tr></thead>
+    <tbody>
+      <tr><td><b>N&uacute;cleo</b> <span class="tag">cr&iacute;tico</span></td><td>Casos del m&eacute;todo normalizado, de un simulador est&aacute;ndar y de bibliograf&iacute;a, con el error anotado. M&aacute;s redes generadas al azar contra invariantes f&iacute;sicas.</td><td>C&aacute;lculo equivocado, que es el &uacute;nico error que no se ve y que envenena todo lo dem&aacute;s.</td></tr>
+      <tr><td><b>Reglas y alertas</b></td><td>Dise&ntilde;os preparados que violan cada regla, uno por uno, y comprobaci&oacute;n de que la alerta aparece donde debe.</td><td>Alertas que no saltan, o que saltan en el tramo equivocado.</td></tr>
+      <tr><td><b>Ciclo de aprendizaje</b></td><td>Recorrido completo de un escenario comprobando el orden: no se revela resultado sin predicci&oacute;n previa.</td><td>Un atajo que permita ver el resultado sin comprometerse, que invalida la medida de anticipaci&oacute;n.</td></tr>
+      <tr><td><b>Compuertas</b> <span class="tag">cr&iacute;tico</span></td><td>Una sesi&oacute;n por cada grupo, verificando que el 3D y el optimizador est&aacute;n o no est&aacute;n seg&uacute;n corresponde.</td><td>Contaminaci&oacute;n entre grupos, que arruina el experimento entero sin dar ninguna se&ntilde;al.</td></tr>
+      <tr><td><b>Registro</b></td><td>Reconstruir una sesi&oacute;n completa a partir de la bit&aacute;cora y comprobar que coincide con lo ocurrido.</td><td>Eventos perdidos o pisados, que aparecen reci&eacute;n al analizar, cuando ya no hay remedio.</td></tr>
+      <tr><td><b>Vistas</b></td><td>Revisi&oacute;n con personas: que el mismo tramo se lea igual en planta, perfil y tabla.</td><td>Discrepancias entre vistas, que ense&ntilde;an exactamente lo contrario de lo que se busca.</td></tr>
+      <tr><td><b>Rendimiento</b></td><td>Medici&oacute;n del tiempo de respuesta contra el tama&ntilde;o de la red, y una prueba de carga equivalente al d&iacute;a del experimento.</td><td>Que el sistema no aguante la sesi&oacute;n real, que es irrepetible.</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<!-- ==================== 12 ==================== -->
+<section id="s12">
+  <p class="eyebrow">Secci&oacute;n 12</p>
+  <h2 class="sec">De la arquitectura al backlog</h2>
+  <p class="col">Cada componente del diagrama tiene historias que lo construyen. Si un componente no aparece en ning&uacute;n sprint, o es innecesario o falta una historia.</p>
+
+  <div class="scroll">
+  <table>
+    <thead><tr><th style="width:30%">Componente</th><th style="width:120px">Historias</th><th style="width:90px">Sprint</th><th>Nota</th></tr></thead>
+    <tbody>
+      <tr><td><b>Motor hidr&aacute;ulico</b></td><td class="code">HU-01 a HU-05</td><td class="code">S1</td><td>Cinco historias, todas antes de que exista pantalla.</td></tr>
+      <tr><td><b>Inventario conceptual</b></td><td class="code">HU-06, HU-07</td><td class="code">S1</td><td>El banco de &iacute;tems y su validaci&oacute;n.</td></tr>
+      <tr><td><b>Estado del dise&ntilde;o y vistas 2D</b></td><td class="code">HU-09, HU-10</td><td class="code">S2</td><td>Las tres vistas salen juntas porque comparten el estado.</td></tr>
+      <tr><td><b>Reglas y alertas</b></td><td class="code">HU-12, HU-13</td><td class="code">S2</td><td>Clase, desnivel, costo y uniformidad.</td></tr>
+      <tr><td><b>Registro de eventos</b></td><td class="code">HU-14</td><td class="code">S2</td><td><b>Va antes que el ciclo de aprendizaje</b>, porque tiene que existir cuando empiecen a generarse eventos.</td></tr>
+      <tr><td><b>Modelo agron&oacute;mico</b></td><td class="code">HU-15 a HU-17</td><td class="code">S3</td><td>Cultivo, cadena visible y suelo.</td></tr>
+      <tr><td><b>Ciclo de aprendizaje</b></td><td class="code">HU-18 a HU-21</td><td class="code">S3</td><td>Diagn&oacute;stico escalonado, predicci&oacute;n y autoexplicaci&oacute;n.</td></tr>
+      <tr><td><b>Instrumento y compuerta de grupos</b></td><td class="code">HU-22</td><td class="code">S3</td><td>Pretest, postest y asignaci&oacute;n a los tres grupos.</td></tr>
+      <tr><td><b>Vista 3D</b></td><td class="code">HU-23 a HU-25</td><td class="code">S4</td><td>Relieve, envolvente est&aacute;tica y bandas de presi&oacute;n.</td></tr>
+      <tr><td><b>Optimizador y su compuerta</b></td><td class="code">HU-26 a HU-29</td><td class="code">S4</td><td>Entrega firmada, frente de opciones, restricciones y aislamiento.</td></tr>
+      <tr><td><b>M&eacute;tricas y reporte</b></td><td class="code">HU-30</td><td class="code">S4</td><td>PDF del dise&ntilde;o y exportaci&oacute;n para el an&aacute;lisis.</td></tr>
+      <tr><td><b>Identidad, escenarios y versiones</b></td><td class="code">HU-08, HU-11</td><td class="code">S2</td><td>Cuentas, roles, versionado y escenarios publicables.</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="aviso">
+    <p><b>Lo que la trazabilidad deja ver.</b> Todo componente del diagrama tiene historias. Pero el Sprint&nbsp;4 concentra la vista 3D, el optimizador y el reporte, que son lo t&eacute;cnicamente m&aacute;s nuevo del proyecto. Lo &uacute;nico de ah&iacute; que no depende de nada del propio Sprint&nbsp;4 es la vista 3D b&aacute;sica: adelantarla al Sprint&nbsp;3 baja el riesgo sin mover nada m&aacute;s.</p>
+  </div>
+</section>
+
+</div>
+
+<footer>
+  <div class="wrap">
+    <p>Arquitectura l&oacute;gica por capas, recorridos de usuario y vista de despliegue del simulador de riego presurizado. Las tecnolog&iacute;as nombradas son una propuesta; las capas, las dependencias y los recorridos no dependen de ellas.</p>
+    <p style="margin-top:10px">Complementa el planteamiento del proyecto y el product backlog de 30 historias. Las decisiones D1 a D11 son las que hay que poder defender en la sustentaci&oacute;n, cada una con lo que se gana y lo que se paga.</p>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var b = document.getElementById("tema");
+  function actual(){
+    var t = document.documentElement.getAttribute("data-theme");
+    if (t) return t;
+    return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  }
+  b.addEventListener("click", function(){
+    document.documentElement.setAttribute("data-theme", actual() === "dark" ? "light" : "dark");
+  });
+})();
+</script>

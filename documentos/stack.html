@@ -1,0 +1,566 @@
+<title>Stack y Despliegue</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=Spectral:ital,wght@0,400;0,500;0,600;1,400;1,600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+
+<style>
+:root{
+  --paper:#EEF1F2; --surface:#FFFFFF; --surface-2:#F7F9F9; --surface-3:#E9EEEF;
+  --ink:#14232B; --ink-soft:#5A6E76; --ink-faint:#6D7E85;
+  --rule:#D2DBDD; --rule-strong:#B4C1C4;
+  --agua:#0D7A8C; --agua-soft:#E1F0F2;
+  --tierra:#A56C36; --tierra-soft:#F3E9DF;
+  --ok:#2C7A57; --ok-soft:#E2F0E9;
+  --alerta:#B5841A; --alerta-soft:#FBF0D8;
+  --critico:#B03A30; --critico-soft:#FAE6E3;
+  --display:"Archivo","Helvetica Neue",Arial,sans-serif;
+  --body:"Spectral",Georgia,serif;
+  --mono:"IBM Plex Mono",Consolas,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){ :root:not([data-theme="light"]){
+  --paper:#0F161A; --surface:#161F25; --surface-2:#1B262C; --surface-3:#223038;
+  --ink:#E2EAEC; --ink-soft:#96A8AF; --ink-faint:#8A9BA1;
+  --rule:#26343B; --rule-strong:#35474F;
+  --agua:#45B9CC; --agua-soft:#10333A;
+  --tierra:#C89A66; --tierra-soft:#33261A;
+  --ok:#4EB185; --ok-soft:#123124;
+  --alerta:#D9AC49; --alerta-soft:#33280F;
+  --critico:#E0736A; --critico-soft:#3A1B18;
+  color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --paper:#0F161A; --surface:#161F25; --surface-2:#1B262C; --surface-3:#223038;
+  --ink:#E2EAEC; --ink-soft:#96A8AF; --ink-faint:#8A9BA1;
+  --rule:#26343B; --rule-strong:#35474F;
+  --agua:#45B9CC; --agua-soft:#10333A;
+  --tierra:#C89A66; --tierra-soft:#33261A;
+  --ok:#4EB185; --ok-soft:#123124;
+  --alerta:#D9AC49; --alerta-soft:#33280F;
+  --critico:#E0736A; --critico-soft:#3A1B18;
+}
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth; scroll-padding-top:20px}
+@media (prefers-reduced-motion:reduce){ html{scroll-behavior:auto} }
+body{margin:0; background:var(--paper); color:var(--ink);
+  font-family:var(--body); font-size:16.5px; line-height:1.68; -webkit-font-smoothing:antialiased}
+h1,h2,h3,h4{font-family:var(--display); font-weight:600; margin:0; text-wrap:balance; letter-spacing:-.015em}
+p{margin:14px 0 0}
+:focus-visible{outline:2px solid var(--agua); outline-offset:3px}
+.mono{font-family:var(--mono); font-variant-numeric:tabular-nums}
+
+.wrap{max-width:1200px; margin:0 auto; padding:0 26px}
+.col{max-width:70ch}
+.eyebrow{font-family:var(--display); font-size:11px; font-weight:600; letter-spacing:.16em;
+  text-transform:uppercase; color:var(--ink-faint); margin:0}
+
+header.top{background:var(--surface); border-bottom:1px solid var(--rule); padding:46px 0 36px}
+.hdrow{display:flex; justify-content:space-between; align-items:flex-start; gap:24px; flex-wrap:wrap}
+header.top h1{font-size:clamp(32px,5vw,52px); line-height:1.03; margin:14px 0 0; max-width:17ch}
+header.top h1 em{font-style:italic; font-family:var(--body); font-weight:600; color:var(--agua)}
+.sub2{font-size:17px; color:var(--ink-soft); margin:16px 0 0; max-width:64ch; font-style:italic}
+.themebtn{font-family:var(--display); font-size:12px; padding:7px 14px; border-radius:99px; cursor:pointer;
+  border:1px solid var(--rule-strong); background:var(--surface); color:var(--ink-soft)}
+.themebtn:hover{border-color:var(--agua); color:var(--agua)}
+
+.regla{background:var(--agua-soft); border-top:3px solid var(--agua); padding:20px 0}
+.regla p{margin:0; max-width:80ch; font-size:16px}
+.regla b{font-family:var(--display); font-weight:600}
+
+section{padding:42px 0 44px; border-bottom:1px solid var(--rule)}
+section:last-of-type{border-bottom:0}
+h2.sec{font-size:clamp(23px,2.9vw,30px); margin:9px 0 0; max-width:26ch}
+h3{font-size:19px; margin:32px 0 0}
+.lead{font-size:19px; line-height:1.55; margin:18px 0 0; max-width:58ch}
+.lead b{color:var(--agua); font-weight:600}
+
+figure{margin:30px 0 0}
+.scroll{overflow-x:auto}
+figure svg{display:block; height:auto; width:100%; min-width:900px}
+figcaption{font-size:14px; color:var(--ink-faint); margin-top:14px; max-width:72ch; line-height:1.55}
+
+.ax-band{fill:var(--surface-2); stroke:var(--rule); stroke-width:1}
+.ax-core{fill:var(--agua-soft); stroke:var(--agua); stroke-width:1.5}
+.ax-box{fill:var(--surface); stroke:var(--rule-strong); stroke-width:1}
+.ax-boxc{fill:var(--surface); stroke:var(--agua); stroke-width:1.5}
+.ax-h{font-family:var(--display); font-size:10.5px; font-weight:700; letter-spacing:.15em; fill:var(--ink-faint)}
+.ax-hc{font-family:var(--display); font-size:10.5px; font-weight:700; letter-spacing:.15em; fill:var(--agua)}
+.ax-t{font-family:var(--display); font-size:13px; font-weight:600; fill:var(--ink)}
+.ax-ts{font-family:var(--display); font-size:11.5px; font-weight:600; fill:var(--ink)}
+.ax-s{font-family:var(--body); font-size:11px; fill:var(--ink-soft)}
+.ax-n{font-family:var(--mono); font-size:10px; fill:var(--agua); font-weight:500}
+.ax-fl{stroke:var(--rule-strong); stroke-width:1.4; fill:none}
+.ax-fla{stroke:var(--agua); stroke-width:1.6; fill:none}
+
+table{border-collapse:collapse; width:100%; font-size:14.5px; margin:24px 0 0; line-height:1.5}
+th,td{text-align:left; vertical-align:top; padding:10px 14px 10px 0; border-bottom:1px solid var(--rule)}
+th{font-family:var(--display); font-size:10.5px; font-weight:600; letter-spacing:.13em; text-transform:uppercase;
+  color:var(--ink-faint); border-bottom:1px solid var(--rule-strong); padding-bottom:8px}
+td.code{font-family:var(--mono); font-size:12.5px; color:var(--agua); white-space:nowrap; font-weight:500}
+td b{font-family:var(--display); font-weight:600; font-size:14px}
+.scroll table{margin-top:0; min-width:760px}
+code{font-family:var(--mono); font-size:.85em; background:var(--surface-3); padding:1px 5px; border-radius:3px}
+
+pre.arbol{font-family:var(--mono); font-size:12.5px; line-height:1.62; background:var(--surface);
+  border:1px solid var(--rule); border-radius:8px; padding:20px 22px; overflow-x:auto; margin:24px 0 0;
+  color:var(--ink)}
+pre.arbol b{color:var(--agua); font-weight:600}
+pre.arbol i{color:var(--ink-faint); font-style:normal}
+
+.tag{display:inline-block; font-family:var(--mono); font-size:11px; font-weight:600;
+  padding:2px 7px; border-radius:4px; background:var(--agua-soft); color:var(--agua); white-space:nowrap}
+.tag.al{background:var(--alerta-soft); color:var(--alerta)}
+.tag.ok{background:var(--ok-soft); color:var(--ok)}
+.tag.cr{background:var(--critico-soft); color:var(--critico)}
+
+ul.limpia{list-style:none; margin:20px 0 0; padding:0; max-width:74ch}
+ul.limpia li{padding:12px 0 12px 26px; border-bottom:1px solid var(--rule); position:relative; font-size:15.5px}
+ul.limpia li:last-child{border-bottom:0}
+ul.limpia li::before{content:"—"; position:absolute; left:0; color:var(--agua); font-family:var(--mono)}
+ul.limpia b{font-family:var(--display); font-weight:600}
+
+.aviso{margin-top:24px; padding:16px 20px; border-radius:6px; background:var(--alerta-soft);
+  border-left:3px solid var(--alerta); font-size:15px; max-width:78ch}
+.aviso p{margin:0}
+.aviso p + p{margin-top:9px}
+.aviso b{font-family:var(--display); font-weight:600}
+.aviso.bien{background:var(--ok-soft); border-left-color:var(--ok)}
+.aviso.ag{background:var(--agua-soft); border-left-color:var(--agua)}
+.aviso.mal{background:var(--critico-soft); border-left-color:var(--critico)}
+
+.pares{display:grid; grid-template-columns:repeat(auto-fit,minmax(290px,1fr)); gap:1px;
+  background:var(--rule); border:1px solid var(--rule); border-radius:6px; overflow:hidden; margin-top:24px}
+.par{background:var(--surface); padding:18px 20px}
+.par h4{font-size:14.5px; margin:0}
+.par .q{font-family:var(--display); font-size:10.5px; font-weight:600; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--ink-faint); margin:0 0 6px}
+.par p{font-size:14.5px; margin:8px 0 0; color:var(--ink-soft)}
+
+footer{background:var(--surface); border-top:1px solid var(--rule); padding:34px 0 44px}
+footer p{font-size:13.5px; color:var(--ink-faint); max-width:72ch}
+</style>
+
+<header class="top">
+  <div class="wrap">
+    <div class="hdrow">
+      <div>
+        <p class="eyebrow">Stack tecnol&oacute;gico y despliegue &middot; Simulador de riego presurizado</p>
+        <h1>Con qu&eacute; se construye y <em>d&oacute;nde vive</em></h1>
+        <p class="sub2">Cada herramienta con la raz&oacute;n por la que est&aacute;, el reparto entre Render y Railway, lo que cuesta al mes, y los cuatro riesgos del despliegue que hay que atacar antes del d&iacute;a del experimento.</p>
+      </div>
+      <button class="themebtn" id="tema" type="button">Cambiar tema</button>
+    </div>
+  </div>
+</header>
+
+<div class="regla">
+  <div class="wrap">
+    <p><b>La regla que ordena todo lo que sigue.</b> El d&iacute;a del experimento no se repite. Entre 25 y 35 estudiantes van a entrar al mismo tiempo, una sola vez, en una fecha fijada con el docente. Toda decisi&oacute;n de infraestructura de este documento se toma pensando en ese d&iacute;a: <b>si algo puede fallar ese d&iacute;a, no entra.</b></p>
+  </div>
+</div>
+
+<div class="wrap">
+
+<!-- ==================== 1 ==================== -->
+<section id="s1">
+  <p class="eyebrow">Secci&oacute;n 1</p>
+  <h2 class="sec">C&oacute;mo se reparten Render y Railway</h2>
+
+  <p class="lead">Render sirve la aplicaci&oacute;n web como <b>sitio est&aacute;tico</b>. Railway aloja la <b>API y la base de datos</b>. Y el c&aacute;lculo pesado no est&aacute; en ninguno de los dos: corre en el equipo del estudiante.</p>
+
+  <p class="col">Ese reparto no es arbitrario. Sale directo de la decisi&oacute;n de arquitectura de poner el motor de c&aacute;lculo en el navegador: como el servidor no calcula hidr&aacute;ulica, lo que queda para la nube es liviano &mdash; cuentas, escenarios, versiones, eventos y cuestionarios. Eso cabe c&oacute;modo en un plan peque&ntilde;o.</p>
+
+  <figure>
+    <div class="scroll">
+    <svg viewBox="0 0 1220 620" style="min-width:1120px" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Reparto del despliegue entre Render y Railway">
+      <defs>
+        <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M0 0 L10 5 L0 10 z" fill="var(--rule-strong)"/>
+        </marker>
+        <marker id="b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M0 0 L10 5 L0 10 z" fill="var(--agua)"/>
+        </marker>
+      </defs>
+
+      <!-- GitHub -->
+      <text class="ax-h" x="330" y="22">EL ORIGEN DE TODO</text>
+      <rect class="ax-band" x="330" y="30" width="600" height="92" rx="8"/>
+      <text class="ax-t" x="630" y="56" text-anchor="middle" font-size="14">GitHub &middot; un solo repositorio</text>
+      <text class="ax-s" x="630" y="78" text-anchor="middle">La aplicaci&oacute;n web, la API y el motor de c&aacute;lculo viven juntos, en carpetas separadas.</text>
+      <text class="ax-s" x="630" y="98" text-anchor="middle">En cada env&iacute;o corren las pruebas y la verificaci&oacute;n del motor. Si fallan, no se despliega nada.</text>
+
+      <!-- Navegador -->
+      <text class="ax-hc" x="20" y="162">EL EQUIPO DEL ESTUDIANTE</text>
+      <rect class="ax-core" x="20" y="170" width="270" height="286" rx="8"/>
+      <text class="ax-t" x="155" y="198" text-anchor="middle">Navegador</text>
+      <text class="ax-s" x="155" y="218" text-anchor="middle">Sin instalar nada</text>
+
+      <rect class="ax-boxc" x="34" y="236" width="242" height="48" rx="6"/>
+      <text class="ax-ts" x="48" y="256">Aplicaci&oacute;n web</text>
+      <text class="ax-s" x="48" y="274">Las vistas 2D, la 3D y los formularios</text>
+
+      <rect class="ax-boxc" x="34" y="292" width="242" height="48" rx="6"/>
+      <text class="ax-ts" x="48" y="312">Motor de c&aacute;lculo</text>
+      <text class="ax-s" x="48" y="330">Resuelve la red en menos de 200 ms</text>
+
+      <rect class="ax-boxc" x="34" y="348" width="242" height="48" rx="6"/>
+      <text class="ax-ts" x="48" y="368">Optimizador, en un hilo aparte</text>
+      <text class="ax-s" x="48" y="386">La pantalla no se congela mientras busca</text>
+
+      <rect class="ax-box" x="34" y="404" width="242" height="40" rx="6"/>
+      <text class="ax-s" x="48" y="428">Cola de eventos, se env&iacute;a por tandas</text>
+
+      <!-- Render -->
+      <text class="ax-h" x="330" y="162">RENDER</text>
+      <rect class="ax-band" x="330" y="170" width="280" height="286" rx="8"/>
+      <text class="ax-t" x="470" y="198" text-anchor="middle">Sitio est&aacute;tico</text>
+      <text class="ax-s" x="470" y="218" text-anchor="middle">Plan gratuito &middot; red de distribuci&oacute;n global</text>
+
+      <rect class="ax-box" x="344" y="236" width="252" height="54" rx="6"/>
+      <text class="ax-ts" x="358" y="256">Los archivos ya compilados</text>
+      <text class="ax-s" x="358" y="274">Nada se ejecuta aqu&iacute;: solo se entregan.</text>
+
+      <rect class="ax-box" x="344" y="298" width="252" height="54" rx="6"/>
+      <text class="ax-ts" x="358" y="318">No se duerme</text>
+      <text class="ax-s" x="358" y="336">Un sitio est&aacute;tico no tiene arranque en fr&iacute;o.</text>
+
+      <rect class="ax-box" x="344" y="360" width="252" height="54" rx="6"/>
+      <text class="ax-ts" x="358" y="380">Se actualiza solo</text>
+      <text class="ax-s" x="358" y="398">Cada env&iacute;o a la rama principal lo redespliega.</text>
+
+      <text class="ax-s" x="344" y="440" fill="var(--ink-faint)">Por eso el sitio va aqu&iacute; y no la API.</text>
+
+      <!-- Railway -->
+      <text class="ax-h" x="650" y="162">RAILWAY</text>
+      <rect class="ax-band" x="650" y="170" width="280" height="286" rx="8"/>
+      <text class="ax-t" x="790" y="198" text-anchor="middle">API y base de datos</text>
+      <text class="ax-s" x="790" y="218" text-anchor="middle">Plan Hobby &middot; servicio siempre encendido</text>
+
+      <rect class="ax-box" x="664" y="236" width="252" height="54" rx="6"/>
+      <text class="ax-ts" x="678" y="256">Servidor de la API</text>
+      <text class="ax-s" x="678" y="274">Cuentas, escenarios, versiones y eventos.</text>
+
+      <rect class="ax-boxc" x="664" y="298" width="252" height="54" rx="6"/>
+      <text class="ax-ts" x="678" y="318">Base de datos PostgreSQL</text>
+      <text class="ax-s" x="678" y="336">Persistente. No caduca a los 30 d&iacute;as.</text>
+
+      <rect class="ax-box" x="664" y="360" width="252" height="54" rx="6"/>
+      <text class="ax-ts" x="678" y="380">Secretos y variables</text>
+      <text class="ax-s" x="678" y="398">Claves de firma y cadena de conexi&oacute;n.</text>
+
+      <text class="ax-s" x="664" y="440" fill="var(--ink-faint)">Aqu&iacute; est&aacute;n los datos del experimento.</text>
+
+      <!-- Análisis -->
+      <text class="ax-h" x="970" y="162">FUERA DE LA NUBE</text>
+      <rect class="ax-band" x="970" y="170" width="230" height="286" rx="8"/>
+      <text class="ax-t" x="1085" y="198" text-anchor="middle">An&aacute;lisis</text>
+      <text class="ax-s" x="1085" y="218" text-anchor="middle">En el equipo del investigador</text>
+
+      <rect class="ax-box" x="984" y="236" width="202" height="54" rx="6"/>
+      <text class="ax-ts" x="998" y="256">Exportaci&oacute;n en CSV</text>
+      <text class="ax-s" x="998" y="274">Sin datos que identifiquen</text>
+
+      <rect class="ax-box" x="984" y="298" width="202" height="54" rx="6"/>
+      <text class="ax-ts" x="998" y="318">Cuaderno de an&aacute;lisis</text>
+      <text class="ax-s" x="998" y="336">Ganancia, ANOVA, tama&ntilde;o de efecto</text>
+
+      <text class="ax-s" x="984" y="382" fill="var(--ink-faint)">No se despliega: es del</text>
+      <text class="ax-s" x="984" y="398" fill="var(--ink-faint)">equipo, no del sistema.</text>
+
+      <!-- flechas -->
+      <path class="ax-fl" d="M470 122 L470 166" marker-end="url(#a)"/>
+      <text class="ax-s" x="478" y="148">compila y publica el sitio</text>
+      <path class="ax-fl" d="M790 122 L790 166" marker-end="url(#a)"/>
+      <text class="ax-s" x="798" y="148">compila y publica la API</text>
+
+      <path class="ax-fl" d="M326 262 L294 262" marker-end="url(#a)"/>
+      <text class="ax-s" x="300" y="250" font-size="10">descarga la app</text>
+
+      <path class="ax-fla" d="M155 456 L155 500 L790 500 L790 456" marker-end="url(#b)" marker-start="url(#b)"/>
+      <text class="ax-n" x="470" y="492" text-anchor="middle">HTTPS &middot; REST &middot; JWT</text>
+      <text class="ax-s" x="470" y="524" text-anchor="middle" fill="var(--ink-faint)">Poco tr&aacute;fico y tolerante a la demora: entrar, traer el escenario, guardar versiones y enviar eventos.</text>
+
+      <path class="ax-fl" d="M934 320 L966 320" marker-end="url(#a)"/>
+
+      <text class="ax-n" x="20" y="566">LO QUE ESTE REPARTO CONSIGUE</text>
+      <text class="ax-s" x="20" y="590" font-size="12">El d&iacute;a del experimento el servidor casi no trabaja, porque cada estudiante calcula en su propio equipo. Treinta y cinco personas a la vez no son treinta y cinco simulaciones en el servidor:</text>
+      <text class="ax-s" x="20" y="608" font-size="12">son treinta y cinco sesiones que piden un escenario al principio y env&iacute;an eventos de a poco. Esa es la raz&oacute;n de fondo por la que un plan peque&ntilde;o alcanza.</text>
+    </svg>
+    </div>
+    <figcaption>El diagrama tiene una ausencia deliberada: no hay ning&uacute;n servicio de c&aacute;lculo en la nube. Esa ausencia es el resultado directo de la decisi&oacute;n de arquitectura de poner el motor en el navegador, y es lo que hace que el costo mensual sea de un solo d&iacute;gito.</figcaption>
+  </figure>
+</section>
+
+<!-- ==================== 2 ==================== -->
+<section id="s2">
+  <p class="eyebrow">Secci&oacute;n 2</p>
+  <h2 class="sec">El stack completo, pieza por pieza</h2>
+  <p class="col">Cada l&iacute;nea tiene su raz&oacute;n. Las que dicen <span class="tag cr">obligada</span> no se pueden cambiar sin romper algo del planteamiento; las que dicen <span class="tag ok">reemplazable</span> son decisiones de comodidad y se pueden discutir.</p>
+
+  <h3>Lo compartido, que es el coraz&oacute;n</h3>
+  <div class="scroll">
+  <table>
+    <thead><tr><th style="width:20%">Pieza</th><th style="width:20%">Herramienta</th><th style="width:110px">Car&aacute;cter</th><th>Por qu&eacute; esta</th></tr></thead>
+    <tbody>
+      <tr><td><b>Lenguaje</b></td><td class="code">TypeScript</td><td><span class="tag cr">obligada</span></td><td>El motor, las vistas y el optimizador comparten las mismas definiciones. Un di&aacute;metro confundido con un caudal no da error: da un resultado equivocado, que es el error m&aacute;s caro del proyecto.</td></tr>
+      <tr><td><b>Motor de c&aacute;lculo</b></td><td class="code">TypeScript sin dependencias</td><td><span class="tag cr">obligada</span></td><td>Cero librer&iacute;as. As&iacute; se puede verificar, correr en el navegador, correr en el hilo del optimizador y correr en las pruebas sin arrastrar nada.</td></tr>
+      <tr><td><b>Organizaci&oacute;n del repositorio</b></td><td class="code">pnpm workspaces</td><td><span class="tag ok">reemplazable</span></td><td>Un solo repositorio con carpetas separadas. El motor es un paquete que la web y las pruebas importan igual, sin copiar archivos.</td></tr>
+      <tr><td><b>Validaci&oacute;n de datos</b></td><td class="code">Zod</td><td><span class="tag ok">reemplazable</span></td><td>Las mismas reglas validan el formulario en la pantalla y el cuerpo de la petici&oacute;n en el servidor. Se escriben una vez.</td></tr>
+      <tr><td><b>Azar reproducible</b></td><td class="code">escrito a mano</td><td><span class="tag cr">obligada</span></td><td>Diez l&iacute;neas dentro del propio motor. El generador del navegador no se puede repetir, y traer una librer&iacute;a romper&iacute;a la regla de que el motor no tenga dependencias. El optimizador debe dar el mismo resultado dos veces con la misma semilla, o el estudio no es repetible.</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3>La aplicaci&oacute;n web</h3>
+  <div class="scroll">
+  <table>
+    <thead><tr><th style="width:20%">Pieza</th><th style="width:20%">Herramienta</th><th style="width:110px">Car&aacute;cter</th><th>Por qu&eacute; esta</th></tr></thead>
+    <tbody>
+      <tr><td><b>Interfaz</b></td><td class="code">React</td><td><span class="tag ok">reemplazable</span></td><td>Ya estaba en la justificaci&oacute;n del proyecto. Lo que importa aqu&iacute; no es cu&aacute;l sea, sino que las vistas no calculen.</td></tr>
+      <tr><td><b>Compilaci&oacute;n</b></td><td class="code">Vite</td><td><span class="tag ok">reemplazable</span></td><td>Produce archivos est&aacute;ticos, que es exactamente lo que Render necesita para el plan gratuito.</td></tr>
+      <tr><td><b>Estado del dise&ntilde;o</b></td><td class="code">Zustand</td><td><span class="tag ok">reemplazable</span></td><td>Una sola fuente de verdad que las cuatro vistas leen. Ligero y sin ceremonia.</td></tr>
+      <tr><td><b>Planta y perfil</b></td><td class="code">Canvas 2D</td><td><span class="tag ok">reemplazable</span></td><td>Redibujar cientos de tramos en cada cambio, sin crear un elemento por tramo. Aguanta el l&iacute;mite de respuesta.</td></tr>
+      <tr><td><b>Escalas, ejes y cotas</b></td><td class="code">d3-scale, d3-axis</td><td><span class="tag ok">reemplazable</span></td><td>Solo esos dos m&oacute;dulos, no la librer&iacute;a entera. Evita reinventar las escalas del perfil.</td></tr>
+      <tr><td><b>Vista 3D</b></td><td class="code">Three.js</td><td><span class="tag cr">obligada</span></td><td>El relieve, la envolvente est&aacute;tica y las bandas de presi&oacute;n necesitan tres dimensiones reales. Es lo que sostiene la hip&oacute;tesis secundaria.</td></tr>
+      <tr><td><b>Aislamiento del optimizador</b></td><td class="code">Web Worker</td><td><span class="tag cr">obligada</span></td><td>Sin esto la pantalla se congela mientras busca, y un optimizador que congela no se usa.</td></tr>
+      <tr><td><b>Reporte en PDF</b></td><td class="code">jsPDF</td><td><span class="tag ok">reemplazable</span></td><td>Se genera en el navegador. As&iacute; el servidor no tiene que dibujar nada el d&iacute;a del experimento.</td></tr>
+      <tr><td><b>Llamadas a la API</b></td><td class="code">TanStack Query</td><td><span class="tag ok">reemplazable</span></td><td>Reintenta sola cuando la conexi&oacute;n falla, que en el aula del caso de estudio va a pasar.</td></tr>
+      <tr><td><b>Formularios</b></td><td class="code">React Hook Form</td><td><span class="tag ok">reemplazable</span></td><td>Los cuestionarios y la base agron&oacute;mica tienen muchos campos con validaci&oacute;n.</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3>La API</h3>
+  <div class="scroll">
+  <table>
+    <thead><tr><th style="width:20%">Pieza</th><th style="width:20%">Herramienta</th><th style="width:110px">Car&aacute;cter</th><th>Por qu&eacute; esta</th></tr></thead>
+    <tbody>
+      <tr><td><b>Entorno</b></td><td class="code">Node.js LTS</td><td><span class="tag ok">reemplazable</span></td><td>Mismo lenguaje que la web. Un solo conjunto de tipos para todo el proyecto.</td></tr>
+      <tr><td><b>Servidor</b></td><td class="code">Express</td><td><span class="tag ok">reemplazable</span></td><td>Ya estaba en la justificaci&oacute;n. Para once rutas, lo simple gana.</td></tr>
+      <tr><td><b>Sesi&oacute;n y roles</b></td><td class="code">JWT + bcrypt</td><td><span class="tag cr">obligada</span></td><td>El rol y el grupo del experimento viajan firmados. De ah&iacute; salen las dos compuertas.</td></tr>
+      <tr><td><b>Acceso a datos</b></td><td class="code">Prisma</td><td><span class="tag ok">reemplazable</span></td><td>Trae migraciones versionadas, que es lo que permite levantar la base de cero y llegar al mismo esquema. Sin eso, el despliegue no es reproducible.</td></tr>
+      <tr><td><b>Registro t&eacute;cnico</b></td><td class="code">Pino</td><td><span class="tag ok">reemplazable</span></td><td>Para diagnosticar el d&iacute;a del experimento. No confundir con la bit&aacute;cora de eventos, que es el dato de la tesis.</td></tr>
+      <tr><td><b>L&iacute;mite de peticiones</b></td><td class="code">express-rate-limit</td><td><span class="tag ok">reemplazable</span></td><td>Un servicio p&uacute;blico con formulario de acceso recibe intentos autom&aacute;ticos.</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3>Datos, pruebas y an&aacute;lisis</h3>
+  <div class="scroll">
+  <table>
+    <thead><tr><th style="width:20%">Pieza</th><th style="width:20%">Herramienta</th><th style="width:110px">Car&aacute;cter</th><th>Por qu&eacute; esta</th></tr></thead>
+    <tbody>
+      <tr><td><b>Base de datos</b></td><td class="code">PostgreSQL</td><td><span class="tag ok">reemplazable</span></td><td>Ya estaba en la justificaci&oacute;n. Y admite quitarle al servicio el permiso de modificar y borrar sobre la tabla de eventos, que es c&oacute;mo se garantiza de verdad que solo se agregue.</td></tr>
+      <tr><td><b>Pruebas</b></td><td class="code">Vitest</td><td><span class="tag ok">reemplazable</span></td><td>Corre el motor sin abrir un navegador, que es la propiedad que la arquitectura persigue.</td></tr>
+      <tr><td><b>Redes al azar</b></td><td class="code">fast-check</td><td><span class="tag cr">obligada</span></td><td>Genera redes aleatorias y comprueba invariantes f&iacute;sicas. Es la historia HU-05, y encuentra errores que las pruebas escritas a mano no ven.</td></tr>
+      <tr><td><b>Recorrido completo</b></td><td class="code">Playwright</td><td><span class="tag ok">reemplazable</span></td><td>Comprueba las compuertas: una sesi&oacute;n por cada grupo, verificando qu&eacute; ve y qu&eacute; no ve.</td></tr>
+      <tr><td><b>An&aacute;lisis estad&iacute;stico</b></td><td class="code">R o Python</td><td><span class="tag ok">reemplazable</span></td><td>Fuera de la aplicaci&oacute;n, sobre el CSV exportado. No se despliega.</td></tr>
+      <tr><td><b>Integraci&oacute;n continua</b></td><td class="code">GitHub Actions</td><td><span class="tag cr">obligada</span></td><td>Las pruebas y la verificaci&oacute;n del motor corren en cada env&iacute;o. Si fallan, no se despliega.</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="aviso ag">
+    <p><b>Una regla sobre las versiones.</b> Al empezar el Sprint&nbsp;1 se fija la versi&oacute;n exacta de cada herramienta y <b>no se mueve hasta que termine el experimento</b>. Actualizar una librer&iacute;a a mitad del estudio puede cambiar un resultado sin que nadie lo note, y despu&eacute;s no hay forma de saber si la diferencia entre grupos fue la intervenci&oacute;n o la actualizaci&oacute;n.</p>
+  </div>
+</section>
+
+<!-- ==================== 3 ==================== -->
+<section id="s3">
+  <p class="eyebrow">Secci&oacute;n 3</p>
+  <h2 class="sec">C&oacute;mo queda organizado el repositorio</h2>
+  <p class="col">Un solo repositorio con cuatro carpetas. El motor es un paquete aparte que la web y las pruebas importan igual, sin copiar archivos entre carpetas. Esa es la forma concreta que toma la decisi&oacute;n de arquitectura de tener un solo c&aacute;lculo.</p>
+
+<pre class="arbol">simulador-riego-presurizado/
+├── <b>packages/motor/</b>              <i>el n&uacute;cleo verificado &mdash; cero dependencias</i>
+│   ├── src/red.ts                <i>recorrido de la red abierta</i>
+│   ├── src/hazen-williams.ts     <i>p&eacute;rdida de carga y p&eacute;rdidas locales</i>
+│   ├── src/emisor.ts             <i>curva del emisor y acoplamiento presi&oacute;n-caudal</i>
+│   ├── src/agronomia.ts          <i>del cultivo a la l&aacute;mina y al caudal</i>
+│   ├── src/reglas.ts             <i>velocidad, clase, desnivel, uniformidad</i>
+│   ├── src/optimizador.ts        <i>recocido simulado con semilla fija</i>
+│   └── test/verificacion.test.ts <i>contra el m&eacute;todo normalizado y bibliograf&iacute;a</i>
+│
+├── <b>packages/compartido/</b>         <i>tipos y validaciones que usan web y API</i>
+│   ├── src/tipos.ts
+│   └── src/esquemas.ts
+│
+├── <b>apps/web/</b>                    <i>&rarr; se despliega en Render</i>
+│   ├── src/vistas/               <i>planta, perfil, tabla, 3D, cuestionarios, panel</i>
+│   ├── src/estado/               <i>el estado &uacute;nico del dise&ntilde;o</i>
+│   ├── src/ciclo/                <i>predicci&oacute;n, diagn&oacute;stico, autoexplicaci&oacute;n</i>
+│   ├── src/compuertas/           <i>qui&eacute;n ve el 3D y cu&aacute;ndo se abre el optimizador</i>
+│   ├── src/worker/               <i>el hilo aparte donde corre el optimizador</i>
+│   └── src/eventos/              <i>la cola que env&iacute;a por tandas</i>
+│
+├── <b>apps/api/</b>                    <i>&rarr; se despliega en Railway</i>
+│   ├── src/rutas/
+│   ├── src/modulos/              <i>sesi&oacute;n, escenarios, versiones, bit&aacute;cora, m&eacute;tricas</i>
+│   └── prisma/migrations/        <i>el esquema, versionado</i>
+│
+├── <b>analisis/</b>                    <i>no se despliega</i>
+│   └── ganancia.ipynb            <i>ganancia normalizada, ANOVA, tama&ntilde;o de efecto</i>
+│
+└── .github/workflows/ci.yml      <i>pruebas y verificaci&oacute;n en cada env&iacute;o</i>
+</pre>
+
+  <div class="aviso">
+    <p><b>La dependencia que nunca debe existir.</b> <code>packages/motor</code> no puede importar nada de <code>apps/web</code> ni de <code>apps/api</code>. Conviene dejarlo comprobado autom&aacute;ticamente en la integraci&oacute;n continua, porque es la clase de regla que se rompe sin querer un martes cualquiera, y cuando se rompe se pierde la propiedad que hace verificable al motor.</p>
+  </div>
+</section>
+
+<!-- ==================== 4 ==================== -->
+<section id="s4">
+  <p class="eyebrow">Secci&oacute;n 4</p>
+  <h2 class="sec">La configuraci&oacute;n concreta de cada servicio</h2>
+
+  <div class="pares">
+    <div class="par">
+      <p class="q">Render &middot; Static Site</p>
+      <h4>La aplicaci&oacute;n web</h4>
+      <p><b>Root directory:</b> la ra&iacute;z del repositorio.<br>
+      <b>Build command:</b> <code>pnpm install &amp;&amp; pnpm --filter web build</code><br>
+      <b>Publish directory:</b> <code>apps/web/dist</code><br>
+      <b>Redirect/Rewrite:</b> <code>/*</code> &rarr; <code>/index.html</code> (tipo <i>Rewrite</i>), porque la navegaci&oacute;n ocurre dentro de la aplicaci&oacute;n.<br>
+      <b>Variable:</b> la direcci&oacute;n p&uacute;blica de la API.</p>
+    </div>
+    <div class="par">
+      <p class="q">Railway &middot; Servicio</p>
+      <h4>La API</h4>
+      <p><b>Build:</b> <code>pnpm install &amp;&amp; pnpm --filter api build</code><br>
+      <b>Start:</b> <code>pnpm --filter api start</code><br>
+      <b>Antes de arrancar:</b> aplicar las migraciones pendientes.<br>
+      <b>Comprobaci&oacute;n de salud:</b> una ruta que responda si la base est&aacute; viva.<br>
+      <b>Variables:</b> cadena de conexi&oacute;n, clave de firma de sesi&oacute;n, y el origen permitido &mdash; la direcci&oacute;n del sitio en Render.</p>
+    </div>
+    <div class="par">
+      <p class="q">Railway &middot; PostgreSQL</p>
+      <h4>La base de datos</h4>
+      <p>Se agrega como servicio dentro del mismo proyecto y entrega su cadena de conexi&oacute;n a la API por variable interna.<br>
+      <b>Sobre la bit&aacute;cora:</b> al usuario con el que se conecta la API se le quitan los permisos de modificar y borrar sobre esa tabla. As&iacute; la regla de solo agregar deja de depender de que nadie se equivoque al programar.</p>
+    </div>
+    <div class="par">
+      <p class="q">GitHub Actions</p>
+      <h4>La puerta de entrada</h4>
+      <p>En cada env&iacute;o: instalar, revisar tipos, correr las pruebas del motor, correr la verificaci&oacute;n contra el m&eacute;todo normalizado y comprobar que el motor no importa nada de las aplicaciones.<br>
+      <b>Si algo falla, no se despliega.</b> Render y Railway solo publican desde la rama principal, y a la principal solo se llega con todo en verde.</p>
+    </div>
+  </div>
+
+  <div class="aviso">
+    <p><b>Dos cosas que se olvidan siempre y cuestan una tarde.</b> La primera: sin la regla de reescritura en Render, recargar la p&aacute;gina en cualquier ruta que no sea la ra&iacute;z devuelve un error. La segunda: como el sitio y la API est&aacute;n en dominios distintos, hay que declarar expl&iacute;citamente en la API qu&eacute; origen tiene permiso de llamarla. Las dos aparecen apenas se despliega por primera vez, no antes.</p>
+  </div>
+</section>
+
+<!-- ==================== 5 ==================== -->
+<section id="s5">
+  <p class="eyebrow">Secci&oacute;n 5</p>
+  <h2 class="sec">Los cuatro riesgos del despliegue</h2>
+  <p class="col">Son propios de esta combinaci&oacute;n de servicios y del hecho de que el experimento ocurre una sola vez. Ninguno se resuelve programando mejor.</p>
+
+  <div class="aviso mal">
+    <p><b>Riesgo 1 &middot; El servicio que se duerme.</b> En los planes gratuitos de este tipo de plataformas, un servidor que no recibe visitas se apaga y el primer acceso despu&eacute;s tarda decenas de segundos. Si eso pasa cuando treinta estudiantes entran al mismo tiempo, la sesi&oacute;n arranca mal y la primera impresi&oacute;n del instrumento queda arruinada.</p>
+    <p><b>C&oacute;mo se ataca:</b> la API va en un plan de pago en Railway, que no se suspende. Y el sitio va en Render como est&aacute;tico, que tampoco se duerme porque no ejecuta nada. La combinaci&oacute;n est&aacute; elegida exactamente por esto.</p>
+  </div>
+
+  <div class="aviso mal">
+    <p><b>Riesgo 2 &middot; La base de datos gratuita que caduca.</b> Las bases gratuitas de estas plataformas suelen tener fecha de vencimiento. Si vence entre el pretest y el postest, se pierde el punto de partida de cada estudiante y el estudio entero se cae.</p>
+    <p><b>C&oacute;mo se ataca:</b> la base va en Railway dentro del plan de pago, y adem&aacute;s se hace una copia manual antes y despu&eacute;s de cada sesi&oacute;n con estudiantes, guardada fuera de la plataforma.</p>
+  </div>
+
+  <div class="aviso">
+    <p><b>Riesgo 3 &middot; El equipo del laboratorio no da para el 3D.</b> La vista tridimensional exige aceleraci&oacute;n gr&aacute;fica. Si las computadoras de la UNDAC no la tienen, el grupo con 3D no puede cumplir sus dos tareas y la hip&oacute;tesis secundaria se queda sin datos.</p>
+    <p><b>C&oacute;mo se ataca:</b> hay que medirlo en el equipamiento real <b>antes</b> del Sprint&nbsp;4, no el d&iacute;a de la sesi&oacute;n. Ya est&aacute; como criterio de aceptaci&oacute;n de la historia HU-23, pero la medici&oacute;n hay que pedirla al docente con anticipaci&oacute;n.</p>
+  </div>
+
+  <div class="aviso">
+    <p><b>Riesgo 4 &middot; La conexi&oacute;n del aula.</b> El caso de estudio describe conectividad variable. Si la aplicaci&oacute;n dependiera de la red para calcular, la intervenci&oacute;n dejar&iacute;a de ser inmediata justo donde se la mide.</p>
+    <p><b>C&oacute;mo se ataca:</b> ya est&aacute; resuelto por arquitectura &mdash; el c&aacute;lculo corre en el equipo del estudiante y los eventos se acumulan en una cola que reintenta. Lo que falta es <b>probarlo con la red degradada a prop&oacute;sito</b> antes de la sesi&oacute;n real.</p>
+  </div>
+</section>
+
+<!-- ==================== 6 ==================== -->
+<section id="s6">
+  <p class="eyebrow">Secci&oacute;n 6</p>
+  <h2 class="sec">Lo que cuesta</h2>
+  <p class="col">Cifras aproximadas, a confirmar al momento de contratar. Lo relevante no es el monto exacto sino el orden de magnitud: <b>esto se sostiene con el presupuesto de dos estudiantes.</b></p>
+
+  <div class="scroll">
+  <table>
+    <thead><tr><th style="width:24%">Servicio</th><th style="width:22%">Plan</th><th style="width:18%">Costo mensual</th><th>Nota</th></tr></thead>
+    <tbody>
+      <tr><td><b>Render &middot; sitio est&aacute;tico</b></td><td>Gratuito</td><td class="code">USD 0</td><td>Incluye red de distribuci&oacute;n y certificado. Suficiente para lo que necesitamos.</td></tr>
+      <tr><td><b>Railway &middot; API y base</b></td><td>Hobby</td><td class="code">~ USD 5</td><td>El plan trae un cr&eacute;dito de uso incluido. Con este tr&aacute;fico, el uso real queda bien por debajo.</td></tr>
+      <tr><td><b>GitHub</b></td><td>Gratuito</td><td class="code">USD 0</td><td>Repositorio privado e integraci&oacute;n continua, dentro del l&iacute;mite gratuito.</td></tr>
+      <tr><td><b>Dominio propio</b></td><td>Opcional</td><td class="code">~ USD 12 / a&ntilde;o</td><td>No hace falta: las direcciones que dan las plataformas sirven. Un dominio propio solo ayuda a que se vea m&aacute;s serio en la sustentaci&oacute;n.</td></tr>
+      <tr><td><b>TOTAL</b></td><td>&mdash;</td><td class="code">~ USD 5 / mes</td><td>Alrededor de cuarenta d&oacute;lares por los ocho meses del proyecto.</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="aviso bien">
+    <p><b>Por qu&eacute; es tan poco, dicho en una frase que sirve para la sustentaci&oacute;n.</b> Porque el c&aacute;lculo no est&aacute; en la nube. Treinta y cinco estudiantes trabajando a la vez son treinta y cinco equipos calculando en paralelo, sin costo para nosotros. La plataforma de Zheng et al. que revisamos en el estado del arte cost&oacute; setecientos mil d&oacute;lares; la pregunta que dej&oacute; abierta ese estudio &mdash; cu&aacute;nta inversi&oacute;n hace falta para producir efectos acad&eacute;micos &mdash; aqu&iacute; tiene una respuesta concreta.</p>
+  </div>
+</section>
+
+<!-- ==================== 7 ==================== -->
+<section id="s7">
+  <p class="eyebrow">Secci&oacute;n 7</p>
+  <h2 class="sec">Cu&aacute;ndo se despliega cada cosa</h2>
+  <p class="lead">Pediste que al terminar la aplicaci&oacute;n est&eacute; completamente desplegada. <b>La forma de conseguirlo no es desplegar al final: es desplegar en la primera semana</b>, cuando todav&iacute;a no hay nada que desplegar.</p>
+
+  <p class="col">Se llama esqueleto caminante: una versi&oacute;n m&iacute;nima que atraviesa todas las capas &mdash; una p&aacute;gina que llama a la API, que consulta la base, y responde &mdash; publicada de verdad en Render y Railway. No hace nada &uacute;til, y esa es la gracia: sirve para descubrir en la semana&nbsp;1 los problemas de permisos, de origen permitido, de variables y de migraciones, en vez de descubrirlos en la semana&nbsp;16 con el experimento encima.</p>
+
+  <div class="scroll">
+  <table>
+    <thead><tr><th style="width:90px">Sprint</th><th style="width:30%">Qu&eacute; queda desplegado al cerrar</th><th>Por qu&eacute; en ese momento</th></tr></thead>
+    <tbody>
+      <tr><td class="code">Sprint 1</td><td><b>El esqueleto caminante.</b> Sitio en Render, API en Railway, base con su primera migraci&oacute;n, integraci&oacute;n continua funcionando.</td><td>Retira de encima todo el riesgo de infraestructura mientras todav&iacute;a hay tiempo de reaccionar. Adem&aacute;s deja publicada la tabla de verificaci&oacute;n del motor, que es la primera evidencia de la tesis.</td></tr>
+      <tr><td class="code">Sprint 2</td><td><b>Utilizable de verdad.</b> Se puede entrar, abrir un escenario, dise&ntilde;ar en 2D y que quede guardado.</td><td>Es el primer momento en que se le puede mostrar a alguien ajeno. Buen punto para una prueba con uno o dos estudiantes voluntarios.</td></tr>
+      <tr><td class="code">Sprint 3</td><td><b>Lista para el piloto.</b> Con la base agron&oacute;mica, el ciclo de aprendizaje completo y los cuestionarios.</td><td>Con esto se puede correr la prueba piloto del instrumento, que es una historia del Sprint&nbsp;1 y necesita el sistema en pie para ejecutarse.</td></tr>
+      <tr><td class="code">Sprint 4</td><td><b>Completa.</b> Con la vista 3D, el optimizador, el reporte y la exportaci&oacute;n.</td><td>Al cerrar el sprint no queda nada por desplegar: lo &uacute;nico que se hizo fue agregar piezas a algo que ya estaba publicado desde la primera semana.</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="aviso">
+    <p><b>Lo que esto implica para el backlog.</b> El esqueleto caminante no es ninguna de las 30 historias actuales, y sin embargo es lo primero que hay que hacer. Hay dos salidas: agregarlo como historia del Sprint&nbsp;1 &mdash; pasar&iacute;amos a 31 &mdash; o tratarlo como tarea t&eacute;cnica dentro de la historia del motor. <b>Recomiendo lo primero</b>, porque una tarea que no est&aacute; en el backlog es una tarea que se posterga.</p>
+  </div>
+</section>
+
+<!-- ==================== 8 ==================== -->
+<section id="s8">
+  <p class="eyebrow">Secci&oacute;n 8</p>
+  <h2 class="sec">Lo que queda por decidir</h2>
+  <ul class="limpia">
+    <li><b>Qui&eacute;n paga y con qu&eacute; tarjeta.</b> Railway necesita un medio de pago desde el primer d&iacute;a. Son cinco d&oacute;lares al mes, pero si la tarjeta falla a mitad del estudio el servicio se suspende y el dato del d&iacute;a se pierde. Conviene resolverlo esta semana, no en el Sprint&nbsp;4.</li>
+    <li><b>Qu&eacute; pasa despu&eacute;s de sustentar.</b> Si el servicio se apaga, el jurado no puede volver a entrar. Vale la pena dejarlo encendido al menos hasta que el trabajo est&eacute; aprobado, y prever el costo de esos meses.</li>
+    <li><b>D&oacute;nde se hace el an&aacute;lisis: R o Python.</b> No afecta al despliegue, pero s&iacute; a qu&eacute; columnas tiene que traer la exportaci&oacute;n. Conviene fijarlo antes del Sprint&nbsp;4.</li>
+    <li><b>Si se usa un dominio propio.</b> Puramente est&eacute;tico. Doce d&oacute;lares al a&ntilde;o, y hace que la direcci&oacute;n que se muestre en la sustentaci&oacute;n se vea como un producto y no como una prueba.</li>
+    <li><b>Versiones exactas de cada herramienta.</b> Se fijan al abrir el Sprint&nbsp;1 y no se mueven hasta terminar el experimento.</li>
+  </ul>
+</section>
+
+</div>
+
+<footer>
+  <div class="wrap">
+    <p>Stack tecnol&oacute;gico y plan de despliegue del simulador de riego presurizado, sobre Render y Railway. Complementa la arquitectura l&oacute;gica, el planteamiento del proyecto y el product backlog de 30 historias.</p>
+    <p style="margin-top:10px">Los costos son aproximados y hay que confirmarlos al contratar; las condiciones de los planes gratuitos de estas plataformas cambian con frecuencia, y por eso la decisi&oacute;n de no apoyar el experimento en ninguno de ellos.</p>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var b = document.getElementById("tema");
+  function actual(){
+    var t = document.documentElement.getAttribute("data-theme");
+    if (t) return t;
+    return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  }
+  b.addEventListener("click", function(){
+    document.documentElement.setAttribute("data-theme", actual() === "dark" ? "light" : "dark");
+  });
+})();
+</script>
