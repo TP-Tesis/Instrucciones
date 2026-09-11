@@ -1,0 +1,780 @@
+<title>El Norte del Proyecto</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=Spectral:ital,wght@0,400;0,500;0,600;1,400;1,600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+
+<style>
+:root{
+  --paper:#EEF1F2; --surface:#FFFFFF; --surface-2:#F7F9F9; --surface-3:#E9EEEF;
+  --ink:#14232B; --ink-soft:#5A6E76; --ink-faint:#6D7E85;
+  --rule:#D2DBDD; --rule-strong:#B4C1C4;
+  --agua:#0D7A8C; --agua-soft:#E1F0F2;
+  --tierra:#A56C36; --tierra-soft:#F3E9DF;
+  --ok:#2C7A57; --ok-soft:#E2F0E9;
+  --alerta:#B5841A; --alerta-soft:#FBF0D8;
+  --critico:#B03A30; --critico-soft:#FAE6E3;
+  --display:"Archivo","Helvetica Neue",Arial,sans-serif;
+  --body:"Spectral",Georgia,serif;
+  --mono:"IBM Plex Mono",Consolas,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){ :root:not([data-theme="light"]){
+  --paper:#0F161A; --surface:#161F25; --surface-2:#1B262C; --surface-3:#223038;
+  --ink:#E2EAEC; --ink-soft:#96A8AF; --ink-faint:#8A9BA1;
+  --rule:#26343B; --rule-strong:#35474F;
+  --agua:#45B9CC; --agua-soft:#10333A;
+  --tierra:#C89A66; --tierra-soft:#33261A;
+  --ok:#4EB185; --ok-soft:#123124;
+  --alerta:#D9AC49; --alerta-soft:#33280F;
+  --critico:#E0736A; --critico-soft:#3A1B18;
+  color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --paper:#0F161A; --surface:#161F25; --surface-2:#1B262C; --surface-3:#223038;
+  --ink:#E2EAEC; --ink-soft:#96A8AF; --ink-faint:#8A9BA1;
+  --rule:#26343B; --rule-strong:#35474F;
+  --agua:#45B9CC; --agua-soft:#10333A;
+  --tierra:#C89A66; --tierra-soft:#33261A;
+  --ok:#4EB185; --ok-soft:#123124;
+  --alerta:#D9AC49; --alerta-soft:#33280F;
+  --critico:#E0736A; --critico-soft:#3A1B18;
+  color-scheme:dark;
+}
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth; scroll-padding-top:24px}
+@media (prefers-reduced-motion:reduce){ html{scroll-behavior:auto} }
+body{margin:0; background:var(--paper); color:var(--ink);
+  font-family:var(--body); font-size:16.5px; line-height:1.68; -webkit-font-smoothing:antialiased}
+h1,h2,h3,h4{font-family:var(--display); font-weight:600; margin:0; text-wrap:balance; letter-spacing:-.015em}
+p{margin:14px 0 0}
+a{color:var(--agua)}
+:focus-visible{outline:2px solid var(--agua); outline-offset:3px}
+.mono{font-family:var(--mono); font-variant-numeric:tabular-nums}
+
+.wrap{max-width:1260px; margin:0 auto; padding:0 26px}
+.col{max-width:70ch}
+.eyebrow{font-family:var(--display); font-size:11px; font-weight:600; letter-spacing:.16em;
+  text-transform:uppercase; color:var(--ink-faint); margin:0}
+
+/* ---------- cabecera ---------- */
+header.top{background:var(--surface); border-bottom:1px solid var(--rule); padding:46px 0 38px}
+.hdrow{display:flex; justify-content:space-between; align-items:flex-start; gap:24px; flex-wrap:wrap}
+header.top h1{font-size:clamp(32px,5vw,54px); line-height:1.03; margin:14px 0 0; max-width:19ch}
+header.top h1 em{font-style:italic; font-family:var(--body); font-weight:600; color:var(--agua)}
+.sub2{font-size:17px; color:var(--ink-soft); margin:16px 0 0; max-width:62ch; font-style:italic}
+.themebtn{font-family:var(--display); font-size:12px; padding:7px 14px; border-radius:99px; cursor:pointer;
+  border:1px solid var(--rule-strong); background:var(--surface); color:var(--ink-soft)}
+.themebtn:hover{border-color:var(--agua); color:var(--agua)}
+.meta{display:flex; flex-wrap:wrap; gap:10px 30px; margin-top:26px; padding-top:20px; border-top:1px solid var(--rule)}
+.meta div{font-size:13.5px; color:var(--ink-soft)}
+.meta b{font-family:var(--display); font-size:11px; font-weight:600; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--ink-faint); display:block; margin-bottom:2px}
+
+/* ---------- regla de uso ---------- */
+.regla{background:var(--agua-soft); border-top:3px solid var(--agua); padding:22px 0}
+.regla p{margin:0; max-width:78ch; font-size:16px; color:var(--ink)}
+.regla b{font-family:var(--display); font-weight:600}
+
+/* ---------- estructura de dos columnas ---------- */
+.shell{display:block}
+@media (min-width:1080px){
+  .shell{display:grid; grid-template-columns:206px minmax(0,1fr); gap:58px; align-items:start}
+  nav.toc{position:sticky; top:22px; padding:34px 0 0}
+}
+nav.toc{font-family:var(--display); font-size:12.5px; padding:26px 0 0}
+nav.toc ol{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:3px}
+nav.toc a{display:flex; gap:9px; text-decoration:none; color:var(--ink-soft); padding:4px 0; line-height:1.35}
+nav.toc a:hover{color:var(--agua)}
+nav.toc a span{font-family:var(--mono); font-size:11px; color:var(--ink-faint); flex:none; width:16px}
+nav.toc .grp{font-size:10.5px; letter-spacing:.15em; text-transform:uppercase; color:var(--ink-faint);
+  margin:18px 0 6px; padding-bottom:5px; border-bottom:1px solid var(--rule)}
+nav.toc .grp:first-child{margin-top:0}
+
+section{padding:44px 0 46px; border-bottom:1px solid var(--rule)}
+section:last-of-type{border-bottom:0}
+h2.sec{font-size:clamp(24px,3vw,31px); margin:9px 0 0; max-width:24ch}
+h3{font-size:19px; margin:34px 0 0}
+h4{font-size:14px; margin:26px 0 0; letter-spacing:.02em}
+
+/* ---------- piezas ---------- */
+.lead{font-size:19.5px; line-height:1.55; margin:20px 0 0; max-width:56ch; color:var(--ink)}
+.lead b{color:var(--agua); font-weight:600}
+blockquote.tesis{margin:24px 0 0; padding:20px 24px; background:var(--surface); border-left:3px solid var(--agua);
+  font-size:19px; line-height:1.5; max-width:62ch}
+blockquote.tesis p{margin:0}
+blockquote.tesis p + p{margin-top:12px}
+
+table{border-collapse:collapse; width:100%; font-size:14.5px; margin:24px 0 0; line-height:1.5}
+th,td{text-align:left; vertical-align:top; padding:10px 14px 10px 0; border-bottom:1px solid var(--rule)}
+th{font-family:var(--display); font-size:10.5px; font-weight:600; letter-spacing:.13em; text-transform:uppercase;
+  color:var(--ink-faint); border-bottom:1px solid var(--rule-strong); padding-bottom:8px}
+td.code{font-family:var(--mono); font-size:12.5px; color:var(--agua); white-space:nowrap; font-weight:500}
+td b{font-family:var(--display); font-weight:600; font-size:14px}
+.scroll{overflow-x:auto; margin-top:24px}
+.scroll table{margin-top:0; min-width:720px}
+
+/* causas: código colgado al margen */
+.causa{display:grid; grid-template-columns:44px minmax(0,1fr); gap:0 16px; padding:18px 0;
+  border-bottom:1px solid var(--rule); max-width:78ch}
+.causa:last-child{border-bottom:0}
+.causa .k{font-family:var(--mono); font-size:13px; font-weight:600; color:var(--agua); padding-top:3px}
+.causa h4{margin:0; font-size:16.5px; letter-spacing:-.01em}
+.causa p{margin:7px 0 0; color:var(--ink-soft); font-size:15.5px}
+
+/* bloques de la solución */
+.pieza{background:var(--surface); border:1px solid var(--rule); border-radius:8px; padding:24px 26px; margin-top:20px}
+.pieza.motor{border:0; border-left:4px solid var(--agua); border-radius:0 8px 8px 0; background:var(--surface-2)}
+.pieza h3{margin:0; font-size:20px}
+.pieza .rol{font-family:var(--display); font-size:10.5px; font-weight:600; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--ink-faint); margin:0 0 6px}
+.pieza p{font-size:15.5px}
+.pieza ul{margin:14px 0 0; padding-left:20px; font-size:15.5px}
+.pieza li{margin-bottom:7px}
+.pieza li::marker{color:var(--agua)}
+
+.ce{display:inline-block; font-family:var(--mono); font-size:11.5px; font-weight:600; letter-spacing:.04em;
+  padding:2px 7px; border-radius:4px; background:var(--critico-soft); color:var(--critico); white-space:nowrap}
+.ce.ok{background:var(--ok-soft); color:var(--ok)}
+.ce.ag{background:var(--agua-soft); color:var(--agua)}
+.ce.tr{background:var(--tierra-soft); color:var(--tierra)}
+
+/* cifras */
+.cifras{display:grid; grid-template-columns:repeat(auto-fit,minmax(168px,1fr)); gap:1px;
+  background:var(--rule); border:1px solid var(--rule); margin-top:24px; border-radius:6px; overflow:hidden}
+.cifra{background:var(--surface); padding:16px 18px}
+.cifra .n{font-family:var(--display); font-size:26px; font-weight:700; letter-spacing:-.03em; color:var(--agua);
+  font-variant-numeric:tabular-nums; line-height:1.1}
+.cifra .d{font-size:13px; color:var(--ink-soft); margin-top:5px; line-height:1.4}
+.cifra .f{font-family:var(--mono); font-size:10.5px; color:var(--ink-faint); margin-top:7px}
+
+/* listas de negativos y preguntas */
+ul.limpia{list-style:none; margin:22px 0 0; padding:0; max-width:74ch}
+ul.limpia li{padding:12px 0 12px 26px; border-bottom:1px solid var(--rule); position:relative; font-size:15.5px}
+ul.limpia li:last-child{border-bottom:0}
+ul.limpia li::before{content:"—"; position:absolute; left:0; color:var(--agua); font-family:var(--mono)}
+ul.limpia b{font-family:var(--display); font-weight:600}
+
+ol.pruebas{counter-reset:p; list-style:none; margin:22px 0 0; padding:0; max-width:74ch}
+ol.pruebas li{counter-increment:p; position:relative; padding:14px 0 14px 44px; border-bottom:1px solid var(--rule); font-size:15.5px}
+ol.pruebas li:last-child{border-bottom:0}
+ol.pruebas li::before{content:counter(p); position:absolute; left:0; top:14px; width:26px; height:26px;
+  display:grid; place-items:center; border-radius:50%; background:var(--agua); color:var(--surface);
+  font-family:var(--mono); font-size:12px; font-weight:600}
+:root[data-theme="dark"] ol.pruebas li::before{color:#0F161A}
+@media (prefers-color-scheme:dark){ :root:not([data-theme="light"]) ol.pruebas li::before{color:#0F161A} }
+
+/* aviso */
+.aviso{margin-top:26px; padding:16px 20px; border-radius:6px; background:var(--alerta-soft);
+  border-left:3px solid var(--alerta); font-size:15px; max-width:74ch}
+.aviso p{margin:0}
+.aviso p + p{margin-top:9px}
+.aviso b{font-family:var(--display); font-weight:600}
+.aviso.bien{background:var(--ok-soft); border-left-color:var(--ok)}
+
+/* estado del arte: preguntas */
+.preg{border-top:1px solid var(--rule-strong); padding:22px 0 4px; margin-top:26px}
+.preg .q{display:flex; gap:14px; align-items:baseline}
+.preg .q .k{font-family:var(--mono); font-size:13px; font-weight:600; color:var(--agua); flex:none}
+.preg .q h4{margin:0; font-size:16px; line-height:1.4; max-width:60ch; letter-spacing:-.01em}
+.preg .cuerpo{margin-left:0}
+@media (min-width:760px){ .preg .cuerpo{margin-left:27px} }
+.preg p{font-size:15.5px; color:var(--ink-soft)}
+.preg p b{color:var(--ink); font-family:var(--display); font-weight:600; font-size:15px}
+.hallazgo{margin-top:14px; padding:13px 16px; background:var(--surface-2); border-radius:6px; font-size:14.5px}
+.hallazgo b{font-family:var(--display); font-size:10.5px; font-weight:600; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--ink-faint); display:block; margin-bottom:5px}
+.hallazgo p{margin:0; color:var(--ink); font-size:14.5px}
+
+footer{background:var(--surface); border-top:1px solid var(--rule); padding:36px 0 46px; margin-top:0}
+footer p{font-size:13.5px; color:var(--ink-faint); max-width:70ch}
+</style>
+
+<header class="top">
+  <div class="wrap">
+    <div class="hdrow">
+      <div>
+        <p class="eyebrow">Planteamiento del proyecto de tesis &middot; Ingenier&iacute;a de Software &middot; UPC</p>
+        <h1>El norte del <em>proyecto</em></h1>
+        <p class="sub2">Qu&eacute; problema resolvemos, por qu&eacute; existe, qu&eacute; construimos y c&oacute;mo probamos que funcion&oacute;. Con la evidencia que respalda cada afirmaci&oacute;n.</p>
+      </div>
+      <button class="themebtn" id="tema" type="button">Cambiar tema</button>
+    </div>
+    <div class="meta">
+      <div><b>Equipo</b>Sosa Colca, Angello Rodolfo &middot; Tongo Alejandro, Milagros Salet</div>
+      <div><b>Caso de estudio</b>UNDAC &middot; Cerro de Pasco &middot; Hidr&aacute;ulica Aplicada</div>
+      <div><b>Producto</b>Simulador web de riego presurizado &middot; 2D, 3D e IA</div>
+      <div><b>Base de evidencia</b>10 antecedentes &middot; 40 art&iacute;culos revisados</div>
+    </div>
+  </div>
+</header>
+
+<div class="regla">
+  <div class="wrap">
+    <p><b>C&oacute;mo se usa este documento.</b> L&eacute;elo antes de cada sprint. Si una historia de usuario, una pantalla o una decisi&oacute;n t&eacute;cnica no se puede conectar con alguna de las seis causas de la secci&oacute;n 2, no va. Esa es la &uacute;nica regla que protege el enfoque durante los meses que vienen.</p>
+  </div>
+</div>
+
+<div class="wrap">
+<div class="shell">
+
+<nav class="toc" aria-label="Contenido">
+  <p class="grp">El planteamiento</p>
+  <ol>
+    <li><a href="#s1"><span>1</span>El problema</a></li>
+    <li><a href="#s2"><span>2</span>Las seis causas</a></li>
+    <li><a href="#s3"><span>3</span>Las consecuencias</a></li>
+    <li><a href="#s4"><span>4</span>Por qu&eacute; lo que existe no lo resuelve</a></li>
+    <li><a href="#s5"><span>5</span>La soluci&oacute;n: 2D, 3D e IA</a></li>
+    <li><a href="#s6"><span>6</span>Trazabilidad</a></li>
+    <li><a href="#s7"><span>7</span>Pregunta e hip&oacute;tesis</a></li>
+    <li><a href="#s8"><span>8</span>Lo que NO es</a></li>
+    <li><a href="#s9"><span>9</span>La prueba de enfoque</a></li>
+  </ol>
+  <p class="grp">Lo que ya investigamos</p>
+  <ol>
+    <li><a href="#s10"><span>10</span>Antecedentes</a></li>
+    <li><a href="#s11"><span>11</span>Estado del arte (P1&ndash;P5)</a></li>
+  </ol>
+  <p class="grp">Cierre</p>
+  <ol>
+    <li><a href="#s12"><span>12</span>Decisiones abiertas</a></li>
+  </ol>
+</nav>
+
+<main>
+
+<!-- ============ 1 ============ -->
+<section id="s1">
+  <p class="eyebrow">Secci&oacute;n 1</p>
+  <h2 class="sec">El problema</h2>
+
+  <blockquote class="tesis">
+    <p>Los estudiantes de Ingenier&iacute;a Agr&oacute;noma terminan el curso de dise&ntilde;o hidr&aacute;ulico sabiendo aplicar las f&oacute;rmulas, pero sin comprender el comportamiento del sistema que dise&ntilde;an.</p>
+  </blockquote>
+
+  <p class="col">Esa es la frase. Y conviene cuidar con el mismo rigor lo que <b>no</b> dice, porque ah&iacute; es donde un planteamiento se cae en la sustentaci&oacute;n.</p>
+
+  <table style="max-width:78ch">
+    <thead><tr><th style="width:32%">No decimos</th><th>Porque</th></tr></thead>
+    <tbody>
+      <tr><td><b>&laquo;No tienen un simulador&raquo;</b></td><td>Ser&iacute;a confundir el problema con la ausencia de nuestra soluci&oacute;n. Es el error m&aacute;s com&uacute;n de un planteamiento, y el m&aacute;s f&aacute;cil de objetar.</td></tr>
+      <tr><td><b>&laquo;No saben calcular&raquo;</b></td><td>S&iacute; saben. Aprueban los ex&aacute;menes calculando p&eacute;rdida de carga con Hazen-Williams.</td></tr>
+      <tr><td><b>&laquo;El curso est&aacute; mal dado&raquo;</b></td><td>El problema no es el docente: es la naturaleza del medio con el que se ense&ntilde;a. Una diapositiva no responde cuando cambias un di&aacute;metro.</td></tr>
+    </tbody>
+  </table>
+
+  <p class="col" style="margin-top:26px"><b>Saben calcular y no saben dise&ntilde;ar.</b> Obtienen la p&eacute;rdida de carga de un tramo dado, pero puestos frente a una red que falla no identifican el tramo culpable, no anticipan qu&eacute; ocurre si cambian un di&aacute;metro, y no relacionan lo que hacen con el agua que efectivamente le llega a la planta.</p>
+
+  <div class="aviso bien">
+    <p><b>Esto no es una suposici&oacute;n nuestra.</b> La magnitud est&aacute; documentada: en la poblaci&oacute;n del caso de estudio solo el <span class="mono">47,1&nbsp;%</span> alcanza un razonamiento cuantitativo satisfactorio en variables hidr&aacute;ulicas (Ricra, 2023), y apenas el <span class="mono">38&nbsp;%</span> de universitarios peruanos usa simulaci&oacute;n de forma efectiva (N&uacute;&ntilde;ez-Rojas et al., 2024).</p>
+    <p>Lo que <em>todav&iacute;a falta</em> es evidencia propia recogida por nosotros en la UNDAC. Est&aacute; en la secci&oacute;n 12.</p>
+  </div>
+</section>
+
+<!-- ============ 2 ============ -->
+<section id="s2">
+  <p class="eyebrow">Secci&oacute;n 2</p>
+  <h2 class="sec">Las seis causas</h2>
+  <p class="col">Cada m&oacute;dulo del producto tiene que poder se&ntilde;alar una de estas seis. Si no puede, es una funcionalidad bonita y va al backlog.</p>
+
+  <div style="margin-top:26px">
+    <div class="causa">
+      <div class="k">C1</div>
+      <div>
+        <h4>Se ense&ntilde;a el procedimiento, no el comportamiento</h4>
+        <p>El ejercicio t&iacute;pico entrega los datos y pide un n&uacute;mero. El estudiante practica <em>ejecutar una f&oacute;rmula</em>, nunca <em>anticipar una consecuencia</em>. Son dos habilidades distintas y solo se eval&uacute;a la primera.</p>
+      </div>
+    </div>
+    <div class="causa">
+      <div class="k">C2</div>
+      <div>
+        <h4>La retroalimentaci&oacute;n llega tarde</h4>
+        <p>Entre que resuelve un ejercicio y le dicen si est&aacute; bien pasan d&iacute;as. Sin ciclo corto de error y correcci&oacute;n no se construye intuici&oacute;n: se memoriza el procedimiento.</p>
+      </div>
+    </div>
+    <div class="causa">
+      <div class="k">C3</div>
+      <div>
+        <h4>Equivocarse es caro</h4>
+        <p>En papel o en hoja de c&aacute;lculo, probar una alternativa obliga a rehacer todo. Entonces el estudiante <em>no explora</em>: calcula una vez y entrega. Sin exploraci&oacute;n no hay descubrimiento.</p>
+      </div>
+    </div>
+    <div class="causa">
+      <div class="k">C4</div>
+      <div>
+        <h4>El dato llega sin origen</h4>
+        <p>El caudal viene dado en el enunciado. El estudiante nunca ve que ese n&uacute;mero sale de lo que el cultivo necesita &mdash;de <em>su propia disciplina</em>&mdash;, y el dise&ntilde;o hidr&aacute;ulico le queda como un ejercicio de f&iacute;sica ajeno a su carrera.</p>
+      </div>
+    </div>
+    <div class="causa">
+      <div class="k">C5</div>
+      <div>
+        <h4>Lo invisible se queda invisible</h4>
+        <p>La presi&oacute;n, la l&iacute;nea piezom&eacute;trica, la uniformidad y la envolvente est&aacute;tica son campos que no se ven. Sin una representaci&oacute;n, el estudiante los manipula como s&iacute;mbolos y no como fen&oacute;menos.</p>
+      </div>
+    </div>
+    <div class="causa">
+      <div class="k">C6</div>
+      <div>
+        <h4>No hay pr&aacute;ctica sobre terreno real</h4>
+        <p>Los ejercicios son abstractos y planos. La topograf&iacute;a &mdash;que en la sierra es la que gobierna el dise&ntilde;o&mdash; sencillamente no aparece.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 3 ============ -->
+<section id="s3">
+  <p class="eyebrow">Secci&oacute;n 3</p>
+  <h2 class="sec">Las consecuencias</h2>
+
+  <h3>En el aprendizaje</h3>
+  <p class="col">Las concepciones err&oacute;neas <b>sobreviven al curso</b>. Un estudiante aprobado sigue creyendo cosas como estas. No es una lista suelta: son exactamente los siete &iacute;tems que el instrumento de medici&oacute;n va a evaluar, antes y despu&eacute;s.</p>
+
+  <div class="scroll">
+  <table>
+    <thead><tr><th style="width:60px">C&oacute;digo</th><th style="width:34%">Lo que cree</th><th>Lo que es</th></tr></thead>
+    <tbody>
+      <tr><td class="code">CE1</td><td>Presi&oacute;n y caudal son lo mismo</td><td>Variables acopladas, pero distintas.</td></tr>
+      <tr><td class="code">CE2</td><td>M&aacute;s di&aacute;metro da m&aacute;s presi&oacute;n</td><td>Da menos p&eacute;rdida, que no es lo mismo. Un cambio del 10&nbsp;% en el di&aacute;metro mueve la p&eacute;rdida un 57&nbsp;% (Ricra, 2023): esa no linealidad es justamente lo que no se intuye leyendo la f&oacute;rmula.</td></tr>
+      <tr><td class="code">CE3</td><td>Subir en cota cuesta caudal</td><td>Cuesta presi&oacute;n. El caudal lo fija la demanda del cultivo.</td></tr>
+      <tr><td class="code">CE4</td><td>La velocidad la fija la fuente</td><td>La fija el di&aacute;metro, para un caudal dado.</td></tr>
+      <tr><td class="code">CE5</td><td>Si funciona regando, funciona siempre</td><td>Al cerrar las v&aacute;lvulas desaparece la fricci&oacute;n, la presi&oacute;n est&aacute;tica sube a todo el desnivel y la tuber&iacute;a revienta.</td></tr>
+      <tr><td class="code">CE6</td><td>La uniformidad depende del emisor</td><td>Depende de la distribuci&oacute;n de presiones en el sector.</td></tr>
+      <tr><td class="code">CE7</td><td>Existe un dise&ntilde;o &oacute;ptimo &uacute;nico</td><td>Es multicriterio, con restricciones que el modelo no captura.</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3>En el ejercicio profesional</h3>
+  <ul class="limpia">
+    <li>Dise&ntilde;os con uniformidad baja: agua de m&aacute;s en unas zonas y cultivo con sed en otras.</li>
+    <li>Roturas por no verificar la presi&oacute;n est&aacute;tica, que es la condici&oacute;n cr&iacute;tica y la que casi nadie comprueba.</li>
+    <li>Sobredimensionamiento por precauci&oacute;n o subdimensionamiento por descuido, ambos por falta de criterio.</li>
+  </ul>
+
+  <h3>En el contexto</h3>
+  <p class="col">El riego agr&iacute;cola es el mayor consumidor de agua dulce del pa&iacute;s y la sierra trabaja con disponibilidad limitada. <b>La diferencia entre un dise&ntilde;o con 70&nbsp;% de uniformidad y uno con 90&nbsp;% es agua que se aplica y no se aprovecha.</b> La competencia de quien dise&ntilde;a tiene efecto directo sobre ese recurso.</p>
+
+  <div class="cifras">
+    <div class="cifra"><div class="n">80&thinsp;%</div><div class="d">del agua disponible del pa&iacute;s la consume la agricultura</div><div class="f">Sector agr&iacute;cola nacional</div></div>
+    <div class="cifra"><div class="n">35&thinsp;%</div><div class="d">de eficiencia con la que opera el riego nacional</div><div class="f">ANA, 2023</div></div>
+    <div class="cifra"><div class="n">45&thinsp;%</div><div class="d">del agua distribuida se pierde en el trayecto</div><div class="f">ANA, 2023</div></div>
+    <div class="cifra"><div class="n">13&thinsp;%</div><div class="d">del PBI y el 30&nbsp;% del empleo dependen del sector</div><div class="f">Sector agr&iacute;cola nacional</div></div>
+    <div class="cifra"><div class="n">S/&thinsp;6&nbsp;200&nbsp;M</div><div class="d">en proyectos h&iacute;dricos sin ejecutar, por falta de especialistas</div><div class="f">ComexPer&uacute;, 2024</div></div>
+  </div>
+
+  <div class="aviso bien">
+    <p><b>Por qu&eacute; estas cifras est&aacute;n aqu&iacute;.</b> No son adorno de contexto: son la raz&oacute;n por la que la competencia de quien dise&ntilde;a tiene consecuencias fuera del aula, y es la respuesta cuando pregunten &laquo;&iquest;y esto a qui&eacute;n le importa?&raquo;. Las tres primeras tienen fuente citable; las de PBI y empleo siguen pendientes de referencia exacta (secci&oacute;n 12).</p>
+  </div>
+</section>
+
+<!-- ============ 4 ============ -->
+<section id="s4">
+  <p class="eyebrow">Secci&oacute;n 4</p>
+  <h2 class="sec">Por qu&eacute; lo que ya existe no lo resuelve</h2>
+  <p class="col">Un jurado lo va a preguntar en el primer minuto, as&iacute; que va escrito y con la respuesta cerrada.</p>
+
+  <div class="scroll">
+  <table>
+    <thead><tr><th style="width:24%">Herramienta</th><th style="width:22%">&iquest;Calcula bien?</th><th>Por qu&eacute; no ense&ntilde;a</th></tr></thead>
+    <tbody>
+      <tr><td><b>Hoja de c&aacute;lculo profesional</b></td><td><span class="ce ok">S&iacute;</span> &mdash; es nuestro m&eacute;todo de referencia</td><td>Entrega el resultado sin el porqu&eacute;. Explorar una alternativa cuesta rehacer las celdas, as&iacute; que nadie explora.</td></tr>
+      <tr><td><b>EPANET y similares</b></td><td><span class="ce ok">S&iacute;</span> &mdash; es el est&aacute;ndar de la industria</td><td>No diagnostica en el lenguaje del estudiante, no le pide anticipar nada, no mide aprendizaje, y su curva de entrada consume el tiempo del curso.</td></tr>
+      <tr><td><b>Clase magistral, video, PDF</b></td><td>No aplica</td><td>Explican, pero no devuelven la consecuencia de <em>tu</em> decisi&oacute;n.</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <p class="col" style="margin-top:26px">Ninguna es mala. <b>Ninguna cierra el ciclo error &rarr; diagn&oacute;stico &rarr; correcci&oacute;n</b>, que es donde ocurre el aprendizaje. Y el estado del arte lo confirma desde afuera: de 40 art&iacute;culos revisados, ninguno aborda simulaci&oacute;n interactiva para dise&ntilde;o hidr&aacute;ulico de tuber&iacute;as en riego agr&iacute;cola (secci&oacute;n 11).</p>
+</section>
+
+<!-- ============ 5 ============ -->
+<section id="s5">
+  <p class="eyebrow">Secci&oacute;n 5 &middot; El coraz&oacute;n del documento</p>
+  <h2 class="sec">La soluci&oacute;n: 2D, 3D e IA</h2>
+
+  <p class="lead">Un <b>motor de c&aacute;lculo verificado</b>, envuelto en un <b>ciclo de retroalimentaci&oacute;n instrumentado</b>, con tres formas de ver y decidir: <b>simulaci&oacute;n 2D</b>, <b>simulaci&oacute;n 3D</b> y <b>optimizaci&oacute;n con inteligencia artificial</b>.</p>
+
+  <p class="col">No es &laquo;una app que simula riego&raquo;. Son cuatro piezas, y cada una existe por una raz&oacute;n distinta. Si alguna de las cuatro se cae, se cae una parte concreta del argumento de la tesis.</p>
+
+  <div class="pieza motor">
+    <p class="rol">Pieza 0 &middot; lo que hay debajo de todo</p>
+    <h3>El motor de c&aacute;lculo verificado</h3>
+    <p>Resuelve la red completa en menos de doscientos milisegundos, reproduce el m&eacute;todo profesional de referencia con <b>error de cero por ciento</b>, y se verifica contra tres fuentes independientes antes de que ning&uacute;n estudiante lo toque.</p>
+    <p>Es la base de las otras tres: <b>sin un c&aacute;lculo en el que se pueda confiar, todo lo dem&aacute;s ense&ntilde;a algo falso</b> y el estudio mide ruido.</p>
+  </div>
+
+  <div class="pieza">
+    <p class="rol">Pieza 1 &middot; donde se dise&ntilde;a</p>
+    <h3>Simulaci&oacute;n 2D</h3>
+    <p>Tres representaciones del mismo estado, a la vista al mismo tiempo y sincronizadas:</p>
+    <ul>
+      <li><b>Planta</b> &mdash; la red a escala real sobre el campo.</li>
+      <li><b>Perfil</b> &mdash; terreno, tuber&iacute;a y l&iacute;nea de presi&oacute;n disponible; la franja entre las dos &uacute;ltimas <em>es</em> la presi&oacute;n.</li>
+      <li><b>Tabla por tramo</b> &mdash; las mismas columnas y unidades del m&eacute;todo profesional, con las celdas de entrada editables ah&iacute; mismo.</li>
+    </ul>
+    <p>Tocar un tramo lo resalta en las tres. <b>Comparar las tres lecturas de un mismo hecho es donde se construye el modelo mental.</b></p>
+    <p style="margin-top:14px"><span class="ce ag">ataca C3</span> <span class="ce ag">ataca C5</span></p>
+  </div>
+
+  <div class="pieza">
+    <p class="rol">Pieza 2 &middot; donde se ve lo que un corte no puede mostrar</p>
+    <h3>Simulaci&oacute;n 3D</h3>
+    <p>No es una vista m&aacute;s bonita de lo mismo. Es el <b>&uacute;nico lugar</b> donde se pueden confrontar dos de las siete concepciones err&oacute;neas, y por eso tiene dos tareas propias que no existen en 2D:</p>
+    <ul>
+      <li><b>Tarea A &middot; la envolvente est&aacute;tica.</b> Se conmuta el sistema a v&aacute;lvulas cerradas: desaparece la fricci&oacute;n, la presi&oacute;n sube a todo el desnivel disponible, y el dise&ntilde;o que funcionaba regando revienta. &rarr; confronta <span class="ce">CE5</span></li>
+      <li><b>Tarea B &middot; sectorizaci&oacute;n por bandas de presi&oacute;n.</b> Agrupar las salidas en sectores donde la presi&oacute;n no var&iacute;e m&aacute;s del 20&nbsp;%, leyendo el campo pintado por zonas sobre el relieve. &rarr; confronta <span class="ce">CE6</span></li>
+    </ul>
+    <p>Un perfil muestra un ramal a la vez; el campo es bidimensional en planta. <b>Ninguna de las dos tareas es resoluble sin la tercera dimensi&oacute;n.</b> Ese es el argumento que convierte el 3D en una variable de investigaci&oacute;n y no en un adorno.</p>
+    <p style="margin-top:14px"><span class="ce ag">ataca C5</span> <span class="ce ag">ataca C6</span></p>
+  </div>
+
+  <div class="pieza">
+    <p class="rol">Pieza 3 &middot; donde se aprende que no hay una sola respuesta</p>
+    <h3>Optimizaci&oacute;n con IA</h3>
+    <p>Un optimizador metaheur&iacute;stico &mdash;recocido simulado&mdash; que <b>parte del dise&ntilde;o que el estudiante entreg&oacute;</b>, no de cero, y devuelve un <b>frente de opciones</b> con su costo, su uniformidad y su margen de seguridad. Explica la raz&oacute;n f&iacute;sica de cada cambio que propone, y acepta que el estudiante le fije restricciones y vuelva a correr.</p>
+    <p>&rarr; confronta <span class="ce">CE7</span>, y ense&ntilde;a la lecci&oacute;n de ingenier&iacute;a del m&oacute;dulo: <b>la m&aacute;quina optimiza lo que se model&oacute;, no la realidad.</b></p>
+    <p>Se habilita <b>solo despu&eacute;s de que el estudiante entregue su dise&ntilde;o</b>. No es una traba de interfaz: si estuviera disponible antes, parte de los participantes copiar&iacute;a la respuesta y el grupo experimental quedar&iacute;a contaminado justo en la variable que la tesis mide.</p>
+    <p style="margin-top:14px"><span class="ce ag">ataca C1</span></p>
+  </div>
+
+  <div class="pieza">
+    <p class="rol">Pieza 4 &middot; lo que la vuelve tesis y no producto</p>
+    <h3>La instrumentaci&oacute;n</h3>
+    <p><b>El sistema no solo ense&ntilde;a: mide.</b> Cada acci&oacute;n queda registrada sin sobrescribir nada, y de ese registro se derivan las evidencias de que hubo aprendizaje:</p>
+    <ul>
+      <li>Cu&aacute;nto baj&oacute; el nivel de ayuda que necesit&oacute; para diagnosticar.</li>
+      <li>Cu&aacute;nto mejor&oacute; su acierto al anticipar consecuencias.</li>
+      <li>Cu&aacute;nto se acort&oacute; la distancia entre su dise&ntilde;o y el frente de la optimizaci&oacute;n.</li>
+    </ul>
+    <p>Ninguna de las herramientas de la secci&oacute;n 4 tiene esto. Es lo que convierte una aplicaci&oacute;n educativa en un <b>instrumento de investigaci&oacute;n</b>, y lo que responde a la cr&iacute;tica m&aacute;s repetida del estado del arte: que los estudios miden si la herramienta gusta, no si se aprende.</p>
+  </div>
+</section>
+
+<!-- ============ 6 ============ -->
+<section id="s6">
+  <p class="eyebrow">Secci&oacute;n 6</p>
+  <h2 class="sec">Trazabilidad: cada pieza contra su causa</h2>
+  <p class="col"><b>Esta es la tabla que hay que mirar cuando aparezca la tentaci&oacute;n de agregar algo.</b> Una funcionalidad que no entra en esta tabla no entra en el producto.</p>
+
+  <div class="scroll">
+  <table>
+    <thead><tr><th style="width:30%">Pieza</th><th style="width:90px">Causa</th><th>C&oacute;mo</th></tr></thead>
+    <tbody>
+      <tr><td><b>Respuesta en menos de un segundo</b></td><td class="code">C2 &middot; C3</td><td>Equivocarse pasa a ser gratis y reversible; el ciclo se cierra al instante.</td></tr>
+      <tr><td><b>L&iacute;nea de presi&oacute;n en el perfil</b></td><td class="code">C5</td><td>Vuelve visible el campo que el estudiante manejaba como s&iacute;mbolo.</td></tr>
+      <tr><td><b>Campo de presi&oacute;n sobre el relieve (3D)</b></td><td class="code">C5 &middot; C6</td><td>Muestra la distribuci&oacute;n en planta, que una secci&oacute;n no alcanza.</td></tr>
+      <tr><td><b>Cadena del cultivo al caudal</b></td><td class="code">C4</td><td>El caudal deja de ser un dato del enunciado y pasa a ser un resultado de su disciplina.</td></tr>
+      <tr><td><b>Predicci&oacute;n antes de revelar el resultado</b></td><td class="code">C1</td><td>Obliga a anticipar la consecuencia en lugar de ejecutar el procedimiento.</td></tr>
+      <tr><td><b>Diagn&oacute;stico escalonado en tres niveles</b></td><td class="code">C1</td><td>Devuelve al estudiante la tarea de diagnosticar, que es la que se quiere medir.</td></tr>
+      <tr><td><b>Alertas con su dominio y sus salidas ordenadas</b></td><td class="code">C1</td><td>Ense&ntilde;a que hay varias soluciones v&aacute;lidas, no una respuesta &uacute;nica.</td></tr>
+      <tr><td><b>Autoexplicaci&oacute;n al cerrar un problema</b></td><td class="code">C1 &middot; C2</td><td>Fija la explicaci&oacute;n y no solo el resultado.</td></tr>
+      <tr><td><b>Teor&iacute;a alcanzable desde la duda</b></td><td class="code">C1 &middot; C2</td><td>La explicaci&oacute;n llega cuando ya hay pregunta.</td></tr>
+      <tr><td><b>Escenarios sobre terreno real peruano</b></td><td class="code">C6</td><td>La topograf&iacute;a pasa a gobernar el dise&ntilde;o, como en la pr&aacute;ctica.</td></tr>
+      <tr><td><b>Control de presi&oacute;n y costos</b></td><td class="code">C1</td><td>Convierte el ejercicio en una decisi&oacute;n con compromisos.</td></tr>
+      <tr><td><b>Contraste con la optimizaci&oacute;n</b></td><td class="code">C1</td><td>Comparar y justificar frente a un referente.</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3>Y por m&oacute;dulo del backlog</h3>
+  <div class="scroll">
+  <table>
+    <thead><tr><th style="width:38%">M&oacute;dulo</th><th style="width:90px">Causa</th><th>Nota</th></tr></thead>
+    <tbody>
+      <tr><td><b>M1 &middot; Simulador base 2D</b></td><td class="code">C3 &middot; C5</td><td></td></tr>
+      <tr><td><b>M2 &middot; Motor hidr&aacute;ulico topogr&aacute;fico</b></td><td class="code">C5 &middot; C6</td><td>Base de todo lo dem&aacute;s.</td></tr>
+      <tr><td><b>M3 &middot; Visualizaci&oacute;n 3D</b></td><td class="code">C5 &middot; C6</td><td>Solo con sus dos tareas propias. Sin ellas, no se justifica.</td></tr>
+      <tr><td><b>M4 &middot; Eficiencia y uniformidad</b></td><td class="code">C5</td><td>Hace visible el DU en mil&iacute;metros de l&aacute;mina.</td></tr>
+      <tr><td><b>M5 &middot; Control de presi&oacute;n y costos</b></td><td class="code">C1</td><td></td></tr>
+      <tr><td><b>M6 &middot; Optimizaci&oacute;n con IA</b></td><td class="code">C1</td><td>Confronta <span class="ce">CE7</span>.</td></tr>
+      <tr><td><b>M7 &middot; Terreno</b></td><td class="code">C6</td><td>Perfiles reales pre-extra&iacute;dos.</td></tr>
+      <tr><td><b>M8 &middot; Validaci&oacute;n y panel docente</b></td><td class="code">&mdash;</td><td><b>No ataca una causa: es el instrumento de medida.</b> Es la excepci&oacute;n deliberada a la regla.</td></tr>
+      <tr><td><b>M9 &middot; Base agron&oacute;mica</b></td><td class="code">C4</td><td></td></tr>
+      <tr><td><b>M10 &middot; Predicci&oacute;n guiada y teor&iacute;a situada</b></td><td class="code">C1 &middot; C2</td><td></td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<!-- ============ 7 ============ -->
+<section id="s7">
+  <p class="eyebrow">Secci&oacute;n 7</p>
+  <h2 class="sec">Pregunta de investigaci&oacute;n e hip&oacute;tesis</h2>
+
+  <h3>Pregunta</h3>
+  <blockquote class="tesis">
+    <p>&iquest;En qu&eacute; medida una aplicaci&oacute;n web que devuelve el comportamiento hidr&aacute;ulico de forma inmediata, exige anticipar la consecuencia de cada decisi&oacute;n y escalona el diagn&oacute;stico, mejora la <b>comprensi&oacute;n conceptual</b> del dise&ntilde;o de tuber&iacute;as en estudiantes de Ingenier&iacute;a Agr&oacute;noma, frente a la ense&ntilde;anza tradicional?</p>
+  </blockquote>
+
+  <h3>Hip&oacute;tesis principal</h3>
+  <blockquote class="tesis">
+    <p>Los estudiantes que trabajen con la aplicaci&oacute;n obtendr&aacute;n una ganancia de aprendizaje significativamente mayor que los del grupo de control, <b>y esa ganancia se concentrar&aacute; en los niveles de Analizar y Evaluar</b> &mdash;diagnosticar y comparar&mdash; y no solamente en Aplicar.</p>
+  </blockquote>
+  <p class="col"><b>El segundo tramo es el que la hace interesante.</b> Si la mejora se concentrara solo en Aplicar, habr&iacute;amos construido una calculadora r&aacute;pida. Que se concentre en Analizar y Evaluar es lo que prueba comprensi&oacute;n, y es lo que obliga a que el instrumento de medici&oacute;n separe los niveles de la Taxonom&iacute;a de Bloom Revisada en lugar de dar una sola nota global.</p>
+
+  <h3>Hip&oacute;tesis secundaria, sobre el 3D</h3>
+  <blockquote class="tesis">
+    <p>El grupo que use la vista tridimensional superar&aacute; al que no la use <b>en los &iacute;tems que miden CE5 y CE6, y no necesariamente en los dem&aacute;s</b>, porque esas dos concepciones solo se pueden confrontar ah&iacute;.</p>
+  </blockquote>
+  <p class="col">Falsable, espec&iacute;fica, y <b>ambos resultados son publicables</b>: si se cumple, el 3D est&aacute; justificado; si no se cumple, tenemos evidencia de que el 3D no aporta por encima del 2D, que es un hallazgo que el estado del arte pide expl&iacute;citamente (secci&oacute;n 11, P1).</p>
+</section>
+
+<!-- ============ 8 ============ -->
+<section id="s8">
+  <p class="eyebrow">Secci&oacute;n 8</p>
+  <h2 class="sec">Lo que NO es la soluci&oacute;n</h2>
+  <p class="col">Escrito aqu&iacute; para poder decir que no sin discutirlo dos veces.</p>
+  <ul class="limpia">
+    <li><b>No es un reemplazo de EPANET.</b> No competimos en potencia de c&aacute;lculo: competimos en capacidad de ense&ntilde;ar.</li>
+    <li><b>No es un reemplazo del docente.</b> La aplicaci&oacute;n diagnostica errores de dise&ntilde;o, no reemplaza la clase. El estado del arte respalda esto: los mejores resultados aparecen cuando la herramienta acompa&ntilde;a al docente, no cuando lo sustituye (Contrino et al., 2024).</li>
+    <li><b>No es una calculadora m&aacute;s r&aacute;pida.</b> Si el estudiante sale calculando m&aacute;s r&aacute;pido pero entendiendo lo mismo, el proyecto fall&oacute;.</li>
+    <li><b>No es un sistema de gesti&oacute;n de riego real.</b> No opera equipos, no monitorea en campo, no toma decisiones agron&oacute;micas por nadie.</li>
+    <li><b>No resuelve redes malladas.</b> Solo redes abiertas, y esa restricci&oacute;n es la que permite cumplir el tiempo de respuesta.</li>
+    <li><b>No usa aprendizaje autom&aacute;tico.</b> La IA del proyecto es optimizaci&oacute;n metaheur&iacute;stica, con funci&oacute;n objetivo definida. No hay modelo entrenado con datos, porque no hay dataset ni el problema lo requiere. <em>Esto hay que decirlo antes de que lo pregunten.</em></li>
+  </ul>
+</section>
+
+<!-- ============ 9 ============ -->
+<section id="s9">
+  <p class="eyebrow">Secci&oacute;n 9</p>
+  <h2 class="sec">La prueba de enfoque</h2>
+  <p class="col">Cuando aparezca la duda de si algo entra o no, estas cuatro preguntas la resuelven sin reuni&oacute;n.</p>
+  <ol class="pruebas">
+    <li><b>&iquest;Qu&eacute; causa ataca?</b> Si no se puede se&ntilde;alar una de las seis, no va.</li>
+    <li><b>&iquest;Qu&eacute; concepci&oacute;n err&oacute;nea ayuda a desmentir?</b> Si ninguna, probablemente sea una funcionalidad bonita.</li>
+    <li><b>&iquest;Deja evidencia medible en el registro?</b> Si no deja rastro, no aporta a la afirmaci&oacute;n de la tesis.</li>
+    <li><b>&iquest;Cabe en los sprints comprometidos?</b> Si no, va al backlog con su prioridad, no al sprint &laquo;apretando un poco&raquo;.</li>
+  </ol>
+</section>
+
+<!-- ============ 10 ============ -->
+<section id="s10">
+  <p class="eyebrow">Secci&oacute;n 10 &middot; La evidencia que respalda el problema</p>
+  <h2 class="sec">Antecedentes</h2>
+  <p class="col">Diez estudios: cinco internacionales que establecen que la interacci&oacute;n mejora la comprensi&oacute;n hidr&aacute;ulica, y cinco nacionales que establecen que eso mismo ocurre en el Per&uacute; y que la brecha de acceso es real. La columna de la derecha es la que importa para nosotros: <b>es la que dice qu&eacute; hueco deja cada uno</b>.</p>
+
+  <h3>Internacionales</h3>
+  <div class="scroll">
+  <table>
+    <thead><tr><th style="width:19%">Estudio</th><th style="width:23%">Qu&eacute; hizo</th><th style="width:14%">Muestra</th><th style="width:22%">Resultado</th><th>El hueco que deja</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><b>Ordo&ntilde;ez et al.</b><br><span class="mono" style="font-size:12px">2023 &middot; Cuba</span></td>
+        <td>Objeto virtual de aprendizaje para pr&aacute;cticas de redes de tuber&iacute;as en el laboratorio virtual MultiLab.</td>
+        <td>52 estudiantes de Ingenier&iacute;a Hidr&aacute;ulica</td>
+        <td>46&nbsp;% prefiri&oacute; recursos multimedia; 35 destacaron los videos tutoriales.</td>
+        <td>Se limit&oacute; a redes urbanas de laboratorio. No hay nada para riego agr&iacute;cola desde la web.</td>
+      </tr>
+      <tr>
+        <td><b>Malaver Nieto et al.</b><br><span class="mono" style="font-size:12px">2023 &middot; Colombia</span></td>
+        <td>Nueve gu&iacute;as de simulaci&oacute;n computacional con HEC-RAS, OpenFOAM y HCanales en Hidr&aacute;ulica de Canales.</td>
+        <td>42 estudiantes, dos semestres</td>
+        <td>45&nbsp;% las consider&oacute; amigables; 74&nbsp;% valor&oacute; bien los textos; 67&nbsp;% el marco te&oacute;rico.</td>
+        <td>Canales, no tuber&iacute;as a presi&oacute;n. Y software instalable, no web.</td>
+      </tr>
+      <tr>
+        <td><b>Cossu et al.</b><br><span class="mono" style="font-size:12px">2024</span></td>
+        <td>Actividades de pensamiento cr&iacute;tico frente a m&eacute;todo tradicional en mec&aacute;nica de fluidos, con bucles de retroalimentaci&oacute;n.</td>
+        <td>100&ndash;200 estudiantes por a&ntilde;o, tres a&ntilde;os</td>
+        <td><b>De 51,3&nbsp;% a 84,1&nbsp;%</b> de rendimiento promedio. Es la cifra m&aacute;s citada de nuestro documento.</td>
+        <td>Prioriz&oacute; ejercicios escritos con retroalimentaci&oacute;n, sin simulaci&oacute;n gr&aacute;fica.</td>
+      </tr>
+      <tr>
+        <td><b>Arnab et al.</b><br><span class="mono" style="font-size:12px">2024 &middot; Purdue</span></td>
+        <td>M&oacute;dulo de realidad virtual sobre agarradores hidr&aacute;ulicos, base constructivista.</td>
+        <td>48 estudiantes, curso MET&nbsp;230</td>
+        <td>97&nbsp;% con m&aacute;s entusiasmo; m&aacute;s del 90&nbsp;% m&aacute;s comprometido; 87&nbsp;% lo encontr&oacute; realista.</td>
+        <td>Exige hardware especializado y caro. Es exactamente la barrera que la UNDAC no puede pagar.</td>
+      </tr>
+      <tr>
+        <td><b>Liljaniemi y Paavilainen</b><br><span class="mono" style="font-size:12px">2025 &middot; Finlandia</span></td>
+        <td>Sistema de realidad virtual Holodeck en un curso de hidr&aacute;ulica y neum&aacute;tica; pre/post con grupo control.</td>
+        <td>96 estudiantes de 2.&ordm; a&ntilde;o</td>
+        <td>El grupo experimental super&oacute; al control en <b>11,85&nbsp;%</b> identificando componentes; m&aacute;s del 85&nbsp;% con entusiasmo.</td>
+        <td>Depende de realidad virtual avanzada. Mismo techo de acceso que el anterior.</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3>Nacionales</h3>
+  <div class="scroll">
+  <table>
+    <thead><tr><th style="width:19%">Estudio</th><th style="width:23%">Qu&eacute; hizo</th><th style="width:14%">Muestra</th><th style="width:22%">Resultado</th><th>El hueco que deja</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><b>Juarez et al.</b><br><span class="mono" style="font-size:12px">2024 &middot; Lima</span></td>
+        <td>Taller de IA generativa para ingresantes de ingenier&iacute;a; cuasiexperimental pre/post.</td>
+        <td>236 estudiantes</td>
+        <td>Incremento significativo del uso de herramientas digitales, sobre todo en an&aacute;lisis y s&iacute;ntesis t&eacute;cnica.</td>
+        <td>IA generativa para tareas acad&eacute;micas generales, no un instrumento de simulaci&oacute;n espec&iacute;fico.</td>
+      </tr>
+      <tr>
+        <td><b>N&uacute;&ntilde;ez-Rojas et al.</b><br><span class="mono" style="font-size:12px">2024 &middot; 17 universidades</span></td>
+        <td>Percepci&oacute;n de competencias digitales; ANOVA, componentes principales, regresi&oacute;n.</td>
+        <td>2&nbsp;321 estudiantes</td>
+        <td>Dominio medio con tendencia a alto; el conocimiento tecnol&oacute;gico es <b>condici&oacute;n necesaria pero no suficiente</b>. De aqu&iacute; sale el 38&nbsp;% que usa simulaci&oacute;n.</td>
+        <td>Analiz&oacute; competencias generales, no una disciplina t&eacute;cnica concreta.</td>
+      </tr>
+      <tr>
+        <td><b>G&oacute;mez-Arteta et al.</b><br><span class="mono" style="font-size:12px">2024 &middot; UNA Puno</span></td>
+        <td>Satisfacci&oacute;n con la educaci&oacute;n virtual seg&uacute;n contexto geogr&aacute;fico; transversal.</td>
+        <td>2&nbsp;374 estudiantes</td>
+        <td>Solo <b>42&nbsp;%</b> con acceso a laboratorios virtuales de su &aacute;rea; satisfacci&oacute;n del <b>68&nbsp;%</b> cuando el contenido estaba adaptado al contexto local.</td>
+        <td>Midi&oacute; satisfacci&oacute;n, no aprendizaje. Pero justifica que el terreno de nuestros escenarios sea peruano y andino.</td>
+      </tr>
+      <tr>
+        <td><b>L&oacute;pez et al.</b><br><span class="mono" style="font-size:12px">2021 &middot; Lima</span></td>
+        <td>Entornos virtuales y competencias cient&iacute;ficas; cuasiexperimental, U de Mann-Whitney.</td>
+        <td>82 estudiantes (41 / 41)</td>
+        <td>Los entornos virtuales inciden significativamente en el desarrollo de competencias cient&iacute;ficas.</td>
+        <td>Us&oacute; entornos virtuales preexistentes y competencias generales.</td>
+      </tr>
+      <tr>
+        <td><b>Revista PURIQ</b><br><span class="mono" style="font-size:12px">Vol.&nbsp;6, 2024 &middot; UNAH</span></td>
+        <td>Correlaci&oacute;n entre frecuencia de uso de herramientas digitales y calificaciones; Spearman.</td>
+        <td>Universitarios, periodo 2023&ndash;2024</td>
+        <td><b>+2,1 puntos</b> de promedio con uso intensivo; correlaci&oacute;n moderada <span class="mono">&rho;&nbsp;&asymp;&nbsp;0,60</span>.</td>
+        <td>Herramientas generales. Ninguna especializada en dise&ntilde;o hidr&aacute;ulico.</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="aviso bien">
+    <p><b>C&oacute;mo se lee esta secci&oacute;n en la sustentaci&oacute;n.</b> Los cinco internacionales prueban que <em>interactuar con el fen&oacute;meno mejora la comprensi&oacute;n hidr&aacute;ulica</em>, y los tres m&aacute;s fuertes lo consiguen con hardware que nuestra poblaci&oacute;n no tiene. Los cinco nacionales prueban que <em>el efecto tambi&eacute;n ocurre en el Per&uacute;</em> y que el acceso es la restricci&oacute;n real. La conclusi&oacute;n cae sola: hace falta una herramienta que produzca ese efecto <b>dentro del navegador</b>.</p>
+  </div>
+</section>
+
+<!-- ============ 11 ============ -->
+<section id="s11">
+  <p class="eyebrow">Secci&oacute;n 11 &middot; La evidencia que respalda la soluci&oacute;n</p>
+  <h2 class="sec">Estado del arte: cinco preguntas, cuarenta art&iacute;culos</h2>
+  <p class="col">La revisi&oacute;n sistem&aacute;tica se organiz&oacute; en cinco preguntas de investigaci&oacute;n, con ocho art&iacute;culos cada una. Este es el resumen de qu&eacute; respondi&oacute; cada una y qu&eacute; se lleva el proyecto de ah&iacute;.</p>
+
+  <div class="preg">
+    <div class="q"><div class="k">P1</div><h4>&iquest;Qu&eacute; evidencia documenta las dificultades en mec&aacute;nica de fluidos, y qu&eacute; intervenciones tecnol&oacute;gicas se han evaluado como respuesta?</h4></div>
+    <div class="cuerpo">
+      <p>El patr&oacute;n se repite casi sin excepci&oacute;n: <b>cuando el estudiante ve y manipula lo que aprende, rinde m&aacute;s que con la clase expositiva.</b> Bazie et al. (2024) dejaron el laboratorio virtual a la par del real (55,5 frente a 62,6) y ambos por encima de la magistral (43,7), con ANOVA significativo. Yepes (2026) report&oacute; 4,70 contra 4,30 con realidad aumentada. Chen et al. (2023) hall&oacute; 9,6&nbsp;% de ventaja en el modelo que mezcla teor&iacute;a, experimento y simulaci&oacute;n. Fern&aacute;ndez Oro et al. (2024) encontr&oacute; que, aun sin intervenci&oacute;n, a mayor interacci&oacute;n con el recurso digital mejor la nota (<span class="mono">r&nbsp;=&nbsp;0,408</span>).</p>
+      <p>Tambi&eacute;n hay cr&iacute;tica: Assaf y Vacca (2023) solo midieron satisfacci&oacute;n, y Santelli et al. (2025) objetan que se reporten resultados positivos sin tama&ntilde;os de efecto.</p>
+      <div class="hallazgo">
+        <b>Qu&eacute; se lleva el proyecto</b>
+        <p>Lo que pesa no es la tecnolog&iacute;a, sino que el alumno <em>haga algo</em>: arme, se equivoque y corrija. Y casi todos apuestan por 3D o realidad virtual, es decir, soluciones pesadas &mdash; el espacio para una herramienta ligera en el navegador sigue abierto.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="preg">
+    <div class="q"><div class="k">P2</div><h4>&iquest;Qu&eacute; simulaciones interactivas se han evaluado para fortalecer el aprendizaje activo, y con qu&eacute; evidencia cuantitativa frente a m&eacute;todos tradicionales?</h4></div>
+    <div class="cuerpo">
+      <p>Los autores coinciden en el diagn&oacute;stico &mdash;pasividad del estudiante e imposibilidad de visualizar fen&oacute;menos abstractos&mdash; y el efecto reportado es sorprendentemente parecido entre estudios. Yakkou et al. (2024) documentan <b>+2,4 puntos</b> de promedio. Gua&ntilde;a-Moya et al. (2024), en una revisi&oacute;n de 64 estudios, consolidan <b>+23&nbsp;% en motivaci&oacute;n y +31&nbsp;% en retenci&oacute;n</b>. Kiegaldie y Shaw (2023) llevan la participaci&oacute;n <b>del 15&nbsp;% al 95&nbsp;%</b>. Alharbi et al. (2024), con 33 estudios, sit&uacute;an las mejoras entre 10&nbsp;% y 35&nbsp;%.</p>
+      <p>Las soluciones van desde realidad virtual con hardware dedicado hasta simulaciones de bajo costo en el navegador, como PhET (Diab et al., 2024).</p>
+      <div class="hallazgo">
+        <b>La brecha, textual</b>
+        <p>Ninguno de estos estudios aborda simulaciones interactivas para el dise&ntilde;o hidr&aacute;ulico de tuber&iacute;as en riego agr&iacute;cola, ni desarrolla soluciones web ligeras para mec&aacute;nica de fluidos aplicada al riego. <b>Esa es, literalmente, la brecha que el proyecto atiende.</b></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="preg">
+    <div class="q"><div class="k">P3</div><h4>&iquest;Cu&aacute;l es el impacto cognitivo de las herramientas interactivas, y qu&eacute; mecanismos &mdash;retroalimentaci&oacute;n, gamificaci&oacute;n, IA&mdash; lo explican?</h4></div>
+    <div class="cuerpo">
+      <p>La IA adaptativa y la gamificaci&oacute;n llegan al mismo sitio por caminos distintos: cuando la herramienta se adapta al estudiante o lo involucra, los resultados mejoran. Zhang (2024), con <b>878 estudiantes</b> en 22 clases de cuatro universidades, obtuvo cerca de <b>19 puntos porcentuales</b> sobre el control (<span class="mono">coef.&nbsp;=&nbsp;18,956; p&nbsp;&lt;&nbsp;0,01</span>). Villegas-Ch et al. (2025) alcanzaron 85&nbsp;% de precisi&oacute;n en programaci&oacute;n con tutor&iacute;a inteligente. Rodr&iacute;guez-Calzada et al. (2024) reportan +13,08&nbsp;%.</p>
+      <p><b>El contraejemplo es el m&aacute;s &uacute;til:</b> Yang y Li (2025), con N&nbsp;=&nbsp;60, encontraron que el <em>serious game</em> aument&oacute; la motivaci&oacute;n pero <b>no</b> el rendimiento frente a un documental. Eso separa limpiamente los estudios que miden si la herramienta gusta de los que miden si se aprende.</p>
+      <div class="hallazgo">
+        <b>Qu&eacute; se lleva el proyecto</b>
+        <p>El mecanismo se dise&ntilde;a desde el inicio, no se agrega despu&eacute;s. No basta con meter puntos o meter un algoritmo. Por eso la predicci&oacute;n obligatoria, el diagn&oacute;stico escalonado y la autoexplicaci&oacute;n son <em>estructura</em> del producto y no funcionalidades opcionales.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="preg">
+    <div class="q"><div class="k">P4</div><h4>&iquest;Qu&eacute; arquitecturas y metodolog&iacute;as se han empleado para dise&ntilde;ar software educativo en ingenier&iacute;a, y qu&eacute; resultados reportan?</h4></div>
+    <div class="cuerpo">
+      <p>Aqu&iacute; est&aacute;n los tama&ntilde;os de efecto m&aacute;s grandes del conjunto. Zhang et al. (2024), con gemelo digital, obtuvieron <span class="mono">d&nbsp;=&nbsp;1,40</span> en rendimiento (89,65 frente a 72,14), con la carga cognitiva <em>reducida</em>, no aumentada. Lu y Hu (2025) repiten <span class="mono">d&nbsp;=&nbsp;1,40</span> en compromiso y a&ntilde;aden el dato m&aacute;s relevante para nosotros: <b>el subgrupo de menor habilidad previa mejor&oacute; 21,3&nbsp;% frente a 8,7&nbsp;% del grupo tradicional</b>. Zheng et al. (2024), con N&nbsp;=&nbsp;246, midieron efectos fuera del aula: +37&nbsp;% de participaci&oacute;n en competencias y +27&nbsp;% de premios.</p>
+      <p>Dos advertencias valiosas. Ademi y Loshkovska (2025) reportan con honestidad un <b>resultado negativo</b>: la tasa de aprobados cay&oacute; del 95&nbsp;% al 64&nbsp;% conforme se despleg&oacute; su sistema adaptativo &mdash; una tecnolog&iacute;a bien construida puede fallar si no est&aacute; calibrada al contexto del curso. Y Contrino et al. (2024) muestran que el aprendizaje adaptativo rinde mucho m&aacute;s <em>combinado con instrucci&oacute;n presencial</em> (96,1&nbsp;% de aprobados) que solo (90,8&nbsp;%).</p>
+      <div class="hallazgo">
+        <b>El dato que m&aacute;s nos sirve</b>
+        <p>La plataforma de Zheng et al. cost&oacute; <b>700&nbsp;000&nbsp;USD</b>; la de Weis et al. (2025) es una herramienta web sin instalaci&oacute;n evaluada con siete profesionales, con &iacute;tems Likert por encima de 4,2/5 y el puntaje m&aacute;s alto (4,86) en la claridad del v&iacute;nculo entre el modelo 3D y los datos. Los efectos acad&eacute;micos no siguen la proporci&oacute;n del presupuesto. <b>La complejidad t&eacute;cnica no determina el &eacute;xito; el ajuste al contenido, s&iacute;.</b></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="preg">
+    <div class="q"><div class="k">P5</div><h4>&iquest;C&oacute;mo afecta la carga cognitiva el aprendizaje con simulaci&oacute;n interactiva, y qu&eacute; principios de dise&ntilde;o la moderan?</h4></div>
+    <div class="cuerpo">
+      <p>La aceptaci&oacute;n de una herramienta educativa no se explica solo con utilidad percibida y facilidad de uso. Acosta-Enriquez et al. (2025), desde el Per&uacute;, encontraron la <b>autoeficacia</b> como factor dominante (<span class="mono">&beta;&nbsp;=&nbsp;0,431</span>), por encima de la utilidad percibida y la influencia social; Hamkah et al. (2025) replican el patr&oacute;n con apoyo institucional (<span class="mono">0,349</span>) y autoeficacia (<span class="mono">0,313</span>). Cuando el contenido es t&eacute;cnico y la herramienta es nueva, <b>sentirse capaz de usarla pesa m&aacute;s que percibirla como &uacute;til</b>.</p>
+      <p>Tambi&eacute;n hay se&ntilde;ales de cautela metodol&oacute;gica que conviene no imitar: un <span class="mono">R&sup2;&nbsp;=&nbsp;0,888</span> sospechosamente alto para un modelo educativo, y un <span class="mono">&alpha;&nbsp;=&nbsp;0,993</span> que apunta a problemas de validez discriminante.</p>
+      <div class="hallazgo">
+        <b>La brecha que cierra nuestro dise&ntilde;o</b>
+        <p>Casi todos estos estudios miden <em>intenci&oacute;n de uso</em> o adopci&oacute;n, no aprendizaje. Que alguien est&eacute; dispuesto a usar un simulador no garantiza que comprenda mejor. Nuestro cuasiexperimento con pre y postest no pregunta si la herramienta gusta: mide si despu&eacute;s de usarla comprenden mejor, con indicadores t&eacute;cnicos concretos.</p>
+      </div>
+    </div>
+  </div>
+
+  <h3>Las cuatro conclusiones de la revisi&oacute;n</h3>
+  <ol class="pruebas">
+    <li><b>La interacci&oacute;n mejora la comprensi&oacute;n, no la tecnolog&iacute;a en s&iacute;.</b> El efecto aparece cuando el estudiante experimenta, se equivoca y ajusta sus decisiones seg&uacute;n lo que observa.</li>
+    <li><b>La literatura mide percepci&oacute;n m&aacute;s que aprendizaje.</b> Esa es la debilidad transversal del campo, y es la que nuestro dise&ntilde;o corrige.</li>
+    <li><b>Casi nadie trabaja el riego agr&iacute;cola.</b> Hay hidr&aacute;ulica de canales, redes urbanas y competencias digitales; el dise&ntilde;o de tuber&iacute;as a presi&oacute;n para riego est&aacute; vac&iacute;o.</li>
+    <li><b>Las propuestas m&aacute;s eficaces suelen exigir infraestructura que no existe en universidades de regi&oacute;n.</b> Una aplicaci&oacute;n web es la respuesta pertinente, pero su efectividad debe comprobarse emp&iacute;ricamente en la UNDAC.</li>
+  </ol>
+</section>
+
+<!-- ============ 12 ============ -->
+<section id="s12">
+  <p class="eyebrow">Secci&oacute;n 12</p>
+  <h2 class="sec">Decisiones abiertas</h2>
+  <p class="col">Lo que todav&iacute;a no est&aacute; decidido, con el costo de no decidirlo. Ninguna se resuelve programando.</p>
+
+  <div class="aviso">
+    <p><b>1 &middot; Alcance contra sprints.</b> Con cuatro sprints de dos semanas, la vista 3D y la optimizaci&oacute;n con IA quedan fuera del periodo y el experimento cae a dos grupos &mdash; con lo cual la hip&oacute;tesis secundaria sobre el 3D no se puede probar y la secci&oacute;n 5 de este documento promete algo que no se entrega. <b>Es una decisi&oacute;n de alcance, no un detalle de planificaci&oacute;n, y hay que tomarla antes del sprint&nbsp;1.</b></p>
+  </div>
+
+  <div class="aviso">
+    <p><b>2 &middot; &iquest;Falta una s&eacute;ptima causa?</b> Buena parte del aula llega al curso sin el razonamiento cuantitativo que la asignatura exige desde el primer d&iacute;a &mdash; el <span class="mono">43,8&nbsp;%</span> est&aacute; en nivel de proceso y el <span class="mono">9,1&nbsp;%</span> en significado insuficiente (Ricra, 2023). Eso no es ninguna de las seis: es un d&eacute;ficit previo, no algo que el curso provoque.</p>
+    <p>Vale la pena decidirlo, porque si entra justifica directamente el diagn&oacute;stico escalonado, y conecta con el hallazgo de Lu y Hu (2025): el subgrupo de <em>menor habilidad previa</em> es el que m&aacute;s mejora con simulaci&oacute;n interactiva (21,3&nbsp;% frente a 8,7&nbsp;%). Si entra, hay que a&ntilde;adir su fila a la trazabilidad de la secci&oacute;n 6.</p>
+  </div>
+
+  <div class="aviso">
+    <p><b>3 &middot; Evidencia propia de que el problema existe en la poblaci&oacute;n.</b> Tenemos cifras citadas (Ricra, N&uacute;&ntilde;ez-Rojas), pero no datos recogidos por nosotros en la UNDAC. Notas del curso, una entrevista al docente de Hidr&aacute;ulica Aplicada, o un pretest piloto. Sin esto, el jurado puede decir que el problema est&aacute; supuesto.</p>
+  </div>
+
+  <div class="aviso">
+    <p><b>4 &middot; Par&aacute;metros del m&eacute;todo de c&aacute;lculo.</b> Coeficiente de Hazen-Williams para PVC: <span class="mono">C&nbsp;=&nbsp;140</span> o <span class="mono">150</span>. Y el umbral de &eacute;xito de la ganancia normalizada. Ambos se fijan una vez y no se vuelven a tocar, porque cambiarlos despu&eacute;s de ver resultados invalida el estudio.</p>
+  </div>
+
+  <div class="aviso">
+    <p><b>5 &middot; Referencia exacta de dos cifras de contexto.</b> El 13&nbsp;% del PBI y el 30&nbsp;% del empleo agr&iacute;cola de la secci&oacute;n 3 necesitan su fuente citable, como ya la tienen el 35&nbsp;% de eficiencia y el 45&nbsp;% de p&eacute;rdida (ANA, 2023). Es lo &uacute;nico del documento que no est&aacute; verificado.</p>
+  </div>
+
+  <p class="col" style="margin-top:30px"><b>Lo que ya est&aacute; cerrado y no se rediscute:</b> el problema de la secci&oacute;n 1, las seis causas, las siete concepciones err&oacute;neas, el m&eacute;todo de c&aacute;lculo de referencia y la regla de trazabilidad de la secci&oacute;n 6.</p>
+</section>
+
+</main>
+</div>
+</div>
+
+<footer>
+  <div class="wrap">
+    <p>Documento interno del equipo. Es la referencia &uacute;nica del planteamiento: problema, causas, consecuencias, soluci&oacute;n, trazabilidad, hip&oacute;tesis y la evidencia que sostiene cada parte.</p>
+    <p style="margin-top:10px">Toda cifra citada lleva su fuente. Lo que no est&aacute; verificado aparece marcado como pendiente en la secci&oacute;n 12, nunca escondido en el cuerpo del texto.</p>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var b = document.getElementById("tema");
+  function actual(){
+    var t = document.documentElement.getAttribute("data-theme");
+    if (t) return t;
+    return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  }
+  b.addEventListener("click", function(){
+    document.documentElement.setAttribute("data-theme", actual() === "dark" ? "light" : "dark");
+  });
+})();
+</script>
